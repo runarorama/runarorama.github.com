@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2012-08-31T23:28:35-04:00</updated>
+  <updated>2012-08-31T23:29:27-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Scalaz Tutorial: Enumeration-based I/O with iteratees]]></title>
-    <link href="http://runarorama.github.com/blog/2012/08/31/scalaz-tutorial-enumeration-based-io-with-iteratees/"/>
-    <updated>2012-08-31T14:46:00-04:00</updated>
-    <id>http://runarorama.github.com/blog/2012/08/31/scalaz-tutorial-enumeration-based-io-with-iteratees</id>
+    <link href="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/"/>
+    <updated>2010-10-14T00:00:00-04:00</updated>
+    <id>http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees</id>
     <content type="html"><![CDATA[<p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
 
 <p>A lot of people have asked me to write a tutorial on how this works, specifically on how it is implemented in Scalaz and how to be productive with it, so here we go.</p>
