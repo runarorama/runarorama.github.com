@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2012-09-01T01:58:33-04:00</updated>
+  <updated>2012-09-01T02:26:34-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -121,7 +121,7 @@
 </span><span class='line'>  <span class="k">def</span> <span class="n">run</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">// Implementation omitted</span>
 </span><span class='line'><span class="o">}</span>
 </span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Done</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cont</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">k</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">])</span> <span class="n">extend</span><span class="err"></span><span class="n">s</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cont</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">k</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -297,7 +297,9 @@
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">enumReader</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">r</span><span class="k">:</span> <span class="kt">BufferedReader</span><span class="o">,</span> <span class="n">it</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">enumReader</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">r</span><span class="k">:</span> <span class="kt">BufferedReader</span><span class="o">,</span>
+</span><span class='line'>                  <span class="n">it</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">loop</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
 </span><span class='line'>    <span class="k">case</span> <span class="n">i</span><span class="nd">@Done</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">i</span> <span class="o">}</span>
 </span><span class='line'>    <span class="k">case</span> <span class="n">i</span><span class="nd">@Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">for</span> <span class="o">{</span>
@@ -333,6 +335,7 @@
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
+<span class='line-number'>20</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">io</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
 </span><span class='line'>    <span class="k">def</span> <span class="n">unsafePerformIO</span><span class="k">:</span> <span class="kt">A</span>
@@ -347,8 +350,9 @@
 </span><span class='line'>  <span class="k">implicit</span> <span class="k">val</span> <span class="nc">IOMonad</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="o">{</span>
 </span><span class='line'>    <span class="k">def</span> <span class="n">pure</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">IO</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
 </span><span class='line'>    <span class="k">def</span> <span class="n">bind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span> <span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">implicitly</span><span class="o">[</span><span class="kt">Monad</span><span class="o">[</span><span class="kt">Function0</span><span class="o">]].</span><span class="n">bind</span><span class="o">(()</span> <span class="k">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">unsafePerformIO</span><span class="o">,</span>
-</span><span class='line'>                                        <span class="o">(</span><span class="n">x</span><span class="k">:</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="n">unsafePerformIO</span><span class="o">)()</span>
+</span><span class='line'>      <span class="n">implicitly</span><span class="o">[</span><span class="kt">Monad</span><span class="o">[</span><span class="kt">Function0</span><span class="o">]].</span><span class="n">bind</span><span class="o">(</span>
+</span><span class='line'>        <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">unsafePerformIO</span><span class="o">,</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">x</span><span class="k">:</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="n">unsafePerformIO</span><span class="o">)()</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
@@ -375,6 +379,8 @@
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">bufferFile</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">File</span><span class="o">)</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">FileReader</span><span class="o">(</span><span class="n">f</span><span class="o">))</span>
 </span><span class='line'><span class="o">}</span>
@@ -383,7 +389,9 @@
 </span><span class='line'>  <span class="n">r</span><span class="o">.</span><span class="n">close</span>
 </span><span class='line'><span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">bracket</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span>,<span class="kt">C</span><span class="o">](</span><span class="n">init</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span> <span class="n">fin</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">],</span> <span class="n">body</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'><span class="k">def</span> <span class="n">bracket</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span>,<span class="kt">C</span><span class="o">](</span><span class="n">init</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span>
+</span><span class='line'>                   <span class="n">fin</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">],</span>
+</span><span class='line'>                   <span class="n">body</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">]</span> <span class="k">=</span>
 </span><span class='line'><span class="k">for</span> <span class="o">{</span> <span class="n">a</span> <span class="k">&lt;-</span> <span class="n">init</span>
 </span><span class='line'>      <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">body</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
 </span><span class='line'>      <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">fin</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">}</span>
