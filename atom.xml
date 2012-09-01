@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Higher Order]]></title>
+  <link href="http://runarorama.github.com/atom.xml" rel="self"/>
+  <link href="http://runarorama.github.com/"/>
+  <updated>2012-08-31T23:23:52-04:00</updated>
+  <id>http://runarorama.github.com/</id>
+  <author>
+    <name><![CDATA[Rúnar Bjarnason]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>
