@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="Blog Archives Recent Posts GitHub Repos Status updating&#8230; @runarorama on GitHub $.domReady(function(){ if (!window.jXHR){ var jxhr = document. &hellip;">
+  <meta name="description" content="Scalaz 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,451 @@
       <div class="blog-index">
   
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/31/scalaz-tutorial-enumeration-based-io-with-iteratees/">Scalaz Tutorial: Enumeration-based I/O With Iteratees</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-31T14:46:00-04:00" pubdate data-updated="true">Aug 31<span>st</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
+
+<p>A lot of people have asked me to write a tutorial on how this works, specifically on how it is implemented in Scalaz and how to be productive with it, so here we go.</p>
+
+<p>The implementation in Scalaz is based on an excellent article by John W. Lato called <a href="http://themonadreader.files.wordpress.com/2010/05/issue16.pdf">“Iteratee: Teaching an Old Fold New Tricks”</a>. As a consequence, this post is also based on that article, and because I am too unoriginal to come up with my own examples, the examples are directly translated from it. The article gives code examples in Haskell, but we will use Scala here throughout.</p>
+
+<h2>Motivation</h2>
+
+<p>Most programmers have come across the problem of treating an I/O data source (such as a file or a socket) as a data structure. This is a common thing to want to do. To contrast, the usual means of reading, say, a file, is to open it, get a cursor into the file (such as a FileReader or an InputStream), and read the contents of the file as it is being processed. You must of course handle IO exceptions and remember to close the file when you are done. The problem with this approach is that it is not modular. Functions written in this way are performing one-off side-effects. And as we know, side-effects do not compose.</p>
+
+<p>Treating the stream of inputs as an enumeration is therefore desirable. It at least holds the lure of modularity, since we would be able to treat a File, from which we’re reading values, in the same way that we would treat an ordinary List of values, for example.</p>
+
+<p>A naive approach to this is to use iterators, or rather, Iterables. This is akin to the way that you would typically read a file in something like Ruby or Python. Basically you treat it as a collection of Strings:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">getContents</span><span class="o">(</span><span class="n">fileName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Iterable</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">fr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">FileReader</span><span class="o">(</span><span class="n">fileName</span><span class="o">))</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Iterable</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">iterator</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Iterator</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">def</span> <span class="n">hasNext</span> <span class="k">=</span> <span class="n">line</span> <span class="o">!=</span> <span class="kc">null</span>
+</span><span class='line'>      <span class="k">def</span> <span class="n">next</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">val</span> <span class="n">retVal</span> <span class="k">=</span> <span class="n">line</span>
+</span><span class='line'>        <span class="n">line</span> <span class="k">=</span> <span class="n">getLine</span>
+</span><span class='line'>        <span class="n">retVal</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">def</span> <span class="n">getLine</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">var</span> <span class="n">line</span><span class="k">:</span><span class="kt">String</span> <span class="o">=</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">line</span> <span class="k">=</span> <span class="n">fr</span><span class="o">.</span><span class="n">readLine</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">case</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="n">line</span> <span class="k">=</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">line</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">var</span> <span class="n">line</span> <span class="k">=</span> <span class="n">getLine</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this is doing is a kind of lazy I/O. Nothing is read from the file until it is requested, and we only hold one line in memory at a time. But there are some serious issues with this approach. It’s not clear when you should close the file handle, or whose responsibility that is. You could have the Iterator close the file when it has read the last line, but what if you only want to read part of the file? Clearly this approach is not sufficient. There are some things we can do to make this more sophisticated, but only at the expense of breaking the illusion that the file really is a collection of Strings.</p>
+
+<h2>The Idea</h2>
+
+<p>Any red-blooded functional programmer should be thinking right about now: “Instead of getting Strings out of the file, just pass in a function that will serve as a handler for each new line!” Bingo. This is in fact the plot with Iteratees. Instead of implementing an interface from which we request Strings by pulling, we’re going to give an implementation of an interface that can receive Strings by pushing.</p>
+
+<p>And indeed, this idea is nothing new. This is exactly what we do when we fold a list:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldLeft</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">B</span><span class="o">,</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The second argument is exactly that, a handler for each element in the list, along with a means of combining it with the accumulated value so far.</p>
+
+<p>Now, there are two issues with an ordinary fold that prevent it from being useful when enumerating file contents. Firstly, there is no way of indicating that the fold should stop early. Secondly, a list is held all in memory at the same time.</p>
+
+<h2>The Iteratee Solution</h2>
+
+<p>Scalaz defines the following two data structures (actual implementation may differ, but this serves for illustration):</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">+E</span><span class="o">]</span>
+</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">El</span><span class="o">[</span><span class="kt">E</span><span class="o">](</span><span class="n">e</span><span class="k">:</span> <span class="kt">E</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">Empty</span> <span class="k">extends</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">EOF</span> <span class="k">extends</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">trait</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">run</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">// Implementation omitted</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Done</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cont</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">k</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">])</span> <span class="n">extend</span><span class="err"></span><span class="n">s</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So an input to an iteratee is represented by Input[E], where E is the element type of the input source. It can be either an element (the next element in the file or stream), or it’s one of two signals: Empty or EOF. The Empty signal tells the iteratee that there is not an element available, but to expect more elements later. The EOF signal tells the iteratee that there are no more elements to be had.</p>
+
+<p>Note that this particular set of signals is kind of arbitrary. It just facilitates a particular set of use cases. There’s no reason you couldn’t have other signals for other use cases. For example, a signal I can think of off the top of my head would be Restart, which would tell the iteratee to start its result from scratch at the current position in the input.</p>
+
+<p>IterV[E,A] represents a computation that can be in one of two states. It can be Done, in which case it will hold a result (the accumulated value) of type A. Or it can be waiting for more input of type E, in which case it will hold a continuation that accepts the next input.</p>
+
+<p>Let’s see how we would use this to process a List. The following function takes a list and an iteratee and feeds the list’s elements to the iteratee.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">enumerate</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="o">(</span><span class="kt">List</span><span class="o">[</span><span class="kt">E</span><span class="o">],</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Nil</span><span class="o">,</span> <span class="n">i</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">i</span>
+</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="n">i</span><span class="nd">@Done</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">i</span>
+</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="n">x</span> <span class="o">::</span> <span class="n">xs</span><span class="o">,</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">k</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">enumerate</span><span class="o">(</span><span class="n">xs</span><span class="o">,</span> <span class="n">k</span><span class="o">(</span><span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)))</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let’s see some actual iteratees. As a simple example, here is an iteratee that counts the number of elements it has seen:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counter</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">step</span><span class="o">(</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="o">))</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">(</span><span class="n">n</span><span class="o">))</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">EOF</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="nc">EOF</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">(</span><span class="mi">0</span><span class="o">))</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And here’s an iteratee that discards the first n elements:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">drop</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">step</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">drop</span><span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">EOF</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">((),</span> <span class="nc">EOF</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="nc">Done</span><span class="o">((),</span> <span class="nc">Empty</span><span class="o">)</span> <span class="k">else</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And one that takes the first element from the input:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">head</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">step</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="n">x</span><span class="o">),</span> <span class="nc">Empty</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">EOF</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">EOF</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s go through this code. Each one defines a “step” function, which is the function that will handle the next input. Each one starts the iteratee in the Cont state, and the step function always returns a new iteratee in the next state based on the input received. Note in the last one (head), we are using the Empty signal to indicate that we want to remove the element from the input. The utility of this will be clear when we start composing iteratees.</p>
+
+<p>Now, an example usage. To get the length of a list, we write:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">length</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">enumerate</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">),</span> <span class="n">counter</span><span class="o">[</span><span class="kt">Int</span><span class="o">]).</span><span class="n">run</span> <span class="c1">// 3</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The run method on IterV just gets the accumulated value out of the Done iteratee. If it isn’t done, it sends the EOF signal to itself first and then gets the value.</p>
+
+<h2>Composing Iteratees</h2>
+
+<p>Notice a couple of things here. With iteratees, the input source can send the signal that it has finished producing values. And on the other side, the iteratee itself can signal to the input source that it has finished consuming values. So on one hand, we can leave an iteratee “running” by not sending it the EOF signal, so we can compose two input sources and feed them into the same iteratee. On the other hand, an iteratee can signal that it’s done, at which point we can start sending any remaining elements to another iteratee. In other words, iteratees compose sequentially.</p>
+
+<p>In fact, IterV[E,A] is an instance of the Monad type class for each fixed E, and composition is very similar to the way monadic parsers compose:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">flatMap</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">B</span><span class="o">])</span> <span class="k">=</span> <span class="k">this</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Done</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">Done</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">k</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">e</span> <span class="k">=&gt;</span> <span class="n">k</span><span class="o">(</span><span class="n">e</span><span class="o">)</span> <span class="n">flatMap</span> <span class="n">f</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here then is an example of composing iteratees with a for-comprehension:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">drop1Keep1</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">drop</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>  <span class="n">x</span> <span class="k">&lt;-</span> <span class="n">head</span>
+</span><span class='line'><span class="o">}</span> <span class="k">yield</span> <span class="n">x</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The iteratee above discards the first element it sees and returns the second one. The iteratee below does this n times, accumulating the kept elements into a list.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">alternates</span><span class="o">[</span><span class="kt">E</span><span class="o">](</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">List</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">drop1Keep1</span><span class="o">[</span><span class="kt">E</span><span class="o">].</span>
+</span><span class='line'>    <span class="n">replicate</span><span class="o">[</span><span class="kt">List</span><span class="o">](</span><span class="n">n</span><span class="o">).</span>
+</span><span class='line'>    <span class="n">foldRight</span><span class="o">(</span><span class="nc">Done</span><span class="o">(</span><span class="nc">List</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]](),</span><span class="nc">Empty</span><span class="o">))((</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">for</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">h</span> <span class="k">&lt;-</span> <span class="n">x</span>
+</span><span class='line'>      <span class="n">t</span> <span class="k">&lt;-</span> <span class="n">y</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">yield</span> <span class="n">h</span> <span class="o">::</span> <span class="n">t</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">flatten</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here’s an example run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>scala> enumerate(List.range(1,15), alternates[Int](5)).run
+</span><span class='line'>res85: List[Int] = List(2, 4, 6, 8, 10)</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>File Input With Iteratees</h2>
+
+<p>Using the iteratees to read from file input turns out to be incredibly easy. The only difference is in how the data source is enumerated, and in order to remain lazy (and not prematurely perform any side-effects), we must return our iteratee in a monad:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">enumReader</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">r</span><span class="k">:</span> <span class="kt">BufferedReader</span><span class="o">,</span> <span class="n">it</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">loop</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">i</span><span class="nd">@Done</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">i</span> <span class="o">}</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">i</span><span class="nd">@Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">for</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">s</span> <span class="k">&lt;-</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">r</span><span class="o">.</span><span class="n">readLine</span> <span class="o">}</span>
+</span><span class='line'>      <span class="n">a</span> <span class="k">&lt;-</span> <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">i</span> <span class="o">}</span> <span class="k">else</span> <span class="n">loop</span><span class="o">(</span><span class="n">k</span><span class="o">(</span><span class="nc">El</span><span class="o">(</span><span class="n">s</span><span class="o">)))</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">yield</span> <span class="n">a</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">loop</span><span class="o">(</span><span class="n">it</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The monad being used here is an IO monad that I’ll explain in a second. The important thing to note is that the iteratee is completely oblivious to the fact that it’s being fed lines from a BufferedReader rather than a List.</p>
+
+<p>Here is the IO monad I’m using. As you can see, it’s really just a lazy identity monad:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">io</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">unsafePerformIO</span><span class="k">:</span> <span class="kt">A</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">object</span> <span class="nc">IO</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">apply</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">def</span> <span class="n">unsafePerformIO</span> <span class="k">=</span> <span class="n">a</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">implicit</span> <span class="k">val</span> <span class="nc">IOMonad</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">pure</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">IO</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">bind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span> <span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">implicitly</span><span class="o">[</span><span class="kt">Monad</span><span class="o">[</span><span class="kt">Function0</span><span class="o">]].</span><span class="n">bind</span><span class="o">(()</span> <span class="k">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">unsafePerformIO</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="o">(</span><span class="n">x</span><span class="k">:</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="n">unsafePerformIO</span><span class="o">)()</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To read lines from a file, we’ll do something like this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">bufferFile</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">File</span><span class="o">)</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">FileReader</span><span class="o">(</span><span class="n">f</span><span class="o">))</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">closeReader</span><span class="o">(</span><span class="n">r</span><span class="k">:</span> <span class="kt">Reader</span><span class="o">)</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">r</span><span class="o">.</span><span class="n">close</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">bracket</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span>,<span class="kt">C</span><span class="o">](</span><span class="n">init</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span> <span class="n">fin</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">],</span> <span class="n">body</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'><span class="k">for</span> <span class="o">{</span> <span class="n">a</span> <span class="k">&lt;-</span> <span class="n">init</span>
+</span><span class='line'>      <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">body</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">fin</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">}</span>
+</span><span class='line'>  <span class="k">yield</span> <span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">enumFile</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">File</span><span class="o">,</span> <span class="n">i</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">bracket</span><span class="o">(</span><span class="n">bufferFile</span><span class="o">(</span><span class="n">f</span><span class="o">),</span>
+</span><span class='line'>          <span class="n">closeReader</span><span class="o">(</span><span class="k">_:</span><span class="kt">BufferedReader</span><span class="o">),</span>
+</span><span class='line'>          <span class="n">enumReader</span><span class="o">(</span><span class="k">_:</span><span class="kt">BufferedReader</span><span class="o">,</span> <span class="n">i</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The enumFile method uses bracketing to ensure that the file always gets closed. It’s completely lazy though, so nothing actually happens until you call unsafePerformIO on the resulting IO action:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>scala> enumFile(new File("/Users/runar/Documents/Iteratees.txt"), head) map (_.run)                
+</span><span class='line'>res2: io.IO[Option[String]] = io$IO@5f90b584
+</span><span class='line'>
+</span><span class='line'>scala> res2.unsafePerformIO
+</span><span class='line'>res3: Option[String] = Some(Scalaz Tutorial: Enumeration-Based I/O With Iteratees)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That uses the “head” iteratee from above to get the first line of the file that I’m using to edit this blog post.</p>
+
+<p>We can get the number of lines in two files combined, by composing two enumerations and using our “counter” iteratee from above:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">lengthOfTwoFiles</span><span class="o">(</span><span class="n">f1</span><span class="k">:</span> <span class="kt">File</span><span class="o">,</span> <span class="n">f2</span><span class="k">:</span> <span class="kt">File</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">l1</span> <span class="k">&lt;-</span> <span class="n">enumFile</span><span class="o">(</span><span class="n">f1</span><span class="o">,</span> <span class="n">counter</span><span class="o">)</span>
+</span><span class='line'>  <span class="n">l2</span> <span class="k">&lt;-</span> <span class="n">enumFile</span><span class="o">(</span><span class="n">f2</span><span class="o">,</span> <span class="n">l1</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span> <span class="k">yield</span> <span class="n">l2</span><span class="o">.</span><span class="n">run</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So what we have here is a uniform and compositional interface for enumerating both pure and effectful data sources. We can avoid holding on to the entire input in memory when we don’t want to, and we have complete control over when to stop iterating. The iteratee can decide whether to consume elements, leave them intact, or even truncate the input. The enumerator can decide whether to shut the iteratee down by sending it the EOF signal, or to leave it open for other enumerators.</p>
+
+<p>There is even more to this approach, as we can use iteratees not just to read from data sources, but also to write to them. That will have to await another post.</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
@@ -76,6 +521,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/08/31/scalaz-tutorial-enumeration-based-io-with-iteratees/">Scalaz Tutorial: Enumeration-based I/O with iteratees</a>
+      </li>
     
   </ul>
 </section>
