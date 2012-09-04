@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2012-09-04T00:05:53-04:00</updated>
+  <updated>2012-09-04T02:54:21-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -12,6 +12,21 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New blog]]></title>
+    <link href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/"/>
+    <updated>2012-09-04T01:29:00-04:00</updated>
+    <id>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved</id>
+    <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that all of my creative time outside of work is taken up by <a href="http://manning.com/bjarnason">the book I am writing</a>. It&#8217;s also partly that putting a post up on Wordpress is a chore. It&#8217;s like building a ship in a bottle.</p>
+
+<p>So I have decided to make posting really easy for myself by hosting the blog <a href="http://github.com/runarorama.github.com">on GitHub</a>. I am using a dead-simple markdown-based framework called <a href="http://octopress.org">Octopress</a>. With this setup I can very easily write a new post from my command line and publish by pushing to github. This is already part of my normal coding workflow, so it feels more friction-free.</p>
+
+<p>The new blog is simply titled &#8220;Higher Order&#8221;, and is available at <a href="http://blog.higher-order.com">blog.higher-order.com</a>. Check back soon for posts that I&#8217;ve been sitting on but have been too <del>lazy</del> busy to post.</p>
+
+<p>All of the old content and comments will still be available at the old address, and I&#8217;ll probably cross-post to both places for a little while.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Scalaz Tutorial: Enumeration-based I/O with iteratees]]></title>
