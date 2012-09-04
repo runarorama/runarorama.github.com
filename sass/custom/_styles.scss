@@ -1,0 +1,192 @@
+// This File is imported last, and will override other styles in the cascade
+// Add styles here to make changes without digging in too much
+html {
+    background: $page-bg;
+}
+body {
+  font-size: 98%;
+}
+article {
+    h1, h2, h3, h4, h5, h6
+    {
+        color : $sol_base03;
+    }
+}
+
+/********************************
+*
+*  COMMENTS
+*
+********************************/
+
+
+.comment {
+    background-color: transparent;
+    border-color: $sol_base1;
+    border-style: solid;
+    border-width: 1px;
+    color: $sol_base03;
+    display: block;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 0px;
+    width: 100%;
+  }
+  
+.comment .commentheader {
+  border-bottom-color: $sol_base1;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  color: $sol_base03;
+  background-image: -webkit-linear-gradient($sol_base3,$sol_base2);
+  background-image: -moz-linear-gradient($sol_base3,$sol_base2);
+  color: $sol_base03;
+  display: block;
+  float: left;
+  font-family: helvetica, arial, freesans, clean, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  height: 33px;
+  line-height: 33px;
+  margin: 0px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding: 0px;
+  text-overflow: ellipsis;
+  text-shadow: rgba(255, 255, 255, 0.699219) 1px 1px 0px;
+  white-space: nowrap;
+  width: 100%;
+}
+  
+.comment .commentheader .commentgravatar {
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: $sol_base2;
+  background-image: none;
+  background-origin: padding-box;
+  border-color: $sol_base3;
+  border-style: solid;
+  border-width: 1px;
+  color: $sol_base03;
+  display: inline-block;
+  float: none;
+  font-family: helvetica, arial, freesans, clean, sans-serif;
+  font-size: 1px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  height: 20px;
+  line-height: 1px;
+  margin-left: 5px;
+  margin-right: 3px;
+  margin-top: -2px;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding: 1px;
+  text-overflow: clip;
+  text-shadow: rgba(255, 255, 255, 0.699219) 1px 1px 0px;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 20px;
+}
+  
+.comment .commentheader a:link {
+  text-decoration: none;
+}
+
+.comment .commentheader a:hover {
+  border-bottom:1px solid;
+}
+  
+  
+.comment .commentheader .commentuser {
+  background-color: transparent;
+  color: $sol_base03;
+  display: inline;
+  float: none;
+  font-family: helvetica, arial, freesans, clean, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  height: 0px;
+  line-height: 16px;
+  margin-left: 5px;
+  margin-right: 10px;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding: 0px;
+  text-overflow: clip;
+  text-shadow: rgba(255, 255, 255, 0.699219) 1px 1px 0px;
+  white-space: nowrap;
+  width: 0px;
+}
+  
+.comment .commentheader .commentdate {
+  background-color: transparent;
+  color: #777;
+  display: inline;
+  float: none;
+  font-family: helvetica, arial, freesans, clean, sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  height: 0px;
+  line-height: 33px;
+  margin: 0px;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding: 0px;
+  text-overflow: clip;
+  text-shadow: rgba(255, 255, 255, 0.699219) 1px 1px 0px;
+  white-space: nowrap;
+  width: 20em;
+}
+  
+.comment .commentbody {
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: transparent;
+  background-image: none;
+  background-origin: padding-box;
+  color: $sol_base0;
+  display: block;
+  margin-bottom: 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+  margin-top: 40px;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding: 0em;
+  position: static;
+  width: 96%;
+  word-wrap: break-word;
+}
+  
+.comment .commentbody p {
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
+  margin-left: 0em;
+  margin-right: 0em;
+}
+
+.comment .commentbody pre {
+  border: 0px solid $sol_base1;
+  background-color: $sol_base0;
+  padding: 0 .4em;
+}
+
+.comment .commentbody pre code {
+  border: 0px solid $sol_base1;
+}
+
+.comment .commentbody code {
+  border: 1px solid $sol_base1;
+  background-color: $sol_base0;
+  font-size: 85%;
+  padding: 0 .2em;
+}
+
