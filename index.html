@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="I have not seriously updated the old Apocalisp blog for quite some time. Mostly this is due to the fact that I have been spending all of my creative &hellip;">
+  <meta name="description" content="A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having agreed on what it means exactly. Such discussion is &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +79,174 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/13/what-purity-is-and-isnt/">What Purity Is and Isn&#8217;t</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-13T22:07:00-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having agreed on what it means exactly. Such discussion is generally unhelpful and distracting.</p>
+
+<h3>What purity is</h3>
+
+<p>The typical definition of purity (and the one we use in <a href="http://manning.com/bjarnason">our book</a>) goes something like this:</p>
+
+<p>An expression <code>e</code> is <em>referentially transparent</em> if for all programs <code>p</code>, every occurrence of <code>e</code> in <code>p</code> can be replaced with the result of evaluating <code>e</code> without changing the result of evaluating <code>p</code>.</p>
+
+<p>A function <code>f</code> is <em>pure</em> if the expression <code>f(x)</code> is referentially transparent for all referentially transparent <code>x</code>.</p>
+
+<p>Now, something needs to be made clear right up front. Like all definitions, this holds in a specific <em>context</em>. In particular, the context needs to specify what &#8220;evaluating&#8221; means. It also needs to define &#8220;program&#8221;, &#8220;occurrence&#8221;, and the semantics of &#8220;replacing&#8221; one thing with another.</p>
+
+<p>In a programming language like Haskell, Java, or Scala, this context is pretty well established. The process of evaluation is a reduction to some <em>normal form</em> such as weak head or beta normal form.</p>
+
+<h3>A simple example</h3>
+
+<p>To illustrate, let&#8217;s consider programs in an exceedingly simple language that we will call <em>Sigma</em>. An expression in Sigma has one of the following forms:</p>
+
+<ul>
+<li>A literal character string like <code>"a"</code>, <code>"foo"</code>, <code>""</code>, etc.</li>
+<li>A concatenation, <code>s + t</code>, for expressions <code>s</code> and <code>t</code>.</li>
+<li>A special <code>Ext</code> expression that denotes input from an external source.</li>
+</ul>
+
+
+<p>Now, without an evaluator for Sigma, it is a purely abstract algebra. So let&#8217;s define a straigtforward evaluator <code>eval</code> for it, with the following rules:</p>
+
+<ul>
+<li>A literal string is already in normal form.</li>
+<li><code>eval(s + t)</code> first evaluates <code>s</code> and <code>t</code> and concatenates the results into one literal string.</li>
+<li><code>eval(Ext)</code> reads a line from standard input and returns it as a literal string.</li>
+</ul>
+
+
+<p>This might seem very simple, but it is still not clear whether <code>Ext</code> is referentially transparent with regard to <code>eval</code>. It depends. What does &#8220;reads a line&#8221; mean, and what is &#8220;standard input&#8221; exactly? This is all part of a context that needs to be established.</p>
+
+<p>Here&#8217;s one implementation of an evaluator for Sigma, in Scala:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Sigma</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Sigma</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">,</span> <span class="n">t</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Sigma</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Ext</span> <span class="k">extends</span> <span class="nc">Sigma</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">eval1</span><span class="o">(</span><span class="n">sig</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">)</span><span class="k">:</span> <span class="kt">Sigma</span> <span class="o">=</span> <span class="n">sig</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval1</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e2</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval1</span><span class="o">(</span><span class="n">t</span><span class="o">)</span>
+</span><span class='line'>    <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span> <span class="o">+</span> <span class="n">e2</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Ext</span> <span class="k">=&gt;</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">readLine</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, it&#8217;s easy to see that the <code>Ext</code> instruction is <em>not</em> referentially transparent with regard to <code>eval1</code>. Replacing <code>Ext</code> with <code>eval1(ext)</code> does not preserve meaning. Consider this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">x</span> <span class="k">=</span> <span class="nc">Ext</span>
+</span><span class='line'><span class="n">eval1</span><span class="o">(</span><span class="nc">Concat</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>VS this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">x</span> <span class="k">=</span> <span class="n">eval1</span><span class="o">(</span><span class="nc">Ext</span><span class="o">)</span>
+</span><span class='line'><span class="n">eval1</span><span class="o">(</span><span class="nc">Concat</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s clearly not the same thing.</p>
+
+<p>Now consider a slightly different evaluator:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">eval2</span><span class="o">(</span><span class="n">sig</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">,</span> <span class="n">stdin</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Sigma</span> <span class="o">=</span> <span class="n">sig</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e2</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">t</span><span class="o">)</span>
+</span><span class='line'>    <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span> <span class="o">+</span> <span class="n">e2</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Ext</span> <span class="k">=&gt;</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">stdin</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
+
+<p>This is the reason why Haskell programs are considered &#8220;pure&#8221;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
+
+<h3>What purity is not</h3>
+
+<p>In my experience there are more or less two camps into which unhelpful views on purity fall.</p>
+
+<p>The first view, which we will call the <em>empiricist</em> view, is typically taken by people who understand &#8220;pure&#8221; as a pretentious term, meant to denegrate regular everyday programming as being somehow &#8220;impure&#8221; or &#8220;unclean&#8221;. They see purity as being &#8220;academic&#8221;, detached from reality, in an ivory tower, or the like.</p>
+
+<p>This view is premised on a superficial understanding of purity. The assumption is that purity is somehow about the absence of I/O, or not mutating memory. But how could any programs be written that don&#8217;t change the state of memory? At the end of the day, you have to update the CPU&#8217;s registers, write to memory, and produce output on a display. A program has to make the computer <em>do something</em>, right? So aren&#8217;t we just pretending that our programs don&#8217;t run on real computers? Isn&#8217;t it all just an academic exercise in making the CPU warm?</p>
+
+<p>Well, no. That&#8217;s not what purity means. Purity is not about the absence of program behaviors like I/O or mutable memory. It&#8217;s about delimiting such behavior in a specific way.</p>
+
+<p>The other view, which I will call the <em>rationalist</em> view, is typically taken by people with overexposure to modern analytic philosophy. Expressions are to be understood by their <em>denotation</em>, not by reference to any evaluator. Then of course every expression is really referentially transparent, and so purity is a distinction without a difference. After all, an imperative side-effectful C program can have the same denotation as a monadic, side-effect-free Haskell program. There is nothing wrong with this viewpoint, but it&#8217;s not instructive <em>in this context</em>. Sure, when designing in the abstract, we can think denotationally without regard to evaluation. But when concretizing the design in terms of an actual programming language, we do need to be aware of how we expect evaluation to take place. And only then are referential transparency and purity useful concepts.</p>
+
+<p>Both of these, the rationalist and empiricist views, conflate different levels of abstraction. A program written in a programming language is not the same thing as the physical machine that it may run on. Nor is it the same thing as the abstractions that capture its meaning.</p>
+
+<h3>Further reading</h3>
+
+<p>I highly recommend the paper <a href="http://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=2&amp;cad=rja&amp;sqi=2&amp;ved=0CCMQFjAB&amp;url=http%3A%2F%2Fwww.cs.indiana.edu%2F~sabry%2Fpapers%2FpurelyFunctional.ps&amp;ei=I5NYUIRUqvXSAbC_gKgF&amp;usg=AFQjCNGwxjzB5zUBws6D9wnKPzo-zL57pw&amp;sig2=HgE-ZhzoIS19TEe2K2EW-Q"><em>What is a Purely Functional Language?</em></a> by Amr Sabry, although it deals with the idea of a <em>purely functional language</em> rather than purity of functions within a language that does not meet that criteria.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -590,6 +758,10 @@
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/09/13/what-purity-is-and-isnt/">What purity is and isn&#8217;t</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/09/04/this-blog-has-moved/">New Beginnings</a>
