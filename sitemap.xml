@@ -4,26 +4,30 @@
         <loc>
             http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/
         </loc>
-        <lastmod>2012-09-04T02:57:16-04:00</lastmod>
+        <lastmod>2012-09-04T01:57:16-05:00</lastmod>
     </url>
     <url>
         <loc>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/</loc>
-        <lastmod>2012-09-04T05:02:48-04:00</lastmod>
+        <lastmod>2012-09-04T04:02:48-05:00</lastmod>
     </url>
     <url>
         <loc>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/</loc>
-        <lastmod>2012-10-14T19:15:35-04:00</lastmod>
+        <lastmod>2012-10-14T18:15:35-05:00</lastmod>
+    </url>
+    <url>
+        <loc>http://runarorama.github.com/blog/2013/01/26/machines/</loc>
+        <lastmod>2013-01-26T12:41:41-06:00</lastmod>
     </url>
     <url>
         <loc>http://runarorama.github.com/about/</loc>
-        <lastmod>2012-12-17T13:01:10-05:00</lastmod>
+        <lastmod>2012-12-17T12:01:10-06:00</lastmod>
     </url>
     <url>
         <loc>http://runarorama.github.com/blog/archives/</loc>
-        <lastmod>2012-10-14T19:15:35-04:00</lastmod>
+        <lastmod>2013-01-26T12:41:41-06:00</lastmod>
     </url>
     <url>
         <loc>http://runarorama.github.com/</loc>
-        <lastmod>2012-10-14T19:15:35-04:00</lastmod>
+        <lastmod>2013-01-26T12:41:41-06:00</lastmod>
     </url>
 </urlset>
