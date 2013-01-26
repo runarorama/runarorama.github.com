@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2013-01-26T12:42:16-06:00</updated>
+  <updated>2013-01-26T13:09:09-06:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -21,6 +21,8 @@
     <content type="html"><![CDATA[<p>I gave a talk on &#8220;Machines&#8221; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
 <p><a href="https://dl.dropbox.com/u/4588997/Machines.pdf">Machines.pdf</a></p>
+
+<p>To preëmptively answer your next question, the talk was not recorded.</p>
 ]]></content>
   </entry>
   
