@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2013-01-26T14:58:29-06:00</updated>
+  <updated>2013-03-24T11:09:05-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Machines and stream processing]]></title>
     <link href="http://runarorama.github.com/blog/2013/01/26/machines/"/>
-    <updated>2013-01-26T12:34:00-06:00</updated>
+    <updated>2013-01-26T12:34:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2013/01/26/machines</id>
     <content type="html"><![CDATA[<p>I gave a talk on &#8220;Machines&#8221; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
@@ -29,7 +29,7 @@
   <entry>
     <title type="html"><![CDATA[What purity is and isn't]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/"/>
-    <updated>2012-09-13T22:07:00-05:00</updated>
+    <updated>2012-09-13T22:07:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt</id>
     <content type="html"><![CDATA[<p>A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
 
@@ -86,7 +86,7 @@
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Sigma</span>
 </span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Sigma</span>
 </span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">,</span> <span class="n">t</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Sigma</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Ext</span> <span class="k">extends</span> <span class="nc">Sigma</span>
+</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">Ext</span> <span class="k">extends</span> <span class="nc">Sigma</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">def</span> <span class="n">eval1</span><span class="o">(</span><span class="n">sig</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">)</span><span class="k">:</span> <span class="kt">Sigma</span> <span class="o">=</span> <span class="n">sig</span> <span class="k">match</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
@@ -118,7 +118,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s clearly not the same thing.</p>
+<p>That&#8217;s clearly not the same thing. The former will get two strings from standard input and concatenate them together. The latter will get only one string, store it as <code>x</code>, and return <code>x + x</code>.</p>
 
 <p>Now consider a slightly different evaluator:</p>
 
@@ -133,8 +133,8 @@
 <span class='line-number'>9</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">eval2</span><span class="o">(</span><span class="n">sig</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">,</span> <span class="n">stdin</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Sigma</span> <span class="o">=</span> <span class="n">sig</span> <span class="k">match</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e2</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">t</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">stdin</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e2</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">t</span><span class="o">,</span> <span class="n">stdin</span><span class="o">)</span>
 </span><span class='line'>    <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span> <span class="o">+</span> <span class="n">e2</span><span class="o">)</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nc">Ext</span> <span class="k">=&gt;</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">stdin</span><span class="o">)</span>
@@ -143,7 +143,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
+<p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>, because our standard input is just a string, and it is always the same string. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
 
 <p>This is the reason why Haskell programs are considered &#8220;pure&#8221;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
 
@@ -170,7 +170,7 @@
   <entry>
     <title type="html"><![CDATA[New Beginnings]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/"/>
-    <updated>2012-09-04T01:29:00-05:00</updated>
+    <updated>2012-09-04T01:29:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved</id>
     <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&#8217;s also partly that putting a post up on WordPress is a chore. It&#8217;s like building a ship in a bottle.</p>
 
@@ -185,7 +185,7 @@
   <entry>
     <title type="html"><![CDATA[Scalaz Tutorial: Enumeration-based I/O with iteratees]]></title>
     <link href="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/"/>
-    <updated>2010-10-14T00:00:00-05:00</updated>
+    <updated>2010-10-14T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees</id>
     <content type="html"><![CDATA[<p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
 

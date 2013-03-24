@@ -101,7 +101,7 @@
   
 
 
-<time datetime="2013-01-26T12:34:00-06:00" pubdate data-updated="true">Jan 26<span>th</span>, 2013</time>
+<time datetime="2013-01-26T12:34:00-05:00" pubdate data-updated="true">Jan 26<span>th</span>, 2013</time>
         
       </p>
     
@@ -141,7 +141,7 @@
   
 
 
-<time datetime="2012-09-13T22:07:00-05:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+<time datetime="2012-09-13T22:07:00-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
         
       </p>
     
@@ -203,7 +203,7 @@
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Sigma</span>
 </span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Sigma</span>
 </span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">,</span> <span class="n">t</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Sigma</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Ext</span> <span class="k">extends</span> <span class="nc">Sigma</span>
+</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">Ext</span> <span class="k">extends</span> <span class="nc">Sigma</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">def</span> <span class="n">eval1</span><span class="o">(</span><span class="n">sig</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">)</span><span class="k">:</span> <span class="kt">Sigma</span> <span class="o">=</span> <span class="n">sig</span> <span class="k">match</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
@@ -235,7 +235,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s clearly not the same thing.</p>
+<p>That&#8217;s clearly not the same thing. The former will get two strings from standard input and concatenate them together. The latter will get only one string, store it as <code>x</code>, and return <code>x + x</code>.</p>
 
 <p>Now consider a slightly different evaluator:</p>
 
@@ -250,8 +250,8 @@
 <span class='line-number'>9</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">eval2</span><span class="o">(</span><span class="n">sig</span><span class="k">:</span> <span class="kt">Sigma</span><span class="o">,</span> <span class="n">stdin</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Sigma</span> <span class="o">=</span> <span class="n">sig</span> <span class="k">match</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nc">Concat</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e2</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">t</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">stdin</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">e2</span><span class="o">)</span> <span class="k">=</span> <span class="n">eval2</span><span class="o">(</span><span class="n">t</span><span class="o">,</span> <span class="n">stdin</span><span class="o">)</span>
 </span><span class='line'>    <span class="nc">Lit</span><span class="o">(</span><span class="n">e1</span> <span class="o">+</span> <span class="n">e2</span><span class="o">)</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nc">Ext</span> <span class="k">=&gt;</span> <span class="nc">Lit</span><span class="o">(</span><span class="n">stdin</span><span class="o">)</span>
@@ -260,7 +260,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
+<p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>, because our standard input is just a string, and it is always the same string. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
 
 <p>This is the reason why Haskell programs are considered &#8220;pure&#8221;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
 
@@ -309,7 +309,7 @@
   
 
 
-<time datetime="2012-09-04T01:29:00-05:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+<time datetime="2012-09-04T01:29:00-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
         
       </p>
     
@@ -351,7 +351,7 @@
   
 
 
-<time datetime="2010-10-14T00:00:00-05:00" pubdate data-updated="true">Oct 14<span>th</span>, 2010</time>
+<time datetime="2010-10-14T00:00:00-04:00" pubdate data-updated="true">Oct 14<span>th</span>, 2010</time>
         
       </p>
     
