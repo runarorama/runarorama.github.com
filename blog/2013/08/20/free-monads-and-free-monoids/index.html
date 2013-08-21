@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>New Beginnings - Higher Order</title>
+  <title>Free monoids and free monads - Higher Order</title>
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="I have not seriously updated the old Apocalisp blog for quite some time. Mostly this is due to the fact that I have been spending all of my creative &hellip;">
+  <meta name="description" content="In a series of old posts, I once talked about the link between lists and monoids, as well as monoids and monads. Now I want to talk a little bit more &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/">
+  <link rel="canonical" href="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -85,7 +85,7 @@
   
   <header>
     
-      <h1 class="entry-title">New Beginnings</h1>
+      <h1 class="entry-title">Free Monoids and Free Monads</h1>
     
     
       <p class="meta">
@@ -101,20 +101,81 @@
   
 
 
-<time datetime="2012-09-04T01:29:00-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+<time datetime="2013-08-20T19:48:00-04:00" pubdate data-updated="true">Aug 20<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&#8217;s also partly that putting a post up on WordPress is a chore. It&#8217;s like building a ship in a bottle.</p>
+<div class="entry-content"><p>In a series of old posts, I once talked about the link between <a href="http://apocalisp.wordpress.com/2010/06/14/on-monoids/">lists and monoids</a>, as well as <a href="http://apocalisp.wordpress.com/2010/07/21/more-on-monoids-and-monads/">monoids and monads</a>. Now I want to talk a little bit more about monoids and monads from the perspective of <em>free structures</em>.</p>
 
-<p>So I have decided to make posting really easy for myself by hosting the blog <a href="http://github.com/runarorama/runarorama.github.com">on GitHub</a>. I am using a dead-simple markdown-based framework called <a href="http://octopress.org">Octopress</a>. With this setup I can very easily write a new post from my command line and publish by pushing to GitHub. This is already part of my normal coding workflow, so it feels more friction-free.</p>
+<p><code>List</code> is a <em>free monoid</em>. That is, for any given type <code>A</code>, <code>List[A]</code> is a monoid, with list concatenation as the operation and the empty list as the identity element.</p>
 
-<p>The new blog is simply titled &#8220;Higher Order&#8221;, and is available at <a href="http://blog.higher-order.com">blog.higher-order.com</a>. Check back soon for posts that I&#8217;ve been sitting on but have been too <del>lazy</del> busy to post.</p>
+<p>{% codeblock lang:scala %}
+def freeMonoid[A]: Monoid[List[A]] {
+  def unit = Nil
+  def op(a1: List[A], a2: List[A]) = a1 ++ a2
+}
+{% endcodeblock %}</p>
 
-<p>All of the old content and comments will still be available at the old address, and I&#8217;ll probably cross-post to both places for a little while.</p>
+<p>Being a free monoid means that it&#8217;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monad homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
+
+<p>{% codeblock lang:scala %}
+def foldMap<a href="as:%20List[A]">A,B:Monoid</a>(f: A => B): B
+{% endcodeblock %}</p>
+
+<p>Given a mapping from <code>A</code> to a monoid <code>B</code>, we can collapse a value in the monoid <code>List[A]</code> to a value in <code>B</code>.</p>
+
+<h2>Free monads</h2>
+
+<p>Now, if you followed my old posts, you already know that monads are &#8220;higher-kinded monoids&#8221;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
+
+<p>{%
+trait ~>[F[<em>],G[</em>]] {
+  def apply<a href="a:%20F[A]">A</a>: G[A]
+}
+%}</p>
+
+<p>And it turns out that there is a free monad for any given functor <code>F</code>:</p>
+
+<p>{% codeblock lang:scala %}
+sealed abstract class Free[F[_],A]
+case class Return<a href="a:%20A">F[_],A</a> extends Free[F,A]
+case class Suspend<a href="f:%20F[Free[F,A]]">F[_],A</a>
+{% endcodeblock %}</p>
+
+<p>Analogous to how a <code>List[A]</code> is either <code>Nil</code> (the empty list) or a product of a <code>head</code> element and <code>tail</code> list, a value of type <code>Free[F,A]</code> is either an <code>A</code> or it&#8217;s a product of <code>F[_]</code> and <code>Free[F,_]</code>. It is a recursive structure. And indeed, it has <em>exactly enough structure</em> to be a monad, for any given <code>F</code>, and no more.</p>
+
+<p>When I say &#8220;product&#8221; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
+
+<p>{% codeblock lang:scala %}
+trait :*:[F[<em>],G[</em>]] {
+  type λ[A] = F[G[A]]
+}
+{% endcodeblock %}</p>
+
+<p>So we might expect that there is a <em>monad homomorphism</em> from a free monad to any other monad. And indeed, it turns out that there is. The free monad catamorphism is in fact a monad homomorphism. Given a natural transformation from <code>F</code> to <code>G</code>, we can collapse a <code>Free[F,A]</code> to <code>G[A]</code>, just like with <code>foldMap</code> when given a function from <code>A</code> to <code>B</code> we could collapse a <code>List[A]</code> to <code>B</code>.</p>
+
+<p>{% codeblock lang:scala %}
+def runFree<a href="as:%20Free[F,A]">F[<em>],G[</em>]:Monad,A</a>(f: F ~> G): G[A]
+{% endcodeblock %}</p>
+
+<p>But what&#8217;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a &#8220;monoid action&#8221; that accumulates into <code>B</code>. Here, <code>f</code> is like monoid operation, except it takes the current <code>A</code> on the left:</p>
+
+<p>{% codeblock lang:scala %}
+def foldRight<a href="as:%20List[A]">A,B</a>(z: B)(f: (A, B) => B): B
+{% endcodeblock %}</p>
+
+<p>The equivalent for <code>Free</code> takes a natural transformation as its unit element, which happens to be monadic <code>unit</code>. Then it takes a natural transformation as its <code>f</code> argument, that looks a lot like monadic <code>join</code>, except it takes the current <code>F</code> on the left:</p>
+
+<p>{% codeblock lang:scala %}
+type Id[A] = A</p>
+
+<p>def foldFree<a href="as:%20Free[F,A]">F[<em>]:Functor,G[</em>],A</a>(z: Id ~> G)(f: (F:*:G)#λ ~> G): G[A]
+{% endcodeblock %}</p>
+
+<p><code>Free</code> as well as natural transformations and product types are available in <a href="http://github.com/scalaz">Scalaz</a>.</p>
 </div>
 
 
@@ -123,7 +184,7 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Rúnar Bjarnason</span></span>
 
       
 
@@ -137,21 +198,15 @@
   
 
 
-<time datetime="2012-09-04T01:29:00-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+<time datetime="2013-08-20T19:48:00-04:00" pubdate data-updated="true">Aug 20<span>th</span>, 2013</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/meta/'>meta</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -164,10 +219,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/" title="Previous Post: Scalaz Tutorial: Enumeration-based I/O with iteratees">&laquo; Scalaz Tutorial: Enumeration-based I/O with iteratees</a>
+        <a class="basic-alignment left" href="/blog/2013/01/26/machines/" title="Previous Post: Machines and stream processing">&laquo; Machines and stream processing</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/09/13/what-purity-is-and-isnt/" title="Next Post: What purity is and isn't">What purity is and isn't &raquo;</a>
       
     </p>
   </footer>
@@ -176,7 +229,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/1"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. This saves me from having to moderate comments. 
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/5"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. This saves me from having to moderate comments. 
     </div>
   </div>
 <script type="text/javascript">
@@ -185,7 +238,7 @@
     for (var i=0; i<data.length; i++) {
       var cuser = data[i].user.login;
       var cuserlink = "https://www.github.com/" + data[i].user.login;
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/1#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/5#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
       var cbody = data[i].body_html;
       var cavatarlink = data[i].user.avatar_url;
       var cdate = Date.parse(data[i].created_at).toString("yyyy-MM-dd HH:mm:ss");
@@ -194,7 +247,7 @@
     }
   }
 
-  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/1/comments", {
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/5/comments", {
     headers: {Accept: "application/vnd.github.full+json"},
     dataType: "json",
     success: function(msg){

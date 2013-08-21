@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2013-08-08T09:07:54-04:00</updated>
+  <updated>2013-08-20T22:15:25-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -12,6 +12,82 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Free monoids and free monads]]></title>
+    <link href="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/"/>
+    <updated>2013-08-20T19:48:00-04:00</updated>
+    <id>http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids</id>
+    <content type="html"><![CDATA[<p>In a series of old posts, I once talked about the link between <a href="http://apocalisp.wordpress.com/2010/06/14/on-monoids/">lists and monoids</a>, as well as <a href="http://apocalisp.wordpress.com/2010/07/21/more-on-monoids-and-monads/">monoids and monads</a>. Now I want to talk a little bit more about monoids and monads from the perspective of <em>free structures</em>.</p>
+
+<p><code>List</code> is a <em>free monoid</em>. That is, for any given type <code>A</code>, <code>List[A]</code> is a monoid, with list concatenation as the operation and the empty list as the identity element.</p>
+
+<p>{% codeblock lang:scala %}
+def freeMonoid[A]: Monoid[List[A]] {
+  def unit = Nil
+  def op(a1: List[A], a2: List[A]) = a1 ++ a2
+}
+{% endcodeblock %}</p>
+
+<p>Being a free monoid means that it&#8217;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monad homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
+
+<p>{% codeblock lang:scala %}
+def foldMap<a href="as:%20List[A]">A,B:Monoid</a>(f: A => B): B
+{% endcodeblock %}</p>
+
+<p>Given a mapping from <code>A</code> to a monoid <code>B</code>, we can collapse a value in the monoid <code>List[A]</code> to a value in <code>B</code>.</p>
+
+<h2>Free monads</h2>
+
+<p>Now, if you followed my old posts, you already know that monads are &#8220;higher-kinded monoids&#8221;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
+
+<p>{%
+trait ~>[F[<em>],G[</em>]] {
+  def apply<a href="a:%20F[A]">A</a>: G[A]
+}
+%}</p>
+
+<p>And it turns out that there is a free monad for any given functor <code>F</code>:</p>
+
+<p>{% codeblock lang:scala %}
+sealed abstract class Free[F[_],A]
+case class Return<a href="a:%20A">F[_],A</a> extends Free[F,A]
+case class Suspend<a href="f:%20F[Free[F,A]]">F[_],A</a>
+{% endcodeblock %}</p>
+
+<p>Analogous to how a <code>List[A]</code> is either <code>Nil</code> (the empty list) or a product of a <code>head</code> element and <code>tail</code> list, a value of type <code>Free[F,A]</code> is either an <code>A</code> or it&#8217;s a product of <code>F[_]</code> and <code>Free[F,_]</code>. It is a recursive structure. And indeed, it has <em>exactly enough structure</em> to be a monad, for any given <code>F</code>, and no more.</p>
+
+<p>When I say &#8220;product&#8221; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
+
+<p>{% codeblock lang:scala %}
+trait :*:[F[<em>],G[</em>]] {
+  type λ[A] = F[G[A]]
+}
+{% endcodeblock %}</p>
+
+<p>So we might expect that there is a <em>monad homomorphism</em> from a free monad to any other monad. And indeed, it turns out that there is. The free monad catamorphism is in fact a monad homomorphism. Given a natural transformation from <code>F</code> to <code>G</code>, we can collapse a <code>Free[F,A]</code> to <code>G[A]</code>, just like with <code>foldMap</code> when given a function from <code>A</code> to <code>B</code> we could collapse a <code>List[A]</code> to <code>B</code>.</p>
+
+<p>{% codeblock lang:scala %}
+def runFree<a href="as:%20Free[F,A]">F[<em>],G[</em>]:Monad,A</a>(f: F ~> G): G[A]
+{% endcodeblock %}</p>
+
+<p>But what&#8217;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a &#8220;monoid action&#8221; that accumulates into <code>B</code>. Here, <code>f</code> is like monoid operation, except it takes the current <code>A</code> on the left:</p>
+
+<p>{% codeblock lang:scala %}
+def foldRight<a href="as:%20List[A]">A,B</a>(z: B)(f: (A, B) => B): B
+{% endcodeblock %}</p>
+
+<p>The equivalent for <code>Free</code> takes a natural transformation as its unit element, which happens to be monadic <code>unit</code>. Then it takes a natural transformation as its <code>f</code> argument, that looks a lot like monadic <code>join</code>, except it takes the current <code>F</code> on the left:</p>
+
+<p>{% codeblock lang:scala %}
+type Id[A] = A</p>
+
+<p>def foldFree<a href="as:%20Free[F,A]">F[<em>]:Functor,G[</em>],A</a>(z: Id ~> G)(f: (F:*:G)#λ ~> G): G[A]
+{% endcodeblock %}</p>
+
+<p><code>Free</code> as well as natural transformations and product types are available in <a href="http://github.com/scalaz">Scalaz</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Machines and stream processing]]></title>
