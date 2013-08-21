@@ -59,7 +59,7 @@ default_asides: [custom/asides/book.html, asides/recent_posts.html, custom/aside
 
 # Github repositories
 github_user: runarorama
-github_repo_count: 2
+github_repo_count: 4
 github_show_profile_link: true
 github_skip_forks: true
 

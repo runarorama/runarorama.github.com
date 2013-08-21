@@ -5,6 +5,7 @@ date: 2010-10-14
 comments: true
 categories:
 author: Rúnar
+commentIssueId: 5
 ---
 
 [Scalaz](http://scalaz.org) 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.

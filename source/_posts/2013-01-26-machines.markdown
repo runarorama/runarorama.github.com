@@ -1,0 +1,15 @@
+---
+layout: post
+title: "Machines and stream processing"
+date: 2013-01-26 12:34
+comments: true
+categories: 
+commentIssueId: 4
+---
+
+I gave a talk on "Machines" and stream processing in [Haskell](https://github.com/ekmett/machines) and [Scala](https://github.com/runarorama/scala-machines), to the [Brisbane Functional Programming Group](http://www.bfpg.org/) at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:
+
+[Machines.pdf](https://dl.dropbox.com/u/4588997/Machines.pdf)
+
+The preëmptive answer to the usual follow-up question is that the talk was not recorded.
+

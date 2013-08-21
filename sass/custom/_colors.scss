@@ -9,7 +9,7 @@ $sol_base2:     #eee8d5;
 $sol_base3:     #fdf6e3;
 
 $sol : light; // light or dark -  Recommended: set $solarized to the opposite of this
-$solarized : dark; // code syntax highlighting theme
+$solarized : light; // code syntax highlighting theme
 
 @if $sol == dark {
 
@@ -47,23 +47,23 @@ $img-border: none;
 
 // Main Link Colors
 $link-color: $sol_orange;
-$link-color-hover: $sol_base01;
+$link-color-hover: $sol_yellow;
 $link-color-visited: $link-color;
 $link-color-active: $link-color-hover;
 // Main Section Colors
 $main-bg: $sol_base3;
-$page-bg: $sol_base2;
+$page-bg: $sol_base02;
 $article-border: none;
-$header-bg: $sol_base03;
+$header-bg: $sol_base02;
 $title-color: $sol_base2;
 $subtitle-color: $sol_orange;
-$text-color: $sol_base0;
+$text-color: $sol_base01;
 $text-color-light: $sol_base1;
 ///* Navigation */
-$nav-bg: $sol_base1;
-$nav-bg-back: $sol_base1;
-$nav-color: $sol_base01;
-$nav-color-hover: $sol_base2;
+$nav-bg: $sol_base2;
+$nav-bg-back: $sol_base2;
+$nav-color: $sol_orange;
+$nav-color-hover: $sol_base3;
 /* Sidebar colors */
 $sidebar-bg: darken($sol_base3, 1);
 $sidebar-color: $sol_yellow;
