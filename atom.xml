@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2013-11-02T00:37:33-04:00</updated>
+  <updated>2013-11-02T00:50:57-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -140,7 +140,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Of course, this deconstructuring into <code>CoYoneda</code> using the identity function is the simplest and most general, but there may be others for specific <code>F</code> and <code>A</code> depending on what we know about them.</p>
+<p>Of course, this destructuring into <code>CoYoneda</code> using the identity function is the simplest and most general, but there may be others for specific <code>F</code> and <code>A</code> depending on what we know about them.</p>
 
 <p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
 
