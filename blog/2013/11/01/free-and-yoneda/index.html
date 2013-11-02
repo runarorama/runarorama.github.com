@@ -196,7 +196,7 @@
 
 <p>Of course, this also means that if we have a type <code>B</code>, a function of type <code>(B =&gt; A)</code> for some type <code>A</code>, and a value of type <code>F[B]</code> for some functor <code>F</code>, then we certainly have a value of type <code>F[A]</code>. This is kind of obvious, since we can just pass the <code>B =&gt; A</code> and the <code>F[B]</code> to the <code>map</code> function for the functor and get our <code>F[A]</code>.</p>
 
-<p>But the opposite is also true, and that is the really interesting part. If we have a value of type <code>F[A]</code>, for any <code>F</code> and <code>A</code>, then we can always destructure it into a value of type <code>F[B]</code> and a function of type <code>B =&gt; A</code>. And it turns out that we can do this even if <code>F</code> is not a functor.</p>
+<p>But the opposite is also true, and that is the really interesting part. If we have a value of type <code>F[A]</code>, for any <code>F</code> and <code>A</code>, then we can always destructure it into a value of type <code>F[B]</code> and a function of type <code>B =&gt; A</code>, at least for <em>some</em> type <code>B</code>. And it turns out that we can do this even if <code>F</code> is not a functor.</p>
 
 <p>This is the permutation of the Yoneda lemma that we were using in <code>IO</code> above. That is, <code>IO[F, A]</code> is really <code>Free[({type λ[α] = CoYoneda[F,α]})#λ, A]</code>, given:</p>
 
@@ -232,11 +232,11 @@
 
 <p>Of course, this deconstructuring into <code>CoYoneda</code> using the identity function is the simplest and most general, but there may be others for specific <code>F</code> and <code>A</code> depending on what we know about them.</p>
 
-<p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code>.</p>
+<p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
 
-<p>The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&#8217;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&#8217;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component.</p>
+<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&#8217;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&#8217;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
 
-<p>I hope that sheds a little bit of light on both the Yoneda lemma as well as the different embeddings of free monads in Scala.</p>
+<p>I hope that sheds a little bit of light on both the Yoneda lemma as well as the different embeddings of free monads.</p>
 </div>
 
 
