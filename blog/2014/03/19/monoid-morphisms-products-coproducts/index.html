@@ -138,7 +138,7 @@
 
 <p>Sometimes there will be a homomorphism in both directions between two monoids. If these are inverses of one another, then this kind of relationship is called a <em>monoid isomorphism</em> and we say that the two monoids are isomorphic. More precisely, we will have two monoids <code>A</code> and <code>B</code>, and homomorphisms <code>f: A =&gt; B</code> and <code>g: B =&gt; A</code>. If <code>f(g(b)) == b</code> and <code>g(f(a)) == a</code>, for all <code>a:A</code> and <code>b:B</code> then <code>f</code> and <code>g</code> form an isomorphism.</p>
 
-<p>For example, the <code>String</code> and <code>List[Char]</code> monoids with concatenation are isomorphic. We can convert a <code>String</code> to a <code>List[Char]</code>, preserving the monoid structure, and there&#8217;s exactly one <code>List[Char]</code> for every <code>String</code>. This is also true in the inverse direction, so the isomorphism hold.</p>
+<p>For example, the <code>String</code> and <code>List[Char]</code> monoids with concatenation are isomorphic. We can convert a <code>String</code> to a <code>List[Char]</code>, preserving the monoid structure, and go back again to the exact same <code>String</code> we started with. This is also true in the inverse direction, so the isomorphism holds.</p>
 
 <p>Other examples include (<code>Int</code>, <code>+</code>) and (<code>Int</code>, <code>*</code>), which are isomorphic. The same goes for (<code>Boolean</code>, <code>&amp;&amp;</code>) and (<code>Boolean</code>, <code>||</code>).</p>
 
