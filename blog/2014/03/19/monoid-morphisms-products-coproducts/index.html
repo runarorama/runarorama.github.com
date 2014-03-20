@@ -463,6 +463,8 @@
 
 
 <p>In the first two cases, on the right of the <code>==</code> sign in the law, we perform <code>a1 |+| a2</code> and <code>b1 |+| b2</code> respectively before concatenating. In the other two cases we simply concatenate the lists. The <code>++</code> method on <code>Eithers</code> takes care of doing this correctly for us. On the left of the <code>==</code> sign we fold the lists individually and they will be alternating applications of <code>f</code> and <code>g</code>. So then this law amounts to the fact that <code>f(a1 |+| a2) ==</code>f(a1) |+| f(a2)<code>in the first case, and the same for</code>g<code>in the second case. In the latter two cases this amounts to a homomorphism on</code>List<code>. So as long as</code>f<code>and</code>g<code>are homomorphisms, so is</code>fold(_)(f,g)<code>. Therefore,</code>Eithers[A,B]<code>really is a coproduct of</code>A<code>and</code>B`.</p>
+
+<p>The lesson learned here is to check assumptions and test against laws. Things are not always as straightforward as they seem.</p>
 </div>
 
 
