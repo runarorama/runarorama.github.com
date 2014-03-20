@@ -140,15 +140,7 @@
 
 <p>For example, the <code>String</code> and <code>List[Char]</code> monoids with concatenation are isomorphic. We can convert a <code>String</code> to a <code>List[Char]</code>, preserving the monoid structure, and we can go back again to a <code>String</code> to end up with the same element of the same monoid we started with.</p>
 
-<p>More interesting isomorphisms exist between monoids that don&#8217;t exhibit the same structure as clearly. Consider for example a monoid <code>B</code> and the monoid of endofunctions on <code>B</code>, namely <code>B =&gt; B</code> with function composition.</p>
-
-<p>There is a homomorphism from any monoid <code>B</code> to endofunctions <code>B =&gt; B</code>. To see this, we simply take every element of <code>b:B</code> to the corresponding function <code>(x:B) =&gt; b |+| x</code> which appends <code>b</code> to the argument <code>x</code>. If we map <code>b1</code> to such a function <code>f</code> and <code>b2</code> to a function <code>g</code>, then the composition <code>f compose g</code> will be <code>(x:B) =&gt; b1 |+| b2 |+| x</code>. We can see that the structure of the monoid is preserved.</p>
-
-<p>This homomorphism also works the other way. We take every function <code>f: B =&gt; B</code> to a corresponding element <code>f(mzero[B])</code> which is of type <code>B</code>. Then we can clearly see that <code>(f compose g)(mzero[B])</code> is the same as <code>f(mzero[B]) |+| g(mzero[B])</code>.</p>
-
-<p>I believe that this embedding of a monoid as the endofunctions on its elements is the Yoneda embedding. Please correct me in the comments if you know better.</p>
-
-<p>Note that there are monoids with homomorphisms in both directions between them that nevertheless are <em>not</em> isomorphic. But we can see that <code>B =&gt; B</code> is isomorphic to <code>B</code> for any monoid <code>B</code> since <code>(x =&gt; b |+| x)(mzero[B]) == b</code> and <code>(x =&gt; f(mzero[B]) |+| x)(b) == f(b)</code> for all <code>f: B =&gt; B</code> and <code>b:B</code>.</p>
+<p>Note that there are monoids with homomorphisms in both directions between them that nevertheless are <em>not</em> isomorphic.</p>
 
 <h2>Monoid products and coproducts</h2>
 
