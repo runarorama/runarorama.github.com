@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-03-20T12:11:46-04:00</updated>
+  <updated>2014-03-20T12:45:57-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -326,7 +326,7 @@
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">)))</span> <span class="o">++</span> <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">))))</span> <span class="o">==</span>
 </span><span class='line'>  <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)))</span>
 </span><span class='line'><span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">)))</span> <span class="o">++</span> <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">))))</span> <span class="o">==</span>
-</span><span class='line'>  <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">))</span>
+</span><span class='line'>  <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
