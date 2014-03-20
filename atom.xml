@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-03-19T21:28:52-04:00</updated>
+  <updated>2014-03-19T21:31:42-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -20,7 +20,7 @@
     <id>http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts</id>
     <content type="html"><![CDATA[<p>Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
-<p>This post kind of fell together when writing notes on chapter 11 of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
+<p>This post kind of fell together when writing notes on chapter 10, &#8220;Monoids&#8221;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
 
 <h2>Monoid homomorphisms</h2>
 
