@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-03-19T22:05:13-04:00</updated>
+  <updated>2014-03-19T22:29:01-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -182,9 +182,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Notice that we just added the least amount of structure possible to make <code>These[A,B]</code> a monoid. It is the most general and smallest monoid to which both monoids <code>A</code> and <code>B</code> have a homomorphism. For this reason it is a <em>free product</em>. And because the homomorphisms <code>This</code> and <code>That</code> exist, it&#8217;s also a <em>monoid coproduct</em>.</p>
+<p><code>These[A,B]</code> is the smallest and most general monoid that contains both <code>A</code> and <code>B</code> as submonoids (the <code>This</code> and <code>That</code> constructors, respectively) and admits a homomorphism from both <code>A</code> and <code>B</code>. And notice that we simply added the least amount of structure possible to make <code>These[A,B]</code> a monoid (the <code>Both</code> constructor). For this reason it is a <em>free product</em>. It also satisfies the criteria of a <em>monoid coproduct</em>. I will demonstrate that now.</p>
 
-<p>We must prove that <code>This</code> and <code>That</code> really are homomorphisms. We need to prove the following two properties:</p>
+<p>First we must prove that <code>This</code> and <code>That</code> really are homomorphisms. We need to prove the following two properties:</p>
 
 <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
