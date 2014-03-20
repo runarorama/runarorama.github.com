@@ -346,6 +346,15 @@
 
 <p>No! Something has gone wrong. This will only hold if the <code>Z</code> monoid is commutative. So in general, <code>These[A,B]</code> is not the coproduct of <code>A</code> and <code>B</code>. My error was in the <code>Both</code> constructor, which commutes all <code>B</code> values to the right and all <code>A</code> values to the left.</p>
 
+<p>So what kind of thing would work? It would have to solve this case:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="o">???</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We need to preserve that <code>a1</code>, <code>b1</code>, <code>a2</code>, and <code>b2</code> appear <em>in that order</em>. So clearly the coproduct will be some kind of list!</p>
+
 <h3>Free monoids on coproducts</h3>
 
 <p>Let&#8217;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
