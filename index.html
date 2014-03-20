@@ -132,7 +132,7 @@
 
 <p>The <code>|+|</code> syntax is from <a href="http://github.com/scalaz/scalaz">Scalaz</a> and is obtained by importing <code>scalaz.syntax.monoid._</code>. It just references the <code>append</code> method on the <code>Monoid[T]</code> instance, where <code>T</code> is the type of the arguments.</p>
 
-<p>This law can have real practical benefits. Imagine for example a &#8220;result set&#8221; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it obeys a monoid homomorphism law with regard to the data file monoid.</p>
+<p>This law can have real practical benefits. Imagine for example a &#8220;result set&#8221; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
 
 <h2>Monoid isomorphisms</h2>
 
