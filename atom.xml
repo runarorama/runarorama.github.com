@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-03-20T21:40:45-04:00</updated>
+  <updated>2014-03-22T09:23:15-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -50,9 +50,9 @@
 
 <p>For example, the <code>String</code> and <code>List[Char]</code> monoids with concatenation are isomorphic. We can convert a <code>String</code> to a <code>List[Char]</code>, preserving the monoid structure, and go back again to the exact same <code>String</code> we started with. This is also true in the inverse direction, so the isomorphism holds.</p>
 
-<p>Other examples include (<code>Int</code>, <code>+</code>) and (<code>Int</code>, <code>*</code>), which are isomorphic. The same goes for (<code>Boolean</code>, <code>&amp;&amp;</code>) and (<code>Boolean</code>, <code>||</code>).</p>
+<p>Other examples include (<code>Boolean</code>, <code>&amp;&amp;</code>) and (<code>Boolean</code>, <code>||</code>) which are isomorphic via <code>not</code>.</p>
 
-<p>Note that there are monoids with homomorphisms in both directions between them that nevertheless are <em>not</em> isomorphic.</p>
+<p>Note that there are monoids with homomorphisms in both directions between them that nevertheless are <em>not</em> isomorphic. For example, (<code>Int</code>, <code>*</code>) and (<code>Int</code>, <code>+</code>). These are homomorphic to one another, but not isomorphic (thanks, Robbie Gates).</p>
 
 <h2>Monoid products and coproducts</h2>
 
