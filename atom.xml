@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-03-25T13:29:38-04:00</updated>
+  <updated>2014-03-25T13:30:40-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -26,17 +26,19 @@
 
 <p>Let&#8217;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
 
-<p>{% codeblock lang:scala %}
-(a.length + b.length) == (a + b).length
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">length</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">).</span><span class="n">length</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>So every <code>String</code> maps to a corresponding <code>Int</code> (its length), and every concatenation of strings maps to the addition of corresponding lengths.</p>
 
 <p>The <code>length</code> function maps from <code>String</code> to <code>Int</code> <em>while preserving the monoid structure</em>. Such a function, that maps from one monoid to another in such a preserving way, is called a <em>monoid homomorphism</em>. In general, for monoids <code>M</code> and <code>N</code>, a homomorphism <code>f: M =&gt; N</code>, and all values <code>x:M</code>, <code>y:M</code>, the following law holds:</p>
 
-<p>{% codeblock lang:scala %}
-f(x |+| y) == (f(x) |+| f(y))
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="o">|+|</span> <span class="n">y</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">y</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>The <code>|+|</code> syntax is from <a href="http://github.com/scalaz/scalaz">Scalaz</a> and is obtained by importing <code>scalaz.syntax.monoid._</code>. It just references the <code>append</code> method on the <code>Monoid[T]</code> instance, where <code>T</code> is the type of the arguments.</p>
 
@@ -56,17 +58,20 @@ f(x |+| y) == (f(x) |+| f(y))
 
 <p>If <code>A</code> and <code>B</code> are monoids, then <code>(A,B)</code> is certainly a monoid, called their <em>product</em>:</p>
 
-<p>{% codeblock lang:scala %}
-def product[A:Monoid,B:Monoid]: Monoid[(A, B)] =
-  new Monoid[(A, B)] {</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">product</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span><span class="o">]</span><span class="k">:</span> <span class="kt">Monoid</span><span class="o">[(</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">)]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Monoid</span><span class="o">[(</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">)]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">append</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">),</span> <span class="n">y</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">))</span> <span class="k">=</span>
+</span><span class='line'>      <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">|+|</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span> <span class="o">|+|</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">zero</span> <span class="k">=</span> <span class="o">(</span><span class="n">mzero</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span> <span class="n">mzero</span><span class="o">[</span><span class="kt">B</span><span class="o">])</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>def append(x: (A, B), y: =&gt; (A, B)) =
-  (x._1 |+| y._1, x._2 |+| y._2)
-val zero = (mzero[A], mzero[B])
-</code></pre>
-
-<p>  }
-{% endcodeblock %}</p>
 
 <p>But is there such a thing as a monoid <em>coproduct</em>? It&#8217;s certainly not possible to build a monoid on <code>Either[A,B]</code> for monoids <code>A</code> and <code>B</code>. For example, what would be the <code>zero</code> of such a monoid? And what would be the value of <code>Left(a) |+| Right(b)</code>? We could certainly choose an arbitrary rule, but not one that actually satisfies the monoid laws of associativity and unit.</p>
 
@@ -74,189 +79,248 @@ val zero = (mzero[A], mzero[B])
 
 <p>A <em>product</em> <code>M</code> of two monoids <code>A</code> and <code>B</code> is a monoid such that there exist homomorphisms <code>fst: M =&gt; A</code>, <code>snd: M =&gt; B</code>, and for any monoid <code>Z</code> and morphisms <code>f: Z =&gt; A</code> and <code>g: Z =&gt; B</code> there has to be a unique homomorphism <code>h: Z =&gt; M</code> such that <code>fst(h(z)) == f(z)</code> and <code>snd(h(z)) == g(z)</code> for all <code>z:Z</code>. In other words, the following diagram must commute:</p>
 
-<p>{% img /images/Product.png %}</p>
+<p><img src="http://runarorama.github.com/images/Product.png"></p>
 
 <p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&#8217;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
 
-<p>{% img /images/Coproduct.png %}</p>
+<p><img src="http://runarorama.github.com/images/Coproduct.png"></p>
 
 <p>We can easily show that our <code>productMonoid</code> above really is a monoid product. The homomorphisms are the methods <code>_1</code> and <code>_2</code> on <code>Tuple2</code>. They simply map every element of <code>(A,B)</code> to a corresponding element in <code>A</code> and <code>B</code>. The monoid structure is preserved because:</p>
 
-<p>{% codeblock lang:scala %}
-(p |+| q).<em>1 == (p.</em>1 |+| q.<em>1)
-(p |+| q).</em>2 == (p.<em>2 |+| q.</em>2)
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_1</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_2</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_2</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>And for any other monoid <code>Z</code>, and morphisms <code>f: Z =&gt; A</code> and <code>g: Z =&gt; B</code>, we can construct a unique morphism from <code>Z</code> to <code>(A,B)</code>:</p>
 
-<p>{% codeblock lang:scala %}
-def factor<a href="z:%20Z">A:Monoid,B:Monoid,Z:Monoid</a>(f: Z => A, g: Z => B): (A, B) =
-  (f(z), g(z))
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">factor</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">z</span><span class="k">:</span> <span class="kt">Z</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=</span>
+</span><span class='line'>  <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">z</span><span class="o">),</span> <span class="n">g</span><span class="o">(</span><span class="n">z</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>And this really is a homomorphism because we just inherit the homomorphism law from <code>f</code> and <code>g</code>.</p>
 
 <p>What does a coproduct then look like? Well, it&#8217;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
 
-<p>{% codeblock lang:scala %}
-(left(a1) |+| left(a2)) == left(a1 |+| a2)
-(right(b1) |+| right(b2)) == right(b1 |+| b2)
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">left</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">left</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="n">left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="n">right</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">right</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="n">right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>And additionally, for any other monoid <code>Z</code> and homomorphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> we must be able to construct a unique homomorphism from <code>C[A,B]</code> to <code>Z</code>:</p>
 
-<p>{% codeblock lang:scala %}
-def fold<a href="c:%20C[A,B]">A:Monoid,B:Monoid,Z:Monoid</a>(f: A => Z, g: B => Z): Z
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">C</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <h3>The simplest thing that could possibly work</h3>
 
 <p>We can simply come up with a data structure required for the coproduct to satisfy a monoid. We will start with two constructors, one for the left side, and another for the right side:</p>
 
-<p>{% codeblock lang:scala %}
-sealed trait These[+A,+B]
-case class This<a href="a:%20A">A</a> extends These[A,Nothing]
-case class That<a href="b:%20B">B</a> extends These[Nothing,B]
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">These</span><span class="o">[</span><span class="kt">+A</span>,<span class="kt">+B</span><span class="o">]</span>
+</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">This</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">Nothing</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">That</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">Nothing</span>,<span class="kt">B</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&#8217;t quite form a monoid. What&#8217;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
 
-<p>{% codeblock lang:scala %}
-case class Both<a href="a:%20A,%20b:%20B">A,B</a> extends These[A,B]
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now <code>These[A,B]</code> is a monoid as long as <code>A</code> and <code>B</code> are monoids:</p>
 
-<p>{% codeblock lang:scala %}
-def coproduct[A:Monoid,B:Monoid]: Monoid[These[A, B]] =
-  new Monoid[These[A, B]] {</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">coproduct</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span><span class="o">]</span><span class="k">:</span> <span class="kt">Monoid</span><span class="o">[</span><span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Monoid</span><span class="o">[</span><span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">append</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">],</span> <span class="n">y</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">])</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">),</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">),</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b</span><span class="o">),</span> <span class="nc">This</span><span class="o">(</span><span class="n">a</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a</span><span class="o">),</span> <span class="nc">That</span><span class="o">(</span><span class="n">b</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b</span><span class="o">),</span> <span class="nc">This</span><span class="o">(</span><span class="n">a</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">That</span><span class="o">(</span><span class="n">b</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b1</span> <span class="o">|+|</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b1</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b1</span> <span class="o">|+|</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">,</span> <span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">zero</span> <span class="k">=</span> <span class="nc">Both</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="n">zero</span><span class="o">,</span> <span class="n">B</span><span class="o">.</span><span class="n">zero</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>def append(x: These[A, B], y: These[A, B]) = (x, y) match {
-  case (This(a1), This(a2)) =&gt; This(a1 |+| a2)
-  case (That(b1), That(b2)) =&gt; That(b1 |+| b2)
-  case (That(b), This(a)) =&gt; Both(a, b)
-  case (This(a), That(b)) =&gt; Both(a, b)
-  case (Both(a1, b), This(a)) =&gt; Both(a1 |+| a, b)
-  case (Both(a, b1), That(b)) =&gt; Both(a, b1 |+| b)
-  case (This(a1), Both(a, b)) =&gt; Both(a1 |+| a, b)
-  case (That(b), Both(a, b1)) =&gt; Both(a, b1 |+| b)
-  case (Both(a1, b1), Both(a2, b2)) =&gt; Both(a1 |+| a2, b1 |+| b2)
-}
-val zero = Both(A.zero, B.zero)
-</code></pre>
-
-<p>  }
-{% endcodeblock %}</p>
 
 <p><code>These[A,B]</code> is the smallest monoid that contains both <code>A</code> and <code>B</code> as submonoids (the <code>This</code> and <code>That</code> constructors, respectively) and admits a homomorphism from both <code>A</code> and <code>B</code>. And notice that we simply added the least amount of structure possible to make <code>These[A,B]</code> a monoid (the <code>Both</code> constructor). But is it really a coproduct?</p>
 
 <p>First we must prove that <code>This</code> and <code>That</code> really are homomorphisms. We need to prove the following two properties:</p>
 
-<p>{% codeblock lang:scala %}
-(This(a1) |+| This(a2)) == This(a1 |+| a2)
-(That(b1) |+| That(b2)) == That(b1 |+| b2)
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>That&#8217;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
 
 <p>But can we define <code>fold</code>? Yes we can:</p>
 
-<p>{% codeblock lang:scala %}
-def fold<a href="these:%20These[A,B]">A:Monoid,B:Monoid,Z:Monoid</a>(f: A => Z, g: B => Z): Z =</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span>
+</span><span class='line'>  <span class="n">these</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=</span>
+</span><span class='line'>    <span class="n">these</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">This</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">That</span><span class="o">(</span><span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">g</span><span class="o">(</span><span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">g</span><span class="o">(</span><span class="n">b</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>these match {
-  case This(a) =&gt; f(a)
-  case That(b) =&gt; g(b)
-  case Both(a, b) =&gt; f(a) |+| g(b)
-}
-</code></pre>
-
-<p>{% endcodeblock %}</p>
 
 <p>But is <code>fold</code> really a homomorphism? Let&#8217;s not assume that it is, but test it out.Here&#8217;s the homomorphism law:</p>
 
-<p>{% codeblock lang:scala %}
-fold(f,g)(t1 |+| t2) == fold(f,g)(t1) |+| fold(f,g)(t2)
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span> <span class="o">|+|</span> <span class="n">t2</span><span class="o">)</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>What happens if both <code>t1</code> or <code>t2</code> are <code>This</code> or <code>That</code>?</p>
 
-<p>{% codeblock lang:scala %}
-fold(f,g)(This(a1) |+| This(a2)) ==
-fold(f,g)(This(a1)) |+| fold(f, g)(This(a2))</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span>
+</span><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">))</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span> <span class="n">g</span><span class="o">)(</span><span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">a2</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">a2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>f(a1) |+| f(a2) == f(a1) |+| f(a2)
-{% endcodeblock %}</p>
 
 <p>That holds. But what if we introduce a <code>Both</code> on one side?</p>
 
-<p>{% codeblock lang:scala %}
-fold(f,g)(This(a1) |+| Both(a2, b)) ==
-fold(f,g)(This(a1)) |+| fold(f,g)(Both(a2,b))</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b</span><span class="o">))</span> <span class="o">==</span>
+</span><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">))</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span><span class="n">b</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">g</span><span class="o">(</span><span class="n">b</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">a2</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">g</span><span class="o">(</span><span class="n">b</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>f(a1 |+| a2) |+| g(b) == f(a1) |+| f(a2) |+| g(b)
-{% endcodeblock %}</p>
 
 <p>So far so good. That holds because of associativity. What about the other side?</p>
 
-<p>{% codeblock lang:scala %}
-fold(f,g)(That(b1) |+| Both(a, b2)) ==
-fold(f,g)(That(b1)) |+| fold(f,g)(Both(a,b2))</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="o">==</span>
+</span><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">))</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span><span class="n">b2</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">g</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span> <span class="o">==</span> <span class="n">g</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">g</span><span class="o">(</span><span class="n">b2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>f(a) |+| g(b1 |+| b2) == g(b1) |+| f(a) |+| g(b2)
-{% endcodeblock %}</p>
 
 <p>No! Something has gone wrong. This will only hold if the <code>Z</code> monoid is commutative. So in general, <code>These[A,B]</code> is not the coproduct of <code>A</code> and <code>B</code>. My error was in the <code>Both</code> constructor, which commutes all <code>B</code> values to the right and all <code>A</code> values to the left.</p>
 
 <p>So what kind of thing would work? It would have to solve this case:</p>
 
-<p>{% codeblock lang:scala %}
-  case (Both(a1, b1), Both(a2, b2)) => ???
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="o">???</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>We need to preserve that <code>a1</code>, <code>b1</code>, <code>a2</code>, and <code>b2</code> appear <em>in that order</em>. So clearly the coproduct will be some kind of list!</p>
 
 <p>We could modify the <code>Both</code> constructor this way:</p>
 
-<p>{% codeblock lang:scala %}
-case class Both<a href="a:%20These[A,B],%20b:%20These[A,B]">A,B</a> extends These[A,B]
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">],</span> <span class="n">b</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>In which case <code>These[A,B]</code> has become a kind of tree, or an unbalanced list of <code>This[A]</code> and <code>That[B]</code> values. A <em>free product</em> of the two monoids <code>A</code> and <code>B</code>. The implementation of <code>append</code> for the <code>coproduct</code> monoid could be:</p>
 
-<p>{% codeblock lang:scala %}
-def coproduct[A:Monoid,B:Monoid]: Monoid[These[A, B]] =
-  new Monoid[These[A, B]] {</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">coproduct</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span><span class="o">]</span><span class="k">:</span> <span class="kt">Monoid</span><span class="o">[</span><span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Monoid</span><span class="o">[</span><span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">append</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">],</span> <span class="n">y</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">])</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">),</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">),</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">),</span> <span class="n">z</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">),</span> <span class="n">z</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">),</span> <span class="n">z</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">),</span> <span class="n">z</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">z</span><span class="o">,</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)),</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">z</span><span class="o">,</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">))</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">z</span><span class="o">,</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">)),</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">z</span><span class="o">,</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">))</span>
+</span><span class='line'>      <span class="k">case</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Both</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">zero</span> <span class="k">=</span> <span class="nc">Both</span><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="n">zero</span><span class="o">),</span> <span class="nc">That</span><span class="o">(</span><span class="n">B</span><span class="o">.</span><span class="n">zero</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>def append(x: These[A, B], y: These[A, B]) = (x, y) match {
-  case (This(a1), This(a2)) =&gt; This(a1 |+| a2)
-  case (That(b1), That(b2)) =&gt; That(b1 |+| b2)
-  case (This(a1), Both(This(a2), z)) =&gt; Both(This(a1 |+| a2), z)
-  case (That(b1), Both(That(b2), z)) =&gt; Both(This(b1 |+| b2), z)
-  case (Both(z, This(a1)), This(a2)) =&gt; Both(z, This(a1 |+| a2))
-  case (Both(z, That(b1)), That(b2)) =&gt; Both(z, That(b1 |+| b2))
-  case _ =&gt; Both(x, y)
-}
-val zero = Both(This(A.zero), That(B.zero))
-</code></pre>
-
-<p>  }
-{% endcodeblock %}</p>
 
 <p>This <code>append</code> normalizes the list so that consecutive values of the same type are added together.</p>
 
 <p>And we would modify <code>fold</code> to recurse over the tree:</p>
 
-<p>def fold<a href="these:%20These[A,B]">Z:Monoid</a>(f: A => Z, g: B => Z): Z =</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">these</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=</span>
+</span><span class='line'>    <span class="n">these</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">This</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">That</span><span class="o">(</span><span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">g</span><span class="o">(</span><span class="n">b</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">fold</span><span class="o">(</span><span class="n">a</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span> <span class="n">g</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">b</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span> <span class="n">g</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>these match {
-  case This(a) =&gt; f(a)
-  case That(b) =&gt; g(b)
-  case Both(a, b) =&gt; fold(a)(f, g) |+| fold(b)(f, g)
-}
-</code></pre>
-
-<p>{% endcodeblock %}</p>
 
 <p>This is now a homomorphism! We already know that this is so for the <code>This</code> and <code>That</code> cases. And now that the <code>Both</code> case simply appeals to the inductive hypothesis, we know that it holds for <code>Both</code> as well.</p>
 
@@ -268,83 +332,113 @@ val zero = Both(This(A.zero), That(B.zero))
 
 <p>Clearly <code>List[Either[A,B]]</code> is a monoid, but does it permit a homomorphism from both monoids <code>A</code> and <code>B</code>? If so, then the following properties should hold:</p>
 
-<p>{% codeblock lang:scala %}
-List(Left(a1)) ++ List(Left(a2))) == List(Left(a1 |+| a2))
-List(Right(b1)) ++ List(Right(b2))) == List(Right(b1 |+| b2))
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">))</span>
+</span><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>They clearly do not hold! The lists on the left of <code>==</code> will have two elements and the lists on the right will have one element. Can we do something about this?</p>
 
 <p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&#8217;s &#8220;too big&#8221; in a sense. But if we were to reduce the list to a normal form that approximates a &#8220;free product&#8221;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
 
-<p>{% codeblock lang:scala %}
-sealed class Eithers<a href="val%20toList:%20List[Either[A,B]]">A,B</a> {
-  def ++(p: Eithers[A,B]): Eithers[A,B] =</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">class</span> <span class="nc">Eithers</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="k">val</span> <span class="n">toList</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Either</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]])</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="o">++(</span><span class="n">p</span><span class="k">:</span> <span class="kt">Eithers</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])</span><span class="k">:</span> <span class="kt">Eithers</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Eithers</span><span class="o">(</span><span class="n">toList</span> <span class="o">++</span> <span class="n">p</span><span class="o">.</span><span class="n">toList</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">Eithers</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">apply</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span><span class="o">](</span><span class="n">xs</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Either</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]])</span><span class="k">:</span> <span class="kt">Eithers</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">xs</span><span class="o">.</span><span class="n">foldRight</span><span class="o">(</span><span class="nc">List</span><span class="o">[</span><span class="kt">Either</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]]())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">),</span> <span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">)</span> <span class="o">::</span> <span class="n">xs</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span> <span class="o">::</span> <span class="n">xs</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">),</span> <span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">)</span> <span class="o">::</span> <span class="n">xs</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span> <span class="o">::</span> <span class="n">xs</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="n">e</span><span class="o">,</span> <span class="n">xs</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">e</span> <span class="o">::</span> <span class="n">xs</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">empty</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span><span class="k">:</span> <span class="kt">Eithers</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Eithers</span><span class="o">(</span><span class="nc">Nil</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>Eithers(toList ++ p.toList)
-</code></pre>
-
-<p>}</p>
-
-<p>object Eithers {
-  def apply<a href="xs:%20List[Either[A,B]]">A:Monoid,B:Monoid</a>: Eithers[A,B] =</p>
-
-<pre><code>xs.foldRight(List[Either[A,B]]()) {
-  case (Left(a1), Left(a2) :: xs) =&gt; Left(a1 |+| a2) :: xs
-  case (Right(b1), Right(b2) :: xs) =&gt; Right(b1 |+| b2) :: xs
-  case (e, xs) =&gt; e :: xs
-}
-</code></pre>
-
-<p>  def empty[A,B]: Eithers[A,B] = new Eithers(Nil)
-}
-{% endcodeblock %}</p>
 
 <p><code>Eithers[A,B]</code> is a kind of <code>List[Either[A,B]]</code> that has been normalized so that consecutive <code>A</code>s and consecutive <code>B</code>s have been collapsed using their respective monoids. So it will contain alternating <code>A</code> and <code>B</code> values.</p>
 
 <p>This is now a monoid coproduct because it permits monoid homomorphisms from <code>A</code> and <code>B</code>:</p>
 
-<p>{% codeblock lang:scala %}
-Eithers(List(Left(a1))) ++ Eithers(List(Left(a2)))) ==
-  Eithers(List(Left(a1 |+| a2)))
-Eithers(List(Right(b1))) ++ Eithers(List(Right(b2)))) ==
-  Eithers(List(Right(b1 |+| b2)))
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">)))</span> <span class="o">++</span> <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">))))</span> <span class="o">==</span>
+</span><span class='line'>  <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)))</span>
+</span><span class='line'><span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">)))</span> <span class="o">++</span> <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">))))</span> <span class="o">==</span>
+</span><span class='line'>  <span class="nc">Eithers</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>And we can implement the <code>fold</code> homomorphism:</p>
 
-<p>{% codeblock lang:scala %}
-def fold<a href="es:%20Eithers[A,B]">A:Monoid,B:Monoid,Z:Monoid</a>(f: A => Z, g: B => Z): Z =</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span>
+</span><span class='line'>  <span class="n">es</span><span class="k">:</span> <span class="kt">Eithers</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=</span>
+</span><span class='line'>    <span class="n">es</span><span class="o">.</span><span class="n">toList</span><span class="o">.</span><span class="n">foldRight</span><span class="o">(</span><span class="n">mzero</span><span class="o">[</span><span class="kt">Z</span><span class="o">])</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a</span><span class="o">),</span> <span class="n">z</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">z</span>
+</span><span class='line'>      <span class="k">case</span> <span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b</span><span class="o">),</span> <span class="n">z</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">g</span><span class="o">(</span><span class="n">b</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">z</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>es.toList.foldRight(mzero[Z]) {
-  case (Left(a), z) =&gt; f(a) |+| z
-  case (Right(b), z) =&gt; g(b) |+| z
-}
-</code></pre>
-
-<p>{% endcodeblock %}</p>
 
 <p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&#8217;s the law again:</p>
 
-<p>{% codeblock lang:scala %}
-(fold(e1)(f,g) |+| fold(e2)(f,g)) == fold(e1 ++ e2)(f,g)
-{% endcodeblock %}</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">fold</span><span class="o">(</span><span class="n">e1</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">))</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">e1</span> <span class="o">++</span> <span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>If either of <code>e1</code> or <code>e2</code> is empty then the result is the fold of the other, so those cases are trivial. If they are both nonempty, then they will have one of these forms:</p>
 
-<p>{% codeblock lang:scala %}
-e1 = [&#8230;, Left(a1)]
-e2 = [Left(a2), &#8230;]</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">e1</span> <span class="k">=</span> <span class="o">[</span><span class="kt">...</span>, <span class="kt">Left</span><span class="o">(</span><span class="kt">a1</span><span class="o">)]</span>
+</span><span class='line'><span class="n">e2</span> <span class="k">=</span> <span class="o">[</span><span class="kt">Left</span><span class="o">(</span><span class="kt">a2</span><span class="o">)</span>, <span class="kt">...</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">e1</span> <span class="k">=</span> <span class="o">[</span><span class="kt">...</span>, <span class="kt">Right</span><span class="o">(</span><span class="kt">b1</span><span class="o">)]</span>
+</span><span class='line'><span class="n">e2</span> <span class="k">=</span> <span class="o">[</span><span class="kt">Right</span><span class="o">(</span><span class="kt">b2</span><span class="o">)</span>, <span class="kt">...</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">e1</span> <span class="k">=</span> <span class="o">[</span><span class="kt">...</span>, <span class="kt">Left</span><span class="o">(</span><span class="kt">a</span><span class="o">)]</span>
+</span><span class='line'><span class="n">e2</span> <span class="k">=</span> <span class="o">[</span><span class="kt">Right</span><span class="o">(</span><span class="kt">b</span><span class="o">)</span>, <span class="kt">...</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">e1</span> <span class="k">=</span> <span class="o">[</span><span class="kt">...</span>, <span class="kt">Right</span><span class="o">(</span><span class="kt">b</span><span class="o">)]</span>
+</span><span class='line'><span class="n">e2</span> <span class="k">=</span> <span class="o">[</span><span class="kt">Left</span><span class="o">(</span><span class="kt">a</span><span class="o">)</span>, <span class="kt">...</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>e1 = [&#8230;, Right(b1)]
-e2 = [Right(b2), &#8230;]</p>
-
-<p>e1 = [&#8230;, Left(a)]
-e2 = [Right(b), &#8230;]</p>
-
-<p>e1 = [&#8230;, Right(b)]
-e2 = [Left(a), &#8230;]
-{% endcodeblock %}</p>
 
 <p>In the first two cases, on the right of the <code>==</code> sign in the law, we perform <code>a1 |+| a2</code> and <code>b1 |+| b2</code> respectively before concatenating. In the other two cases we simply concatenate the lists. The <code>++</code> method on <code>Eithers</code> takes care of doing this correctly for us. On the left of the <code>==</code> sign we fold the lists individually and they will be alternating applications of <code>f</code> and <code>g</code>. So then this law amounts to the fact that <code>f(a1 |+| a2) == f(a1) |+| f(a2)</code> in the first case, and the same for <code>g</code> in the second case. In the latter two cases this amounts to a homomorphism on <code>List</code>. So as long as <code>f</code> and <code>g</code> are homomorphisms, so is <code>fold(_)(f,g)</code>. Therefore, <code>Eithers[A,B]</code> really is a coproduct of <code>A</code> and <code>B</code>.</p>
 
