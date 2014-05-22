@@ -38,9 +38,9 @@ Sometimes there will be a homomorphism in both directions between two monoids. I
 
 For example, the `String` and `List[Char]` monoids with concatenation are isomorphic. We can convert a `String` to a `List[Char]`, preserving the monoid structure, and go back again to the exact same `String` we started with. This is also true in the inverse direction, so the isomorphism holds.
 
-Other examples include (`Int`, `+`) and (`Int`, `*`), which are isomorphic. The same goes for (`Boolean`, `&&`) and (`Boolean`, `||`).
+Other examples include (`Boolean`, `&&`) and (`Boolean`, `||`) which are isomorphic via `not`. 
 
-Note that there are monoids with homomorphisms in both directions between them that nevertheless are _not_ isomorphic.
+Note that there are monoids with homomorphisms in both directions between them that nevertheless are _not_ isomorphic. For example, (`Int`, `*`) and (`Int`, `+`). These are homomorphic to one another, but not isomorphic (thanks, Robbie Gates).
 
 ## Monoid products and coproducts ##
 
@@ -199,10 +199,59 @@ So what kind of thing would work? It would have to solve this case:
 
 We need to preserve that `a1`, `b1`, `a2`, and `b2` appear _in that order_. So clearly the coproduct will be some kind of list!
 
+We could modify the `Both` constructor this way:
+
+{% codeblock lang:scala %}
+case class Both[A,B](a: These[A,B], b: These[A,B]) extends These[A,B]
+{% endcodeblock %}
+
+And let's add an empty case for the combined zero:
+
+{% codeblock lang:scala %}
+case class Neither[A,B]() extends These[A,B]
+{% endcodeblock %}
+
+
+In which case `These[A,B]` has become a kind of tree, or an unbalanced list of `This[A]` and `That[B]` values. A _free product_ of the two monoids `A` and `B`. The implementation of `append` for the `coproduct` monoid could be:
+
+{% codeblock lang:scala %}
+def coproduct[A:Monoid,B:Monoid]: Monoid[These[A, B]] =
+  new Monoid[These[A, B]] {
+    def append(x: These[A, B], y: These[A, B]) = (x, y) match {
+      case (Neither(), _) => y
+      case (_, Neither()) => x
+      case (This(a1), This(a2)) => This(a1 |+| a2)
+      case (That(b1), That(b2)) => That(b1 |+| b2)
+      case (This(a1), Both(This(a2), z)) => Both(This(a1 |+| a2), z)
+      case (That(b1), Both(That(b2), z)) => Both(That(b1 |+| b2), z)
+      case (Both(z, This(a1)), This(a2)) => Both(z, This(a1 |+| a2))
+      case (Both(z, That(b1)), That(b2)) => Both(z, That(b1 |+| b2))
+      case _ => Both(x, y)
+    }
+    val zero = Neither[A,B]()
+  }
+{% endcodeblock %}
+
+This `append` normalizes the list so that consecutive values of the same type are added together.
+
+And we would modify `fold` to recurse over the tree:
+
+{% codeblock lang:scala %}
+def fold[Z:Monoid](these: These[A,B])(f: A => Z, g: B => Z): Z =
+  these match {
+    case Neither() => mzero[Z]
+    case This(a) => f(a)
+    case That(b) => g(b)
+    case Both(a, b) => fold(a)(f, g) |+| fold(b)(f, g)
+  }
+{% endcodeblock %}
+
+This is now a homomorphism! We already know that this is so for the `This` and `That` cases. And now that the `Both` case simply appeals to the inductive hypothesis, we know that it holds for `Both` as well.
+
 
 ### Free monoids on coproducts ###
 
-Let's try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?
+To better understand what's going on, let's try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?
 
 The underlying set of a monoid `A` is just the type `A` without the monoid structure. The coproduct of types `A` and `B` is the type `Either[A,B]`. Having "forgotten" the monoid structure of both `A` and `B`, we can recover it by generating a free monoid on `Either[A,B]`, which is just `List[Either[A,B]]`. The `append` operation of this monoid is list concatenation, and the identity for it is the empty list.
 
@@ -279,6 +328,19 @@ e2 = [Left(a), ...]
 {% endcodeblock %}
 
 In the first two cases, on the right of the `==` sign in the law, we perform `a1 |+| a2` and `b1 |+| b2` respectively before concatenating. In the other two cases we simply concatenate the lists. The `++` method on `Eithers` takes care of doing this correctly for us. On the left of the `==` sign we fold the lists individually and they will be alternating applications of `f` and `g`. So then this law amounts to the fact that `f(a1 |+| a2) == f(a1) |+| f(a2)` in the first case, and the same for `g` in the second case. In the latter two cases this amounts to a homomorphism on `List`. So as long as `f` and `g` are homomorphisms, so is `fold(_)(f,g)`. Therefore, `Eithers[A,B]` really is a coproduct of `A` and `B`.
+
+Since we have already convinced ourselves that `These` is a monoid coproduct, we could also simply show that there is a homomorphism from `Eithers` to `These`:
+
+{% codeblock lang:scala %}
+def toThese[A:Monoid,B:Monoid](es: Eithers[A,B]): These[A,B] =
+  es match {
+    case Nil => Neither()
+    case Left(a) :: t => This(a) |+| toThese(t)
+    case Right(b) :: t => That(b) |+| toThese(t)
+  }
+{% endcodeblock %}
+
+Which would amount to proving that `(toThese(xs) |+| toThese(ys))` = `toThese(xs ++ ys)`.
 
 The lesson learned here is to check assumptions and test against laws. Things are not always as straightforward as they seem.
 

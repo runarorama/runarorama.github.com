@@ -22,7 +22,7 @@ article {
 
 .comment {
     background-color: transparent;
-    border-color: $sol_base1;
+    border-color: $sol_base2;
     border-style: solid;
     border-width: 1px;
     color: $sol_base03;
@@ -34,7 +34,7 @@ article {
   }
   
 .comment .commentheader {
-  border-bottom-color: $sol_base1;
+  border-bottom-color: $sol_base2;
   border-bottom-style: solid;
   border-bottom-width: 1px;
   color: $sol_base03;
@@ -174,8 +174,8 @@ article {
 }
 
 .comment .commentbody pre {
-  border: 0px solid $sol_base1;
-  background-color: $sol_base0;
+  border: 0px solid $sol_base2;
+  background-color: $sol_base3;
   padding: 0 .4em;
 }
 
@@ -185,7 +185,7 @@ article {
 
 .comment .commentbody code {
   border: 1px solid $sol_base1;
-  background-color: $sol_base0;
+  background-color: $sol_base3;
   font-size: 85%;
   padding: 0 .2em;
 }
