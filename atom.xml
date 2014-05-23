@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-05-23T10:05:04-04:00</updated>
+  <updated>2014-05-23T10:05:42-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -1522,16 +1522,10 @@
 
 <p>Note that a correct concept of concepts is the vehicle and not the cargo of this post. In brief, a valid concept or theory must meet the following criteria (hat tip: <a href="http://www.theobjectivestandard.com/issues/2007-spring/induction-experimental-method.asp">David Harriman</a>):</p>
 
-<pre><code>1. It must be derived from observations by a valid method (by logical induction from experience or experiment as described above). A valid concept can have no arbitrary elements and no relations that are unsupported by the facts being integrated.
-</code></pre>
-
 <ol>
-<li>It must form an integrated whole in which every part supports every other. It cannot be a conglomeration of independent parts that are freely adjusted to fit a given situation.
-
-<ol>
+<li>It must be derived from observations by a valid method (by logical induction from experience or experiment as described above). A valid concept can have no arbitrary elements and no relations that are unsupported by the facts being integrated.</li>
+<li>It must form an integrated whole in which every part supports every other. It cannot be a conglomeration of independent parts that are freely adjusted to fit a given situation.</li>
 <li>It must be no more and no less general than required to meet criteria 1 and 2.</li>
-</ol>
-</li>
 </ol>
 
 
@@ -1543,9 +1537,11 @@
 
 <p>Of course, it does no good to tear down the cognitive package-deal that is &#8220;object-oriented&#8221; if you don&#8217;t replace it with something. If you entered a village of <a href="http://www.smurf.com/">little blue creatures</a> and convinced them that the term &#8220;smurf&#8221; had no cognitive utility, you would have to teach them a whole host of concepts to use in its stead. There are two main ideas that the anti-concept &#8220;object-oriented&#8221; annihilates:</p>
 
-<pre><code>1. It introduces the false dichotomy of identity as apart from equivalence.
-2. It blurs the distinction between values and variables.
-</code></pre>
+<ol>
+<li>It introduces the false dichotomy of identity as apart from equivalence.</li>
+<li>It blurs the distinction between values and variables.</li>
+</ol>
+
 
 <p>I will elaborate on each of these points in two follow-up posts. Stay tuned.</p>
 ]]></content>
