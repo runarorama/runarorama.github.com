@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-05-22T09:52:25-04:00</updated>
+  <updated>2014-05-22T21:00:40-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -1341,6 +1341,8 @@
 <p>Indeed, if you read the Wikipedia entry on &#8220;Computer Program&#8221;, it tells you that computer programs are &#8220;instructions for a computer&#8221;, and that &#8220;a computer requires programs to function&#8221;. This is a curious position, since it&#8217;s completely backwards. It implies that programming is done in order to make computers do things, as a primary. I&#8217;ll warrant that the article was probably written by a professional programmer.</p>
 
 <p>But why does a computer need to function? Why does a computer even exist? The reality is that computers exist solely for the purpose of executing programs. The machine is not a metaphysical primary. Reality has primacy, a program is a description, an abstraction, a proof of some hypothesis about an aspect of reality, and the computer exists to deduce the implications of that fact for the pursuit of human values.</p>
+
+<p>To say that a computer &#8220;requires programs to function&#8221; is not at all like saying that an automobile requires fuel. It&#8217;s like saying that an automobile requires a destination. While that&#8217;s true in some sense, the destination doesn&#8217;t exist for the sake of the car.</p>
 
 <h2>Shaping Programs in the Machine&#8217;s Image</h2>
 
