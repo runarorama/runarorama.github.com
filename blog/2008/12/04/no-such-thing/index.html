@@ -1,0 +1,380 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Objects, Identity, and Concept-formation - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2008/12/04/no-such-thing/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:runarorama.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script type="text/javascript" src="http://datejs.googlecode.com/svn/trunk/build/date-en-US.js"></script>
+
+<div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Objects, Identity, and Concept-formation</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-12-04T00:00:00-05:00" pubdate data-updated="true">Dec 4<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="GoF%20book">http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&#8217;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="some%20governing%20principle">http://en.wikipedia.org/wiki/Combinatory_logic</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="category%20theory">http://en.wikipedia.org/wiki/Category_theory</a>, and <a href="epistemology">http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology</a>. And I&#8217;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
+
+<p><em>There is no such thing as Object-Oriented programming.</em></p>
+
+<p>I realise that I might risk starting a religious war here, but I don&#8217;t intend to. If you think I&#8217;m attacking you personally in some way, please stop reading and come back later with fresh eyes. Note that <em>I&#8217;m not saying that OO is a bad thing</em>. I&#8217;m saying that there isn&#8217;t any special kind of programming that is object-oriented as against programming that isn&#8217;t. It is a useless distinction, in exactly the same way that <a href="" title="race">http://freedomkeys.com/ar-racism.htm</a> is a useless distinction. And holding on to a useless concept isn&#8217;t good for anybody. The term &#8220;object-oriented&#8221; is at least honest in that it says what it implies, which is a frame of mind, an orientation of the programmer. However, the practical effect of this orientation is anti-conceptual, in that it displaces actual concepts like algebra, calculus, closure, function, identity, type, value, variable, etc. It fosters an aversion to abstraction. So you could say that there are object-orientated programmers.</p>
+
+<h2>&#8220;Object-Oriented&#8221; as a non-concept</h2>
+
+<p>Remember, you cannot be called upon to prove a negative. The burden of proof falls on whomever is claiming that there is such a thing as OO. But try as you might, <a href="there's%20no%20objective%20definition%20of%20what%20%22object-oriented%22%20refers%20to">http://www.paulgraham.com/reesoo.html</a>. It means anything you want, which is to say that it&#8217;s rather meaningless. Peddlers of &#8220;object methodology&#8221; readily admit that &#8220;object-oriented&#8221; means different things to different people. To quote Aristotle: &#8220;Not to have one meaning is to have no meaning, and if words have no meaning, our reasoning with one another, and indeed with ourselves, has been annihilated.&#8221;</p>
+
+<p>When I say that there&#8217;s no such thing as OO, I mean, more precisely, that there exists some abstraction (or several) that is referred to as &#8220;object-oriented&#8221;, but that this abstraction has no actual referent in reality. It is an abstraction that is made in error. It is not necessary, and serves no cognitive purpose. It is &#8220;not even false&#8221;.</p>
+
+<p>This is to say that it&#8217;s not like the concept of Santa Claus, which is a fiction, a falsehood. OO is not a fiction, but a misintegration. It is a term that sounds like a concept, but denotes nothing more than a vague collection of disparate elements, any of which can be omitted, and none of which are essential.</p>
+
+<h2>A Proper Method of Concept-Formation</h2>
+
+<p>How is Object-Oriented a non-concept? Let&#8217;s demonstrate that very cursorily. First, we have to explicitly identify what it means for a concept to be valid.</p>
+
+<p><em>Valid concepts are arrived at by induction. </em>Induction is the process of integrating facts of reality by observing similarities and omitting particulars. Or, if you will, the process of applying logic to experience. Our induction must adhere to the corollary laws of <a href="identity">http://en.wikipedia.org/wiki/Law_of_identity</a>, <a href="noncontradiction">http://en.wikipedia.org/wiki/Law_of_noncontradiction</a>, and <a href="the%20excluded%20middle">http://en.wikipedia.org/wiki/Law_of_excluded_middle</a>, and it must observe <a href="causality">http://aynrandlexicon.com/lexicon/causality.html</a>.</p>
+
+<p>Note that a correct concept of concepts is the vehicle and not the cargo of this post. In brief, a valid concept or theory must meet the following criteria (hat tip: <a href="David%20Harriman">http://www.theobjectivestandard.com/issues/2007-spring/induction-experimental-method.asp</a>):</p>
+
+<pre><code># It must be derived from observations by a valid method (by logical induction from experience or experiment as described above). A valid concept can have no arbitrary elements and no relations that are unsupported by the facts being integrated.
+</code></pre>
+
+<p>  # It must form an integrated whole in which every part supports every other. It cannot be a conglomeration of independent parts that are freely adjusted to fit a given situation.</p>
+
+<pre><code># It must be no more and no less general than required to meet criteria 1 and 2.
+</code></pre>
+
+<p><em>OO doesn&#8217;t meet criterion #1</em>. There&#8217;s nothing about the nature of programming that gives rise to a concept of object-orientation. Rather, the notion is sparked by the desire to make an analogy between manipulating physical objects in the real world and manipulating abstract entities in the computer. The motivation is understandable, to help people think about programs in the same way that they are used to reasoning about physical objects. But the analogy isn&#8217;t warranted by the facts, and therefore it is arbitrary. The concepts simply don&#8217;t transfer, because they are abstractions over entities of a different kind. The mistake is to use the concepts anyway, choosing the illusion that software is like physical systems rather than understanding the actual nature of programs.</p>
+
+<p><em>OO doesn&#8217;t meet criterion #2</em>: There&#8217;s no consistent definition of object-orientation. It&#8217;s a loose grab-bag in which nothing is essential. Even if you start removing things, it&#8217;s not at all clear at what point your programming stops being object-oriented. One would think that it&#8217;s at the point where you stop programming with objects, but that&#8217;s merely begging the question since it&#8217;s not clear what kind of entity is an object and what kind of entity isn&#8217;t. We are to rely on intuition alone in discovering that. What&#8217;s more, some of the contents of the &#8220;object-oriented&#8221; bag contradict one another (both inheritance and mutation contradict encapsulation, for example).</p>
+
+<h2>Repairing the Disorientation</h2>
+
+<p>Of course, it does no good to tear down the cognitive package-deal that is &#8220;object-oriented&#8221; if you don&#8217;t replace it with something. If you entered a village of <a href="little%20blue%20creatures">http://www.smurf.com/</a> and convinced them that the term &#8220;smurf&#8221; had no cognitive utility, you would have to teach them a whole host of concepts to use in its stead. There are two main ideas that the anti-concept &#8220;object-oriented&#8221; annihilates:</p>
+
+<pre><code># It introduces the false dichotomy of identity as apart from equivalence.
+# It blurs the distinction between values and variables.
+</code></pre>
+
+<p>I will elaborate on each of these points in two follow-up posts. Stay tuned.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-12-04T00:00:00-05:00" pubdate data-updated="true">Dec 4<span>th</span>, 2008</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2008/12/04/no-such-thing/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2008/12/04/no-such-thing/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2009/04/27/a-critique-of-impure-reason/" title="Next Post: A Critique of Impure Reason">A Critique of Impure Reason &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/10"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
+    </div>
+  </div>
+<script type="text/javascript">
+
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + data[i].user.login;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/10#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = Date.parse(data[i].created_at).toString("yyyy-MM-dd HH:mm:ss");
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/10/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScala-5A.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/01/free-and-yoneda/">Free monads and the Yoneda lemma</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/20/free-monads-and-free-monoids/">Free monoids and free monads</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/26/machines/">Machines and stream processing</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/09/13/what-purity-is-and-isnt/">What purity is and isn't</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("runarorama", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/runarorama" class="twitter-follow-button" data-show-count="false">Follow @runarorama</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/runarorama?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
