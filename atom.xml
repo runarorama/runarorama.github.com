@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-06-23T11:09:57-04:00</updated>
+  <updated>2014-06-23T11:43:15-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -73,9 +73,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But is there such a thing as a monoid <em>coproduct</em>? It&#8217;s certainly not possible to build a monoid on <code>Either[A,B]</code> for monoids <code>A</code> and <code>B</code>. For example, what would be the <code>zero</code> of such a monoid? And what would be the value of <code>Left(a) |+| Right(b)</code>? We could certainly choose an arbitrary rule, but not one that actually satisfies the monoid laws of associativity and unit.</p>
+<p>But is there such a thing as a monoid <em>coproduct</em>? Could we just use <code>Either[A,B]</code> for monoids <code>A</code> and <code>B</code>? What would be the <code>zero</code> of such a monoid? And what would be the value of <code>Left(a) |+| Right(b)</code>? We could certainly choose an arbitrary rule, and we may even be able to satisfy the monoid laws, but would that mean we have a <em>monoid coproduct</em>?</p>
 
-<p>To resolve this, we need to know the precise meaning of <em>product</em> and <em>coproduct</em>. These come straight from Wikipedia, with a little help from Cale Gibbard.</p>
+<p>To answer this, we need to know the precise meaning of <em>product</em> and <em>coproduct</em>. These come straight from Wikipedia, with a little help from Cale Gibbard.</p>
 
 <p>A <em>product</em> <code>M</code> of two monoids <code>A</code> and <code>B</code> is a monoid such that there exist homomorphisms <code>fst: M =&gt; A</code>, <code>snd: M =&gt; B</code>, and for any monoid <code>Z</code> and morphisms <code>f: Z =&gt; A</code> and <code>g: Z =&gt; B</code> there has to be a unique homomorphism <code>h: Z =&gt; M</code> such that <code>fst(h(z)) == f(z)</code> and <code>snd(h(z)) == g(z)</code> for all <code>z:Z</code>. In other words, the following diagram must commute:</p>
 
