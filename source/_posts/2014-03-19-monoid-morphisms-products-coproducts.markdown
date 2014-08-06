@@ -55,9 +55,9 @@ def product[A:Monoid,B:Monoid]: Monoid[(A, B)] =
   }
 {% endcodeblock %}
 
-But is there such a thing as a monoid _coproduct_? It's certainly not possible to build a monoid on `Either[A,B]` for monoids `A` and `B`. For example, what would be the `zero` of such a monoid? And what would be the value of `Left(a) |+| Right(b)`? We could certainly choose an arbitrary rule, but not one that actually satisfies the monoid laws of associativity and unit.
+But is there such a thing as a monoid _coproduct_? Could we just use `Either[A,B]` for monoids `A` and `B`? What would be the `zero` of such a monoid? And what would be the value of `Left(a) |+| Right(b)`? We could certainly choose an arbitrary rule, and we may even be able to satisfy the monoid laws, but would that mean we have a _monoid coproduct_?
 
-To resolve this, we need to know the precise meaning of _product_ and _coproduct_. These come straight from Wikipedia, with a little help from Cale Gibbard.
+To answer this, we need to know the precise meaning of _product_ and _coproduct_. These come straight from Wikipedia, with a little help from Cale Gibbard.
 
 A _product_ `M` of two monoids `A` and `B` is a monoid such that there exist homomorphisms `fst: M => A`, `snd: M => B`, and for any monoid `Z` and morphisms `f: Z => A` and `g: Z => B` there has to be a unique homomorphism `h: Z => M` such that `fst(h(z)) == f(z)` and `snd(h(z)) == g(z)` for all `z:Z`. In other words, the following diagram must commute:
 

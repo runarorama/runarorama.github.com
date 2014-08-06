@@ -17,7 +17,7 @@ The `Free` monad in Scalaz is given a bit like this:
 {% codeblock lang:scala %}
 sealed trait Free[F[_],A]
 case class Return[F[_],A](a: A) extends Free[F,A]
-case class Suspend[F[_],A](s: F[Free[F[A]]]) extends Free[F,A]
+case class Suspend[F[_],A](s: F[Free[F, A]]) extends Free[F,A]
 {% endcodeblock %}
 
 And throughout the methods on `Free`, it is required that `F` is a _functor_ because in order to get at the recursive step inside a `Suspend`, we need to `map` over the `F` somehow.

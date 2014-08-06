@@ -29,6 +29,8 @@ Indeed, if you read the Wikipedia entry on "Computer Program", it tells you that
 
 But why does a computer need to function? Why does a computer even exist? The reality is that computers exist solely for the purpose of executing programs. The machine is not a metaphysical primary. Reality has primacy, a program is a description, an abstraction, a proof of some hypothesis about an aspect of reality, and the computer exists to deduce the implications of that fact for the pursuit of human values.
 
+To say that a computer "requires programs to function" is not at all like saying that an automobile requires fuel. It's like saying that it needs a driver. While that's true, the driver doesn't exist for the sake of the car. The driver has somewhere to go and the car exists to serve that purpose.
+
 ## Shaping Programs in the Machine's Image ##
 
 There's a certain kind of programming that lends itself well to manipulating a computer at a low level. You must think in terms of copying data between registers and memory, and executing instructions based on the machine's current state. In this kind of activity, the programmer serves as the interpreter between the abstract algorithm and the physical machine. But this in itself is a mechanical task. We can instead write a program, once and for all, that performs the interpretation for us, and direct that program using a general-purpose programming language.
