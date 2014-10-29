@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-09-18T13:44:05-04:00</updated>
+  <updated>2014-10-29T13:49:44-07:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -14,9 +14,20 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Taking a break from Twitter]]></title>
+    <link href="http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter/"/>
+    <updated>2014-10-29T13:23:00-07:00</updated>
+    <id>http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter</id>
+    <content type="html"><![CDATA[<p>Today I disabled my Twitter account. Probably only temporarily, but we&#8217;ll see. This is just a quick note to let everyone know that I&#8217;m not leaving Twitter because of anything specific. It&#8217;s not that you said or did anything wrong. I just find that it&#8217;s becoming an energy sink for me. I&#8217;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
+
+<p>Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I&#8217;m available by email. My address is <code>runar</code> at this blog&#8217;s domain.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[At long last]]></title>
     <link href="http://runarorama.github.com/blog/2014/09/18/at-long-last/"/>
-    <updated>2014-09-18T13:09:00-04:00</updated>
+    <updated>2014-09-18T13:09:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2014/09/18/at-long-last</id>
     <content type="html"><![CDATA[<p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&#8217;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
 
@@ -39,7 +50,7 @@
   <entry>
     <title type="html"><![CDATA[Monoid morphisms, products, and coproducts]]></title>
     <link href="http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts/"/>
-    <updated>2014-03-19T00:00:00-04:00</updated>
+    <updated>2014-03-19T00:00:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts</id>
     <content type="html"><![CDATA[<p>Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
@@ -504,7 +515,7 @@
   <entry>
     <title type="html"><![CDATA[Free monads and the Yoneda lemma]]></title>
     <link href="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/"/>
-    <updated>2013-11-01T00:00:00-04:00</updated>
+    <updated>2013-11-01T00:00:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2013/11/01/free-and-yoneda</id>
     <content type="html"><![CDATA[<p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &#8220;free monad&#8221;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
 
@@ -641,7 +652,7 @@
   <entry>
     <title type="html"><![CDATA[Free monoids and free monads]]></title>
     <link href="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/"/>
-    <updated>2013-08-20T00:00:00-04:00</updated>
+    <updated>2013-08-20T00:00:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids</id>
     <content type="html"><![CDATA[<p>In a series of old posts, I once talked about the link between <a href="http://apocalisp.wordpress.com/2010/06/14/on-monoids/">lists and monoids</a>, as well as <a href="http://apocalisp.wordpress.com/2010/07/21/more-on-monoids-and-monads/">monoids and monads</a>. Now I want to talk a little bit more about monoids and monads from the perspective of <em>free structures</em>.</p>
 
@@ -744,7 +755,7 @@
   <entry>
     <title type="html"><![CDATA[Machines and stream processing]]></title>
     <link href="http://runarorama.github.com/blog/2013/01/26/machines/"/>
-    <updated>2013-01-26T12:34:00-05:00</updated>
+    <updated>2013-01-26T12:34:00-08:00</updated>
     <id>http://runarorama.github.com/blog/2013/01/26/machines</id>
     <content type="html"><![CDATA[<p>I gave a talk on &#8220;Machines&#8221; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
@@ -757,7 +768,7 @@
   <entry>
     <title type="html"><![CDATA[What purity is and isn't]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/"/>
-    <updated>2012-09-13T22:07:00-04:00</updated>
+    <updated>2012-09-13T22:07:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt</id>
     <content type="html"><![CDATA[<p>A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
 
@@ -898,7 +909,7 @@
   <entry>
     <title type="html"><![CDATA[New Beginnings]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/"/>
-    <updated>2012-09-04T01:29:00-04:00</updated>
+    <updated>2012-09-04T01:29:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved</id>
     <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&#8217;s also partly that putting a post up on WordPress is a chore. It&#8217;s like building a ship in a bottle.</p>
 
@@ -913,7 +924,7 @@
   <entry>
     <title type="html"><![CDATA[Scalaz Tutorial: Enumeration-based I/O with iteratees]]></title>
     <link href="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/"/>
-    <updated>2010-10-14T00:00:00-04:00</updated>
+    <updated>2010-10-14T00:00:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees</id>
     <content type="html"><![CDATA[<p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
 
@@ -1339,7 +1350,7 @@
   <entry>
     <title type="html"><![CDATA[A Critique of Impure Reason]]></title>
     <link href="http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason/"/>
-    <updated>2009-04-27T00:00:00-04:00</updated>
+    <updated>2009-04-27T00:00:00-07:00</updated>
     <id>http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason</id>
     <content type="html"><![CDATA[<p>Much has been made of the difference between &#8220;object-oriented&#8221; and &#8220;functional&#8221; programming. As much as I&#8217;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&#8217;t think it&#8217;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
 
@@ -1521,7 +1532,7 @@
   <entry>
     <title type="html"><![CDATA[Objects, Identity, and Concept-formation]]></title>
     <link href="http://runarorama.github.com/blog/2008/12/04/no-such-thing/"/>
-    <updated>2008-12-04T00:00:00-05:00</updated>
+    <updated>2008-12-04T00:00:00-08:00</updated>
     <id>http://runarorama.github.com/blog/2008/12/04/no-such-thing</id>
     <content type="html"><![CDATA[<p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612">GoF book</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&#8217;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="http://en.wikipedia.org/wiki/Combinatory_logic">some governing principle</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="http://en.wikipedia.org/wiki/Category_theory">category theory</a>, and <a href="http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology">epistemology</a>. And I&#8217;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
 
