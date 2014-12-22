@@ -14,4 +14,4 @@ I received my education in computer programming and electrical engineering at th
 
 I use this blog to write about things that interest me or occupy my attention, including functional programming, relational database theory, compilers, programming languages, and philosophy.
 
-My views are my own and not my employer's.
+Direct any inquiries to `runar` at this blog's domain.
