@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-10-29T14:01:02-07:00</updated>
+  <updated>2014-12-21T23:27:50-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -14,9 +14,107 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Maximally Powerful, Minimally Useful]]></title>
+    <link href="http://runarorama.github.com/blog/2014/12/21/maximally-powerful/"/>
+    <updated>2014-12-21T23:23:00-05:00</updated>
+    <id>http://runarorama.github.com/blog/2014/12/21/maximally-powerful</id>
+    <content type="html"><![CDATA[<p>It&#8217;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
+
+<p>This principle is very widely applicable, and it&#8217;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
+
+<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&#8217;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
+
+<p>What I want to do here is give a whole bunch of examples. Then we&#8217;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
+
+<h2>Examples from computer science</h2>
+
+<h3>Context-free and regular grammars</h3>
+
+<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&#8217;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
+
+<h3>Monads and applicative functors</h3>
+
+<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&#8217;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &#8220;bind&#8221;, or &#8220;flatMap&#8221;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
+
+<p>This power comes at a cost. Whereas we can always compose any two applicatives to form a composite applicative, two monads do not in general compose to form a monad. It may be the case that a given monad composes with any other monad, but we need some additional information about it in order to be able to conclude that it does.</p>
+
+<h3>Actors and futures</h3>
+
+<p>Futures have an algebraic theory, so we can reason about them algebraically. Namely, they form an applicative functor which means that two futures <code>x</code> and <code>y</code> make a composite future that does <code>x</code> and <code>y</code> in parallel. They also compose sequentially since they form a monad.</p>
+
+<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &#8220;fire and forget&#8221;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
+
+<h3>Typed and untyped programming</h3>
+
+<p>When we have an untyped function, it could receive any type of argument and produce any type of output. The implementation is totally unrestricted, so that gives us a great deal of expressive freedom. Such a function can potentially participate in a lot of different expressions that use the function in different ways.</p>
+
+<p>A function of type <code>Bool -&gt; Bool</code> however is highly restricted. Its argument can only be one of two things, and the result can only be one of two things as well. So there are 4 different implementations such a function could possibly have. Therefore this restriction gives us a great deal of analyzability.</p>
+
+<p>For example, since the argument is of type <code>Bool</code> and not <code>Any</code>, the implementation mostly writes itself. We need to consider only two possibilities. <code>Bool</code> (a type of size 2) is fundamentally easier to reason about than <code>Any</code> (a type of potentially infinite size). Similarly, any usage of the function is easy to reason about. A caller can be sure not to call it with arguments other than <code>True</code> or <code>False</code>, and enlist the help of a type system to guarantee that expressions involving the function are meaningful.</p>
+
+<h3>Total functional programming</h3>
+
+<p>Programming in non-total languages affords us the power of general recursion and &#8220;fast and loose reasoning&#8221; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>map (- n) (map (+ n) xs)) == xs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This states that adding <code>n</code> to every number in a list and then subtracting <code>n</code> again should be the identity. But what if <code>n</code> actually throws an exception or never halts? In a non-total language, we need some additional information. Namely, we need to know that <code>n</code> is total.</p>
+
+<h3>Referential transparency and side effects</h3>
+
+<p>The example above also serves to illustrate the trade-off between purely functional and impure programming. If <code>n</code> could have arbitrary side effects, algebraic reasoning of this sort involving <code>n</code> is totally annihilated. But if we know that <code>n</code> is referentially transparent, algebraic reasoning is preserved. The power of side effects comes at the cost of algebraic reasoning. This price includes loss of compositionality, modularity, parallelizability, and parametricity. Our programs can do strictly more things, but we can conclude strictly fewer things about our programs.</p>
+
+<h2>Example from infosec</h2>
+
+<p>There is a principle in computer security called <em>The Principle of Least Privilege</em>. It says that a user or program should have exactly as much authority as necessary but no more. This constrains the power of the entity, but greatly enhances the power of others to predict and reason about what the entity is going to do, resulting in the following benefits:</p>
+
+<ul>
+<li><strong>Compositionality</strong> &#8211; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
+<li><strong>Modularity</strong> &#8211; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
+</ul>
+
+
+<h2>Example from politics</h2>
+
+<p>Some might notice an analogy between the Principle of Least Privilege and the idea of a constitutionally limited government. An absolute dictatorship or pure democracy will have absolute power to enact whatever whim strikes the ruler or majority at the moment. But the overall stability, security, and freedom of the people is greatly enhanced by the presence of legal limits on the power of the government. A limited constitutional republic also makes for a better neighbor to other states.</p>
+
+<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &#8220;cost&#8221; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
+
+<h2>An example from mathematics</h2>
+
+<p>The framework of two-dimensional Euclidean geometry is simply an empty page on which we can construct lines and curves using tools like a compass and straightedge. When we go from that framework to a Cartesian one, we constrain ourselves to reasoning on a grid of pairs of numbers. This is a tradeoff between expressivity and analyzability. When we move fom Euclidean to Cartesian geometry, we lose the ability to assume isotropy of space, intersection of curves, and compatibility between dimensions. But we gain much more powerful things through the restriction: the ability to precisely define geometric objects, to do arithmetic with them, to generalize to higher dimensions, and to reason with higher abstractions like linear algebra and category theory.</p>
+
+<h2>Examples from everyday life</h2>
+
+<h3>Driving on roads</h3>
+
+<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&#8217;re going much faster and more safely than we would otherwise.</p>
+
+<h3>Commodity components</h3>
+
+<p>Let&#8217;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
+
+<h2>Summary</h2>
+
+<p>What is this principle? Here are some ways of saying it:</p>
+
+<ul>
+<li>Things that are maximally general for first-order applications are minimally useful for higher-order applications, and vice versa.</li>
+<li>A language that is maximally expressive is minimally analyzable.</li>
+<li>A simplifying assumption at one semantic level paves the way to a richer structure at a higher semantic level.</li>
+</ul>
+
+
+<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&#8217;m just late to the party?</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Taking a break from Twitter]]></title>
     <link href="http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter/"/>
-    <updated>2014-10-29T13:23:00-07:00</updated>
+    <updated>2014-10-29T13:23:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter</id>
     <content type="html"><![CDATA[<p>Today I disabled my Twitter account. Probably only temporarily, but we&#8217;ll see. This is just a quick note to let everyone know that I&#8217;m not leaving Twitter because of anything specific. It&#8217;s not that you said or did anything wrong. I just find that it&#8217;s becoming an energy sink for me. I&#8217;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
 
@@ -27,7 +125,7 @@
   <entry>
     <title type="html"><![CDATA[At long last]]></title>
     <link href="http://runarorama.github.com/blog/2014/09/18/at-long-last/"/>
-    <updated>2014-09-18T13:09:00-07:00</updated>
+    <updated>2014-09-18T13:09:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/09/18/at-long-last</id>
     <content type="html"><![CDATA[<p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&#8217;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
 
@@ -50,7 +148,7 @@
   <entry>
     <title type="html"><![CDATA[Monoid morphisms, products, and coproducts]]></title>
     <link href="http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts/"/>
-    <updated>2014-03-19T00:00:00-07:00</updated>
+    <updated>2014-03-19T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts</id>
     <content type="html"><![CDATA[<p>Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
@@ -515,7 +613,7 @@
   <entry>
     <title type="html"><![CDATA[Free monads and the Yoneda lemma]]></title>
     <link href="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/"/>
-    <updated>2013-11-01T00:00:00-07:00</updated>
+    <updated>2013-11-01T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2013/11/01/free-and-yoneda</id>
     <content type="html"><![CDATA[<p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &#8220;free monad&#8221;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
 
@@ -652,7 +750,7 @@
   <entry>
     <title type="html"><![CDATA[Free monoids and free monads]]></title>
     <link href="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/"/>
-    <updated>2013-08-20T00:00:00-07:00</updated>
+    <updated>2013-08-20T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids</id>
     <content type="html"><![CDATA[<p>In a series of old posts, I once talked about the link between <a href="http://apocalisp.wordpress.com/2010/06/14/on-monoids/">lists and monoids</a>, as well as <a href="http://apocalisp.wordpress.com/2010/07/21/more-on-monoids-and-monads/">monoids and monads</a>. Now I want to talk a little bit more about monoids and monads from the perspective of <em>free structures</em>.</p>
 
@@ -755,7 +853,7 @@
   <entry>
     <title type="html"><![CDATA[Machines and stream processing]]></title>
     <link href="http://runarorama.github.com/blog/2013/01/26/machines/"/>
-    <updated>2013-01-26T12:34:00-08:00</updated>
+    <updated>2013-01-26T12:34:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2013/01/26/machines</id>
     <content type="html"><![CDATA[<p>I gave a talk on &#8220;Machines&#8221; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
@@ -768,7 +866,7 @@
   <entry>
     <title type="html"><![CDATA[What purity is and isn't]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/"/>
-    <updated>2012-09-13T22:07:00-07:00</updated>
+    <updated>2012-09-13T22:07:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt</id>
     <content type="html"><![CDATA[<p>A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
 
@@ -909,7 +1007,7 @@
   <entry>
     <title type="html"><![CDATA[New Beginnings]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/"/>
-    <updated>2012-09-04T01:29:00-07:00</updated>
+    <updated>2012-09-04T01:29:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved</id>
     <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&#8217;s also partly that putting a post up on WordPress is a chore. It&#8217;s like building a ship in a bottle.</p>
 
@@ -924,7 +1022,7 @@
   <entry>
     <title type="html"><![CDATA[Scalaz Tutorial: Enumeration-based I/O with iteratees]]></title>
     <link href="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/"/>
-    <updated>2010-10-14T00:00:00-07:00</updated>
+    <updated>2010-10-14T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees</id>
     <content type="html"><![CDATA[<p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
 
@@ -1350,7 +1448,7 @@
   <entry>
     <title type="html"><![CDATA[A Critique of Impure Reason]]></title>
     <link href="http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason/"/>
-    <updated>2009-04-27T00:00:00-07:00</updated>
+    <updated>2009-04-27T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason</id>
     <content type="html"><![CDATA[<p>Much has been made of the difference between &#8220;object-oriented&#8221; and &#8220;functional&#8221; programming. As much as I&#8217;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&#8217;t think it&#8217;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
 
@@ -1532,7 +1630,7 @@
   <entry>
     <title type="html"><![CDATA[Objects, Identity, and Concept-formation]]></title>
     <link href="http://runarorama.github.com/blog/2008/12/04/no-such-thing/"/>
-    <updated>2008-12-04T00:00:00-08:00</updated>
+    <updated>2008-12-04T00:00:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2008/12/04/no-such-thing</id>
     <content type="html"><![CDATA[<p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612">GoF book</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&#8217;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="http://en.wikipedia.org/wiki/Combinatory_logic">some governing principle</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="http://en.wikipedia.org/wiki/Category_theory">category theory</a>, and <a href="http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology">epistemology</a>. And I&#8217;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
 
