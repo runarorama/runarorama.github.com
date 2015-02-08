@@ -11,3 +11,4 @@ Today I disabled my Twitter account. Probably only temporarily, but we'll see. T
 
 Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I'm available by email. My address is `runar` at this blog's domain.
 
+(UPDATE 2014-12-21): I've recreated my Twitter account, but I'm now using the service in a different way. The biggest change is that I don't follow anyone. It's strictly a broadcasting device for me, and not an information consumption device.
