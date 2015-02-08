@@ -208,7 +208,7 @@
 
 <p>So Wilson is 95% confident that in any random sample of about 1.2 million users, 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
 
-<p>But now the lower bound for a relatively obscure title is pretty low. See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that Harry Potter has a lot of fans. So I&rsquo;ll introduce a scaling factor which will have the effect that 5-star ratings on a book with few total ratings weigh more than those on a book with a lot of ratings:</p>
+<p>But now the lower bound for a relatively obscure title is pretty low. See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that people who like Harry Potter enough to read 5 previous Harry Potter books loved the 6th one. So I&rsquo;ll introduce a scaling factor which will have the effect that 5-star ratings on a book with few total ratings weigh more than those on a book with a lot of ratings:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
