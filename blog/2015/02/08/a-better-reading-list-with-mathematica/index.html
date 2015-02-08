@@ -425,7 +425,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/13"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
     </div>
   </div>
 <script type="text/javascript">
@@ -434,7 +434,7 @@
     for (var i=0; i<data.length; i++) {
       var cuser = data[i].user.login;
       var cuserlink = "https://www.github.com/" + data[i].user.login;
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/13#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
       var cbody = data[i].body_html;
       var cavatarlink = data[i].user.avatar_url;
       var cdate = Date.parse(data[i].created_at).toString("yyyy-MM-dd HH:mm:ss");
@@ -443,7 +443,7 @@
     }
   }
 
-  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues//comments", {
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/13/comments", {
     headers: {Accept: "application/vnd.github.full+json"},
     dataType: "json",
     success: function(msg){
