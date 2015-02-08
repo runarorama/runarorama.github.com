@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="It&#8217;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive &hellip;">
+  <meta name="description" content="Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -85,6 +85,305 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A Better Reading List With Mathematica</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-08T11:04:00-05:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read in my lifetime, this list has become quite long.</p>
+
+<p>In the olden days of brick-and-mortar bookstores and libraries, I would discover books to read by browsing shelves and picking up what looked interesting at the time. I might even find something that I knew was on my list. &ldquo;Oh, I&rsquo;ve been meaning to read that!&rdquo;</p>
+
+<p>The Internet changes this dynamic dramatically. It makes it much easier for me to discover books that interest me, and also to access any book that I might want to read, instantly, anywhere. At any given time, I have a couple of books that I&rsquo;m &ldquo;currently reading&rdquo;, and when I finish one I can start another immediately. I use Goodreads to manage my to-read list, and it&rsquo;s easy for me to scroll through the list and pick out my next book.</p>
+
+<p>But again, this list is very long. So I wanted a good way to filter out books I will really never read, and sort it such that the most &ldquo;important&rdquo; books in some sense show up first. Then every time I need a new book I could take the first one from the list and make a binary decision: either &ldquo;I will read this right now&rdquo;, or &ldquo;I am never reading this&rdquo;. In the latter case, if a book interests me enough at a later time, I&rsquo;m sure it will find its way back onto my list.</p>
+
+<p>The problem then is to find a good metric by which to rank books. Goodreads lets users rank books with a star-rating from 1 to 5, and presents you with an average rating by which you can sort the list. The problem is that a lot of books that interest me have only one rating and it&rsquo;s 5 stars, giving the book an &ldquo;average&rdquo; of 5.0. So if I go with that method I will be perpetually reading obscure books that one other person has read and loved. This is not necessarily a bad thing, but I do want to branch out a bit.</p>
+
+<p>Another possibility is to use the number of ratings to calculate a <a href="http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval">confidence interval</a> for the average rating. For example, using the <a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html">Wilson score</a> I could find an upper and lower bound <code>s1</code> and <code>s2</code> (higher and lower than the average rating, respectively) that will let me say &ldquo;I am 95% sure that any random sample of readers of an equal size would give an average rating between <code>s1</code> and <code>s2</code>.&rdquo; I could then sort the list by the lower bound <code>s1</code>.</p>
+
+<p>But this method is dissatisfactory for a number of reasons. Firstly, the lower bound of the confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
+
+<p>What&rsquo;s more, it turns out that if you take <em>any moderately popular book</em> on Goodreads at random, it will have an average rating somewhere close to 4. I could <a href="http://stephsun.com/silverizing.html">manufacture a prior</a> based on this knowledge and use that instead of the normal distribution in the confidence interval, but that would still not be a very good ranking because <a href="http://stephsun.com/metascores.html">reader review metascores are meaningless</a>.</p>
+
+<p>In the article <a href="http://stephsun.com/metascores.html">&ldquo;Reader review metascores are meaningless&rdquo;</a>, Stephanie Shun suggests using the <em>percentage of 5-star ratings</em> as the relevant metric rather than the <em>average rating</em>. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.</p>
+
+<p>I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. We can then just use the normal distribution instead of working with an artisanally curated prior.</p>
+
+<p>Mathematica makes it easy to generate the Wilson score. Here, <code>pos</code> is the number of positive trials (number of 5-star ratings), <code>n</code> is the number of total ratings, and <code>confidence</code> is the desired confidence percentage. I&rsquo;m taking the lower bound of the confidence interval to get my score.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Wilson</span><span class="p">[</span><span class="nv">pos_</span><span class="p">,</span><span class="w"> </span><span class="nv">n_</span><span class="p">,</span><span class="w"> </span><span class="nv">confidence_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">If</span><span class="p">[</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="err">&lt;</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Quantile</span><span class="p">[</span><span class="n">NormalDistribution</span><span class="p">[],</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">confidence</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span>
+</span><span class='line'><span class="w">      </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pos</span><span class="o">/</span><span class="n">n</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">},</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="w"> </span><span class="n">Sqrt</span><span class="p">[(</span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="o">/</span><span class="n">n</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">(</span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I just need to get the book data from Goodreads. Fortunately, <a href="https://www.goodreads.com/api">it has a pretty rich API</a>. I just need a developer key, which anyone can get for free.</p>
+
+<p>For example, to get the ratings for a given book <code>id</code>, we can use their XML api for books and pattern match on the result to get the ratings by score:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Ratings</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cases</span><span class="p">[</span><span class="n">Import</span><span class="p">[</span><span class="n">ToString</span><span class="p">[</span><span class="n">StringForm</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">        </span><span class="s">&quot;http://www.goodreads.com/book/show.xml?key=``&amp;id=``&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">]]],</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;rating_dist&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">d_</span><span class="p">}]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">Infinity</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">},</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringSplit</span><span class="p">[</span><span class="nv">#</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">StringSplit</span><span class="p">[</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="n">Block</span><span class="p">[{},</span><span class="w"> </span><span class="n">Pause</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">FromDigits</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">Association</span><span class="p">[</span><span class="n">Rule</span><span class="w"> </span><span class="o">@@@</span><span class="w"> </span><span class="n">First</span><span class="p">[</span><span class="n">data</span><span class="p">]]]]];</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, <code>key</code> is my Goodreads developer API key, defined elsewhere. I put a <code>Pause[1]</code> in the call since Goodreads throttles API calls so you can&rsquo;t make more than one call per second to each API endpoint. I&rsquo;m also memoizing the result, by assigning to <code>Ratings[id]</code> in the global environment.</p>
+
+<p><code>Ratings</code> will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, &ldquo;Harry Potter and the Half-Blood Prince&rdquo;, here are the scores:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="err">&lt;</span><span class="o">|</span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">782740</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">352725</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">111068</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">         </span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">17693</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">5289</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;total&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">1269515</span><span class="o">|</span><span class="err">&gt;</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sweet. Let&rsquo;s see how Harry Potter #6 would score with our rating:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Wilson</span><span class="p">[</span><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.95</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="mf">0.61572</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So Wilson is 95% confident that in any random sample of about 1.2 million users, 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
+
+<p>But now the lower bound for a relatively obscure title is pretty low. See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that Harry Potter has a lot of fans. So I&rsquo;ll introduce a scaling factor which will have the effect that 5-star ratings on a book with few total ratings weigh more than those on a book with a lot of ratings:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ScaledWilson</span><span class="p">[</span><span class="nv">pos_</span><span class="p">,</span><span class="w"> </span><span class="nv">n_</span><span class="p">,</span><span class="w"> </span><span class="nv">confidence_</span><span class="p">,</span><span class="w"> </span><span class="nv">scaling_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="n">Wilson</span><span class="p">[</span><span class="n">pos</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">confidence</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Experimenting with this a bit, I find that a scaling factor of 2 or so gives the appropriate amount of weight to more obscure books. But this is entirely subjective.</p>
+
+<p>We can now get the &ldquo;true rank&rdquo; of any book:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">ScaledWilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.95</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unfortunately, there&rsquo;s no way to get the ratings of all the books in my reading list in one fell swoop. I&rsquo;ll have to get the reading list first, then call <code>Rating</code> for each book&rsquo;s <code>id</code>. In Goodreads, books are managed by &ldquo;shelves&rdquo;, and the API allows getting the entire contents of a given shelf:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">GetShelf</span><span class="p">[</span><span class="nv">user_</span><span class="p">,</span><span class="w"> </span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="n">Cases</span><span class="p">[</span><span class="n">Import</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">ToString</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">       </span><span class="n">StringForm</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">        </span><span class="err">&quot;</span><span class="n">http</span><span class="err">:</span><span class="o">//</span><span class="n">www</span><span class="err">.</span><span class="n">goodreads</span><span class="err">.</span><span class="n">com</span><span class="o">/</span><span class="n">review</span><span class="o">/</span><span class="n">list</span><span class="err">.</span><span class="n">xml</span><span class="o">?</span><span class="n">v</span><span class="o">=</span><span class="mi">2</span><span class="o">&amp;</span><span class="n">key</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="n">id</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="err">\</span><span class="w"></span>
+</span><span class='line'><span class="n">shelf</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="n">sort</span><span class="o">=</span><span class="nv">avg_rating</span><span class="o">&amp;</span><span class="n">order</span><span class="o">=</span><span class="n">d</span><span class="o">&amp;</span><span class="nv">per_page</span><span class="o">=</span><span class="mi">200</span><span class="err">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">shelf</span><span class="p">]]],</span><span class="w"> </span>
+</span><span class='line'><span class="w">     </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">       </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">___</span><span class="p">,</span><span class="w"> </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">id_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">title_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;average_rating&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">avg_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">         </span><span class="s">&quot;authors&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">           </span><span class="s">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">            </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">             </span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">author_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;author&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">author</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;avg&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">avg</span><span class="p">},</span><span class="w"> </span>
+</span><span class='line'><span class="w">     </span><span class="n">Infinity</span><span class="p">]},</span><span class="w"> </span><span class="n">Association</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">raw</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m doing a bunch of XML pattern matching here to get the <code>id</code>, <code>title</code>, <code>average_rating</code>, and first <code>author</code> of each book. Then I put that in an association list.</p>
+
+<p>With that in hand, I can get the contents of my &ldquo;to-read&rdquo; shelf with <code>GetShelf[runar, "to-read"]</code>, where <code>runar</code> is my Goodreads user id. And given that, I can call <code>TrueRank</code> on each book on the shelf, then sort the result by that rank:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueSort</span><span class="p">[</span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w"> </span><span class="n">Sort</span><span class="p">[</span><span class="n">Map</span><span class="p">[</span><span class="n">Function</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">Append</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rank&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">TrueRank</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]]],</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="n">shelf</span><span class="p">],</span><span class="w"> </span><span class="nv">#1</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="nv">#2</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To get the ranked reading list of any user:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ReadingList</span><span class="p">[</span><span class="nv">user_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">TrueSort</span><span class="p">[</span><span class="n">GetShelf</span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;to-read&quot;</span><span class="p">]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And to print it out nicely:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="nv">books_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w"> </span><span class="n">Grid</span><span class="p">[</span><span class="n">Cases</span><span class="p">[</span><span class="n">books</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="nv">b_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;avg&quot;</span><span class="p">]}],</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">Alignment</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Left</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I can get, say, the first 10 books on my improved reading list:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="n">ReadingList</span><span class="p">[</span><span class="n">runar</span><span class="p">][[</span><span class="mi">1</span><span class="w"> </span><span class="o">;;</span><span class="w"> </span><span class="mi">10</span><span class="p">]]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>5546     The Feynman Lectures on Physics (0.678576, 4.58)
+</span><span class='line'>         Richard P. Feynman
+</span><span class='line'>
+</span><span class='line'>16157938 Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology (0.675592, 5.00)
+</span><span class='line'>         Allan Gotthelf
+</span><span class='line'>
+</span><span class='line'>8664353  Unbroken: A World War II Story of Survival, Resilience, and Redemption (0.609754,4.44)
+</span><span class='line'>         Laura Hillenbrand
+</span><span class='line'>
+</span><span class='line'>640909   The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth (0.609666, 5.00)
+</span><span class='line'>         Raymond Tallis
+</span><span class='line'>
+</span><span class='line'>640913   The Hand: A Philosophical Inquiry Into Human Being (0.609666, 5.00)
+</span><span class='line'>         Raymond Tallis
+</span><span class='line'>
+</span><span class='line'>4050770  Volition As Cognitive Self Regulation (0.600586, 4.86)
+</span><span class='line'>         Harry Binswanger 
+</span><span class='line'>
+</span><span class='line'>13539024 Free Market Revolution: How Ayn Rand's Ideas Can End Big Government (0.587592, 4.48)
+</span><span class='line'>         Yaron Brook 
+</span><span class='line'>
+</span><span class='line'>1609224  The Law (0.586947, 4.40)
+</span><span class='line'>         Frédéric Bastiat
+</span><span class='line'>
+</span><span class='line'>304079   The Essential Rumi (0.580289, 4.42)
+</span><span class='line'>         Rumi
+</span><span class='line'>
+</span><span class='line'>151848   Probability Theory: The Logic of Science (0.577267, 4.48)
+</span><span class='line'>         E.T. Jaynes</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. I&rsquo;ll get cracking on Feynman, then.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/12/21/maximally-powerful/">Maximally Powerful, Minimally Useful</a></h1>
     
     
@@ -101,30 +400,30 @@
   
 
 
-<time datetime="2014-12-21T23:23:00-05:00" pubdate data-updated="true">Dec 21<span>st</span>, 2014</time>
+<time datetime="2014-12-21T23:23:00-05:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>It&#8217;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
+  <div class="entry-content"><p>It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
 
-<p>This principle is very widely applicable, and it&#8217;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
+<p>This principle is very widely applicable, and it&rsquo;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
 
-<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&#8217;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
+<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&rsquo;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
 
-<p>What I want to do here is give a whole bunch of examples. Then we&#8217;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
+<p>What I want to do here is give a whole bunch of examples. Then we&rsquo;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
 
 <h2>Examples from computer science</h2>
 
 <h3>Context-free and regular grammars</h3>
 
-<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&#8217;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
+<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&rsquo;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
 
 <h3>Monads and applicative functors</h3>
 
-<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&#8217;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &#8220;bind&#8221;, or &#8220;flatMap&#8221;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
+<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&rsquo;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &ldquo;bind&rdquo;, or &ldquo;flatMap&rdquo;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
 
 <p>This power comes at a cost. Whereas we can always compose any two applicatives to form a composite applicative, two monads do not in general compose to form a monad. It may be the case that a given monad composes with any other monad, but we need some additional information about it in order to be able to conclude that it does.</p>
 
@@ -132,7 +431,7 @@
 
 <p>Futures have an algebraic theory, so we can reason about them algebraically. Namely, they form an applicative functor which means that two futures <code>x</code> and <code>y</code> make a composite future that does <code>x</code> and <code>y</code> in parallel. They also compose sequentially since they form a monad.</p>
 
-<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &#8220;fire and forget&#8221;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
+<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &ldquo;fire and forget&rdquo;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
 
 <h3>Typed and untyped programming</h3>
 
@@ -144,7 +443,7 @@
 
 <h3>Total functional programming</h3>
 
-<p>Programming in non-total languages affords us the power of general recursion and &#8220;fast and loose reasoning&#8221; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
+<p>Programming in non-total languages affords us the power of general recursion and &ldquo;fast and loose reasoning&rdquo; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>map (- n) (map (+ n) xs)) == xs</span></code></pre></td></tr></table></div></figure>
@@ -161,8 +460,8 @@
 <p>There is a principle in computer security called <em>The Principle of Least Privilege</em>. It says that a user or program should have exactly as much authority as necessary but no more. This constrains the power of the entity, but greatly enhances the power of others to predict and reason about what the entity is going to do, resulting in the following benefits:</p>
 
 <ul>
-<li><strong>Compositionality</strong> &#8211; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
-<li><strong>Modularity</strong> &#8211; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
+<li><strong>Compositionality</strong> &ndash; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
+<li><strong>Modularity</strong> &ndash; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
 </ul>
 
 
@@ -170,7 +469,7 @@
 
 <p>Some might notice an analogy between the Principle of Least Privilege and the idea of a constitutionally limited government. An absolute dictatorship or pure democracy will have absolute power to enact whatever whim strikes the ruler or majority at the moment. But the overall stability, security, and freedom of the people is greatly enhanced by the presence of legal limits on the power of the government. A limited constitutional republic also makes for a better neighbor to other states.</p>
 
-<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &#8220;cost&#8221; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
+<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &ldquo;cost&rdquo; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
 
 <h2>An example from mathematics</h2>
 
@@ -180,11 +479,11 @@
 
 <h3>Driving on roads</h3>
 
-<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&#8217;re going much faster and more safely than we would otherwise.</p>
+<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&rsquo;re going much faster and more safely than we would otherwise.</p>
 
 <h3>Commodity components</h3>
 
-<p>Let&#8217;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
+<p>Let&rsquo;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
 
 <h2>Summary</h2>
 
@@ -197,7 +496,7 @@
 </ul>
 
 
-<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&#8217;m just late to the party?</p>
+<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&rsquo;m just late to the party?</p>
 </div>
   
   
@@ -226,18 +525,18 @@
   
 
 
-<time datetime="2014-10-29T13:23:00-04:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+<time datetime="2014-10-29T13:23:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Today I disabled my Twitter account. Probably only temporarily, but we&#8217;ll see. This is just a quick note to let everyone know that I&#8217;m not leaving Twitter because of anything specific. It&#8217;s not that you said or did anything wrong. I just find that it&#8217;s becoming an energy sink for me. I&#8217;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
+  <div class="entry-content"><p>Today I disabled my Twitter account. Probably only temporarily, but we&rsquo;ll see. This is just a quick note to let everyone know that I&rsquo;m not leaving Twitter because of anything specific. It&rsquo;s not that you said or did anything wrong. I just find that it&rsquo;s becoming an energy sink for me. I&rsquo;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
 
-<p>Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I&#8217;m available by email. My address is <code>runar</code> at this blog&#8217;s domain.</p>
+<p>Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I&rsquo;m available by email. My address is <code>runar</code> at this blog&rsquo;s domain.</p>
 
-<p>(UPDATE 2014-12-21): I&#8217;ve recreated my Twitter account, but I&#8217;m now using the service in a different way. The biggest change is that I don&#8217;t follow anyone. It&#8217;s strictly a broadcasting device for me, and not an information consumption device.</p>
+<p>(UPDATE 2014-12-21): I&rsquo;ve recreated my Twitter account, but I&rsquo;m now using the service in a different way. The biggest change is that I don&rsquo;t follow anyone. It&rsquo;s strictly a broadcasting device for me, and not an information consumption device.</p>
 </div>
   
   
@@ -266,14 +565,14 @@
   
 
 
-<time datetime="2014-09-18T13:09:00-04:00" pubdate data-updated="true">Sep 18<span>th</span>, 2014</time>
+<time datetime="2014-09-18T13:09:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&#8217;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
+  <div class="entry-content"><p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&rsquo;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
 
 <p>I just want to share my personal story of how this book came to exist. A much shorter version of this story became the preface for the finished book, but here is the long version.</p>
 
@@ -316,22 +615,22 @@
   
 
 
-<time datetime="2014-03-19T00:00:00-04:00" pubdate data-updated="true">Mar 19<span>th</span>, 2014</time>
+<time datetime="2014-03-19T00:00:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
+  <div class="entry-content"><p>Today I want to talk about relationships between monoids. These can be useful to think about when we&rsquo;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
-<p>This post kind of fell together when writing notes on chapter 10, &#8220;Monoids&#8221;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
+<p>This post kind of fell together when writing notes on chapter 10, &ldquo;Monoids&rdquo;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
 
 <h2>Monoid homomorphisms</h2>
 
-<p>Let&#8217;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
+<p>Let&rsquo;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">length</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">).</span><span class="n">length</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -340,14 +639,14 @@
 
 <p>The <code>length</code> function maps from <code>String</code> to <code>Int</code> <em>while preserving the monoid structure</em>. Such a function, that maps from one monoid to another in such a preserving way, is called a <em>monoid homomorphism</em>. In general, for monoids <code>M</code> and <code>N</code>, a homomorphism <code>f: M =&gt; N</code>, and all values <code>x:M</code>, <code>y:M</code>, the following law holds:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="o">|+|</span> <span class="n">y</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">y</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>|+|</code> syntax is from <a href="http://github.com/scalaz/scalaz">Scalaz</a> and is obtained by importing <code>scalaz.syntax.monoid._</code>. It just references the <code>append</code> method on the <code>Monoid[T]</code> instance, where <code>T</code> is the type of the arguments.</p>
 
-<p>This law can have real practical benefits. Imagine for example a &#8220;result set&#8221; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
+<p>This law can have real practical benefits. Imagine for example a &ldquo;result set&rdquo; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
 
 <h2>Monoid isomorphisms</h2>
 
@@ -363,7 +662,7 @@
 
 <p>If <code>A</code> and <code>B</code> are monoids, then <code>(A,B)</code> is certainly a monoid, called their <em>product</em>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -386,13 +685,13 @@
 
 <p><img src="/images/Product.png"></p>
 
-<p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&#8217;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
+<p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&rsquo;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
 
 <p><img src="/images/Coproduct.png"></p>
 
 <p>We can easily show that our <code>productMonoid</code> above really is a monoid product. The homomorphisms are the methods <code>_1</code> and <code>_2</code> on <code>Tuple2</code>. They simply map every element of <code>(A,B)</code> to a corresponding element in <code>A</code> and <code>B</code>. The monoid structure is preserved because:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_1</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_2</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_2</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
@@ -401,7 +700,7 @@
 
 <p>And for any other monoid <code>Z</code>, and morphisms <code>f: Z =&gt; A</code> and <code>g: Z =&gt; B</code>, we can construct a unique morphism from <code>Z</code> to <code>(A,B)</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">factor</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">z</span><span class="k">:</span> <span class="kt">Z</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=</span>
 </span><span class='line'>  <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">z</span><span class="o">),</span> <span class="n">g</span><span class="o">(</span><span class="n">z</span><span class="o">))</span>
@@ -410,9 +709,9 @@
 
 <p>And this really is a homomorphism because we just inherit the homomorphism law from <code>f</code> and <code>g</code>.</p>
 
-<p>What does a coproduct then look like? Well, it&#8217;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
+<p>What does a coproduct then look like? Well, it&rsquo;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">left</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">left</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="n">left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="n">right</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">right</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="n">right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
@@ -421,7 +720,7 @@
 
 <p>And additionally, for any other monoid <code>Z</code> and homomorphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> we must be able to construct a unique homomorphism from <code>C[A,B]</code> to <code>Z</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">C</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -430,7 +729,7 @@
 
 <p>We can simply come up with a data structure required for the coproduct to satisfy a monoid. We will start with two constructors, one for the left side, and another for the right side:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">These</span><span class="o">[</span><span class="kt">+A</span>,<span class="kt">+B</span><span class="o">]</span>
@@ -439,16 +738,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&#8217;t quite form a monoid. What&#8217;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
+<p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&rsquo;t quite form a monoid. What&rsquo;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now <code>These[A,B]</code> is a monoid as long as <code>A</code> and <code>B</code> are monoids:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -485,18 +784,18 @@
 
 <p>First we must prove that <code>This</code> and <code>That</code> really are homomorphisms. We need to prove the following two properties:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
+<p>That&rsquo;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
 
 <p>But can we define <code>fold</code>? Yes we can:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -513,16 +812,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But is <code>fold</code> really a homomorphism? Let&#8217;s not assume that it is, but test it out.Here&#8217;s the homomorphism law:</p>
+<p>But is <code>fold</code> really a homomorphism? Let&rsquo;s not assume that it is, but test it out.Here&rsquo;s the homomorphism law:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span> <span class="o">|+|</span> <span class="n">t2</span><span class="o">)</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t2</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>What happens if both <code>t1</code> or <code>t2</code> are <code>This</code> or <code>That</code>?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -535,7 +834,7 @@
 
 <p>That holds. But what if we introduce a <code>Both</code> on one side?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -548,7 +847,7 @@
 
 <p>So far so good. That holds because of associativity. What about the other side?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -563,7 +862,7 @@
 
 <p>So what kind of thing would work? It would have to solve this case:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="o">???</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -572,21 +871,21 @@
 
 <p>We could modify the <code>Both</code> constructor this way:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">],</span> <span class="n">b</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And let&#8217;s add an empty case for the combined zero:</p>
+<p>And let&rsquo;s add an empty case for the combined zero:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Neither</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]()</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>In which case <code>These[A,B]</code> has become a kind of tree, or an unbalanced list of <code>This[A]</code> and <code>That[B]</code> values. A <em>free product</em> of the two monoids <code>A</code> and <code>B</code>. The implementation of <code>append</code> for the <code>coproduct</code> monoid could be:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -623,7 +922,7 @@
 
 <p>And we would modify <code>fold</code> to recurse over the tree:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -644,13 +943,13 @@
 
 <h3>Free monoids on coproducts</h3>
 
-<p>To better understand what&#8217;s going on, let&#8217;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
+<p>To better understand what&rsquo;s going on, let&rsquo;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
 
-<p>The underlying set of a monoid <code>A</code> is just the type <code>A</code> without the monoid structure. The coproduct of types <code>A</code> and <code>B</code> is the type <code>Either[A,B]</code>. Having &#8220;forgotten&#8221; the monoid structure of both <code>A</code> and <code>B</code>, we can recover it by generating a free monoid on <code>Either[A,B]</code>, which is just <code>List[Either[A,B]]</code>. The <code>append</code> operation of this monoid is list concatenation, and the identity for it is the empty list.</p>
+<p>The underlying set of a monoid <code>A</code> is just the type <code>A</code> without the monoid structure. The coproduct of types <code>A</code> and <code>B</code> is the type <code>Either[A,B]</code>. Having &ldquo;forgotten&rdquo; the monoid structure of both <code>A</code> and <code>B</code>, we can recover it by generating a free monoid on <code>Either[A,B]</code>, which is just <code>List[Either[A,B]]</code>. The <code>append</code> operation of this monoid is list concatenation, and the identity for it is the empty list.</p>
 
 <p>Clearly <code>List[Either[A,B]]</code> is a monoid, but does it permit a homomorphism from both monoids <code>A</code> and <code>B</code>? If so, then the following properties should hold:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">))</span>
 </span><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">))</span>
@@ -659,9 +958,9 @@
 
 <p>They clearly do not hold! The lists on the left of <code>==</code> will have two elements and the lists on the right will have one element. Can we do something about this?</p>
 
-<p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&#8217;s &#8220;too big&#8221; in a sense. But if we were to reduce the list to a normal form that approximates a &#8220;free product&#8221;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
+<p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&rsquo;s &ldquo;too big&rdquo; in a sense. But if we were to reduce the list to a normal form that approximates a &ldquo;free product&rdquo;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -696,7 +995,7 @@
 
 <p>This is now a monoid coproduct because it permits monoid homomorphisms from <code>A</code> and <code>B</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -709,7 +1008,7 @@
 
 <p>And we can implement the <code>fold</code> homomorphism:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -724,16 +1023,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&#8217;s the law again:</p>
+<p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&rsquo;s the law again:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">fold</span><span class="o">(</span><span class="n">e1</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">))</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">e1</span> <span class="o">++</span> <span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>If either of <code>e1</code> or <code>e2</code> is empty then the result is the fold of the other, so those cases are trivial. If they are both nonempty, then they will have one of these forms:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -762,7 +1061,7 @@
 
 <p>Since we have already convinced ourselves that <code>These</code> is a monoid coproduct, we could also simply show that there is a homomorphism from <code>Eithers</code> to <code>These</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -808,20 +1107,20 @@
   
 
 
-<time datetime="2013-11-01T00:00:00-04:00" pubdate data-updated="true">Nov 1<span>st</span>, 2013</time>
+<time datetime="2013-11-01T00:00:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &#8220;free monad&#8221;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
+  <div class="entry-content"><p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &ldquo;free monad&rdquo;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
 
 <h2>IO as an application of Free</h2>
 
 <p>The <code>Free</code> monad in Scalaz is given a bit like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -834,7 +1133,7 @@
 
 <p>But the <code>IO</code> monad I gave in the talk looks more like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -845,7 +1144,7 @@
 
 <p>And it could actually be stated as an application of <code>Free</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">type</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[({</span><span class="k">type</span> <span class="kt">λ</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span> <span class="o">(</span><span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>, <span class="kt">I</span> <span class="k">=&gt;</span> <span class="kt">α</span><span class="o">)</span> <span class="k">forSome</span> <span class="o">{</span><span class="k">type</span> <span class="kt">I</span><span class="o">}})</span><span class="k">#</span><span class="kt">λ</span>, <span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -858,20 +1157,20 @@
 
 <h3>The Yoneda lemma</h3>
 
-<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&#8230;</p>
+<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&hellip;</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>&#8230;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
+<p>&hellip;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
 
 <p>The Yoneda lemma says that this goes the other way around as well. If you have a value of type <code>F[A]</code> for any functor <code>F</code> and any type <code>A</code>, then you certainly have a <code>map</code> function with the signature above.</p>
 
 <p>In scala terms, we can capture this in a type:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
@@ -882,7 +1181,7 @@
 
 <p>And the Yoneda lemma says that there is an isomorphism between <code>Yoneda[F,A]</code> and <code>F[A]</code>, for any functor <code>F</code> and any type <code>A</code>. Here is the proof:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -907,7 +1206,7 @@
 
 <p>This is the permutation of the Yoneda lemma that we were using in <code>IO</code> above. That is, <code>IO[F, A]</code> is really <code>Free[({type λ[α] = CoYoneda[F,α]})#λ, A]</code>, given:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -922,7 +1221,7 @@
 
 <p>And the lemma says that <code>CoYoneda[F,A]</code> is isomorphic to <code>F[A]</code>. Here is the proof:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -941,7 +1240,7 @@
 
 <p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
 
-<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&#8217;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&#8217;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
+<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&rsquo;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&rsquo;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
 
 <p>I hope that sheds a little bit of light on the Yoneda lemma as well as the different embeddings of free monads.</p>
 </div>
@@ -972,7 +1271,7 @@
   
 
 
-<time datetime="2013-08-20T00:00:00-04:00" pubdate data-updated="true">Aug 20<span>th</span>, 2013</time>
+<time datetime="2013-08-20T00:00:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
@@ -983,7 +1282,7 @@
 
 <p><code>List</code> is a <em>free monoid</em>. That is, for any given type <code>A</code>, <code>List[A]</code> is a monoid, with list concatenation as the operation and the empty list as the identity element.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -994,9 +1293,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Being a free monoid means that it&#8217;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monoid homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
+<p>Being a free monoid means that it&rsquo;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monoid homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldMap</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B:Monoid</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -1005,9 +1304,9 @@
 
 <h2>Free monads</h2>
 
-<p>Now, if you followed my old posts, you already know that monads are &#8220;higher-kinded monoids&#8221;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
+<p>Now, if you followed my old posts, you already know that monads are &ldquo;higher-kinded monoids&rdquo;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">~&gt;</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
@@ -1018,7 +1317,7 @@
 
 <p>And it turns out that there is a free monad for any given functor <code>F</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -1029,9 +1328,9 @@
 
 <p>Analogous to how a <code>List[A]</code> is either <code>Nil</code> (the empty list) or a product of a <code>head</code> element and <code>tail</code> list, a value of type <code>Free[F,A]</code> is either an <code>A</code> or a product of <code>F[_]</code> and <code>Free[F,_]</code>. It is a recursive structure. And indeed, it has <em>exactly enough structure</em> to be a monad, for any given <code>F</code>, and no more.</p>
 
-<p>When I say &#8220;product&#8221; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
+<p>When I say &ldquo;product&rdquo; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">:*:</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
@@ -1042,21 +1341,21 @@
 
 <p>So we might expect that there is a <em>monad homomorphism</em> from a free monad on <code>F</code> to any monad that <code>F</code> can be transformed to. And indeed, it turns out that there is. The free monad catamorphism is in fact a monad homomorphism. Given a natural transformation from <code>F</code> to <code>G</code>, we can collapse a <code>Free[F,A]</code> to <code>G[A]</code>, just like with <code>foldMap</code> when given a function from <code>A</code> to <code>B</code> we could collapse a <code>List[A]</code> to <code>B</code>.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">runFree</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Monad</span>,<span class="kt">A</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span> <span class="kt">~&gt;</span> <span class="kt">G</span><span class="o">)</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But what&#8217;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a function that accumulates into <code>B</code> so that <code>B</code> doesn&#8217;t actually have to be a monoid. Here, <code>f</code> is a lot like the monoid operation, except it takes the current <code>A</code> on the left:</p>
+<p>But what&rsquo;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a function that accumulates into <code>B</code> so that <code>B</code> doesn&rsquo;t actually have to be a monoid. Here, <code>f</code> is a lot like the monoid operation, except it takes the current <code>A</code> on the left:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldRight</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">z</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>The equivalent for <code>Free</code> takes a natural transformation as its unit element, which for a monad happens to be monadic <code>unit</code>. Then it takes a natural transformation as its <code>f</code> argument, that looks a lot like monadic <code>join</code>, except it takes the current <code>F</code> on the left:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1102,14 +1401,14 @@
   
 
 
-<time datetime="2013-01-26T12:34:00-05:00" pubdate data-updated="true">Jan 26<span>th</span>, 2013</time>
+<time datetime="2013-01-26T12:34:00-05:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>I gave a talk on &#8220;Machines&#8221; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
+  <div class="entry-content"><p>I gave a talk on &ldquo;Machines&rdquo; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
 <p><a href="https://dl.dropbox.com/u/4588997/Machines.pdf">Machines.pdf</a></p>
 
@@ -1142,14 +1441,14 @@
   
 
 
-<time datetime="2012-09-13T22:07:00-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+<time datetime="2012-09-13T22:07:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
+  <div class="entry-content"><p>A lot of discussion about &ldquo;purity&rdquo; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
 
 <h3>What purity is</h3>
 
@@ -1159,13 +1458,13 @@
 
 <p>A function <code>f</code> is <em>pure</em> if the expression <code>f(x)</code> is referentially transparent for all referentially transparent <code>x</code>.</p>
 
-<p>Now, something needs to be made clear right up front. Like all definitions, this holds in a specific <em>context</em>. In particular, the context needs to specify what &#8220;evaluating&#8221; means. It also needs to define &#8220;program&#8221;, &#8220;occurrence&#8221;, and the semantics of &#8220;replacing&#8221; one thing with another.</p>
+<p>Now, something needs to be made clear right up front. Like all definitions, this holds in a specific <em>context</em>. In particular, the context needs to specify what &ldquo;evaluating&rdquo; means. It also needs to define &ldquo;program&rdquo;, &ldquo;occurrence&rdquo;, and the semantics of &ldquo;replacing&rdquo; one thing with another.</p>
 
 <p>In a programming language like Haskell, Java, or Scala, this context is pretty well established. The process of evaluation is a reduction to some <em>normal form</em> such as weak head or beta normal form.</p>
 
 <h3>A simple example</h3>
 
-<p>To illustrate, let&#8217;s consider programs in an exceedingly simple language that we will call <em>Sigma</em>. An expression in Sigma has one of the following forms:</p>
+<p>To illustrate, let&rsquo;s consider programs in an exceedingly simple language that we will call <em>Sigma</em>. An expression in Sigma has one of the following forms:</p>
 
 <ul>
 <li>A literal character string like <code>"a"</code>, <code>"foo"</code>, <code>""</code>, etc.</li>
@@ -1174,7 +1473,7 @@
 </ul>
 
 
-<p>Now, without an evaluator for Sigma, it is a purely abstract algebra. So let&#8217;s define a straigtforward evaluator <code>eval</code> for it, with the following rules:</p>
+<p>Now, without an evaluator for Sigma, it is a purely abstract algebra. So let&rsquo;s define a straigtforward evaluator <code>eval</code> for it, with the following rules:</p>
 
 <ul>
 <li>A literal string is already in normal form.</li>
@@ -1183,11 +1482,11 @@
 </ul>
 
 
-<p>This might seem very simple, but it is still not clear whether <code>Ext</code> is referentially transparent with regard to <code>eval</code>. It depends. What does &#8220;reads a line&#8221; mean, and what is &#8220;standard input&#8221; exactly? This is all part of a context that needs to be established.</p>
+<p>This might seem very simple, but it is still not clear whether <code>Ext</code> is referentially transparent with regard to <code>eval</code>. It depends. What does &ldquo;reads a line&rdquo; mean, and what is &ldquo;standard input&rdquo; exactly? This is all part of a context that needs to be established.</p>
 
-<p>Here&#8217;s one implementation of an evaluator for Sigma, in Scala:</p>
+<p>Here&rsquo;s one implementation of an evaluator for Sigma, in Scala:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1218,9 +1517,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now, it&#8217;s easy to see that the <code>Ext</code> instruction is <em>not</em> referentially transparent with regard to <code>eval1</code>. Replacing <code>Ext</code> with <code>eval1(ext)</code> does not preserve meaning. Consider this:</p>
+<p>Now, it&rsquo;s easy to see that the <code>Ext</code> instruction is <em>not</em> referentially transparent with regard to <code>eval1</code>. Replacing <code>Ext</code> with <code>eval1(ext)</code> does not preserve meaning. Consider this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">x</span> <span class="k">=</span> <span class="nc">Ext</span>
 </span><span class='line'><span class="n">eval1</span><span class="o">(</span><span class="nc">Concat</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span>
@@ -1229,18 +1528,18 @@
 
 <p>VS this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">x</span> <span class="k">=</span> <span class="n">eval1</span><span class="o">(</span><span class="nc">Ext</span><span class="o">)</span>
 </span><span class='line'><span class="n">eval1</span><span class="o">(</span><span class="nc">Concat</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s clearly not the same thing. The former will get two strings from standard input and concatenate them together. The latter will get only one string, store it as <code>x</code>, and return <code>x + x</code>.</p>
+<p>That&rsquo;s clearly not the same thing. The former will get two strings from standard input and concatenate them together. The latter will get only one string, store it as <code>x</code>, and return <code>x + x</code>.</p>
 
 <p>Now consider a slightly different evaluator:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1263,19 +1562,19 @@
 
 <p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>, because our standard input is just a string, and it is always the same string. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
 
-<p>This is the reason why Haskell programs are considered &#8220;pure&#8221;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
+<p>This is the reason why Haskell programs are considered &ldquo;pure&rdquo;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
 
 <h3>What purity is not</h3>
 
 <p>In my experience there are more or less two camps into which unhelpful views on purity fall.</p>
 
-<p>The first view, which we will call the <em>empiricist</em> view, is typically taken by people who understand &#8220;pure&#8221; as a pretentious term, meant to denegrate regular everyday programming as being somehow &#8220;impure&#8221; or &#8220;unclean&#8221;. They see purity as being &#8220;academic&#8221;, detached from reality, in an ivory tower, or the like.</p>
+<p>The first view, which we will call the <em>empiricist</em> view, is typically taken by people who understand &ldquo;pure&rdquo; as a pretentious term, meant to denegrate regular everyday programming as being somehow &ldquo;impure&rdquo; or &ldquo;unclean&rdquo;. They see purity as being &ldquo;academic&rdquo;, detached from reality, in an ivory tower, or the like.</p>
 
-<p>This view is premised on a superficial understanding of purity. The assumption is that purity is somehow about the absence of I/O, or not mutating memory. But how could any programs be written that don&#8217;t change the state of memory? At the end of the day, you have to update the CPU&#8217;s registers, write to memory, and produce output on a display. A program has to make the computer <em>do something</em>, right? So aren&#8217;t we just pretending that our programs don&#8217;t run on real computers? Isn&#8217;t it all just an academic exercise in making the CPU warm?</p>
+<p>This view is premised on a superficial understanding of purity. The assumption is that purity is somehow about the absence of I/O, or not mutating memory. But how could any programs be written that don&rsquo;t change the state of memory? At the end of the day, you have to update the CPU&rsquo;s registers, write to memory, and produce output on a display. A program has to make the computer <em>do something</em>, right? So aren&rsquo;t we just pretending that our programs don&rsquo;t run on real computers? Isn&rsquo;t it all just an academic exercise in making the CPU warm?</p>
 
-<p>Well, no. That&#8217;s not what purity means. Purity is not about the absence of program behaviors like I/O or mutable memory. It&#8217;s about delimiting such behavior in a specific way.</p>
+<p>Well, no. That&rsquo;s not what purity means. Purity is not about the absence of program behaviors like I/O or mutable memory. It&rsquo;s about delimiting such behavior in a specific way.</p>
 
-<p>The other view, which I will call the <em>rationalist</em> view, is typically taken by people with overexposure to modern analytic philosophy. Expressions are to be understood by their <em>denotation</em>, not by reference to any evaluator. Then of course every expression is really referentially transparent, and so purity is a distinction without a difference. After all, an imperative side-effectful C program can have the same denotation as a monadic, side-effect-free Haskell program. There is nothing wrong with this viewpoint, but it&#8217;s not instructive <em>in this context</em>. Sure, when designing in the abstract, we can think denotationally without regard to evaluation. But when concretizing the design in terms of an actual programming language, we do need to be aware of how we expect evaluation to take place. And only then are referential transparency and purity useful concepts.</p>
+<p>The other view, which I will call the <em>rationalist</em> view, is typically taken by people with overexposure to modern analytic philosophy. Expressions are to be understood by their <em>denotation</em>, not by reference to any evaluator. Then of course every expression is really referentially transparent, and so purity is a distinction without a difference. After all, an imperative side-effectful C program can have the same denotation as a monadic, side-effect-free Haskell program. There is nothing wrong with this viewpoint, but it&rsquo;s not instructive <em>in this context</em>. Sure, when designing in the abstract, we can think denotationally without regard to evaluation. But when concretizing the design in terms of an actual programming language, we do need to be aware of how we expect evaluation to take place. And only then are referential transparency and purity useful concepts.</p>
 
 <p>Both of these, the rationalist and empiricist views, conflate different levels of abstraction. A program written in a programming language is not the same thing as the physical machine that it may run on. Nor is it the same thing as the abstractions that capture its meaning.</p>
 
@@ -1310,473 +1609,20 @@
   
 
 
-<time datetime="2012-09-04T01:29:00-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+<time datetime="2012-09-04T01:29:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&#8217;s also partly that putting a post up on WordPress is a chore. It&#8217;s like building a ship in a bottle.</p>
+  <div class="entry-content"><p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&rsquo;s also partly that putting a post up on WordPress is a chore. It&rsquo;s like building a ship in a bottle.</p>
 
 <p>So I have decided to make posting really easy for myself by hosting the blog <a href="http://github.com/runarorama/runarorama.github.com">on GitHub</a>. I am using a dead-simple markdown-based framework called <a href="http://octopress.org">Octopress</a>. With this setup I can very easily write a new post from my command line and publish by pushing to GitHub. This is already part of my normal coding workflow, so it feels more friction-free.</p>
 
-<p>The new blog is simply titled &#8220;Higher Order&#8221;, and is available at <a href="http://blog.higher-order.com">blog.higher-order.com</a>. Check back soon for posts that I&#8217;ve been sitting on but have been too <del>lazy</del> busy to post.</p>
+<p>The new blog is simply titled &ldquo;Higher Order&rdquo;, and is available at <a href="http://blog.higher-order.com">blog.higher-order.com</a>. Check back soon for posts that I&rsquo;ve been sitting on but have been too <del>lazy</del> busy to post.</p>
 
-<p>All of the old content and comments will still be available at the old address, and I&#8217;ll probably cross-post to both places for a little while.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/">Scalaz Tutorial: Enumeration-based I/O With Iteratees</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-14T00:00:00-04:00" pubdate data-updated="true">Oct 14<span>th</span>, 2010</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
-
-<p>A lot of people have asked me to write a tutorial on how this works, specifically on how it is implemented in Scalaz and how to be productive with it, so here we go.</p>
-
-<p>The implementation in Scalaz is based on an excellent article by John W. Lato called <a href="http://themonadreader.files.wordpress.com/2010/05/issue16.pdf">“Iteratee: Teaching an Old Fold New Tricks”</a>. As a consequence, this post is also based on that article, and because I am too unoriginal to come up with my own examples, the examples are directly translated from it. The article gives code examples in Haskell, but we will use Scala here throughout.</p>
-
-<h2>Motivation</h2>
-
-<p>Most programmers have come across the problem of treating an I/O data source (such as a file or a socket) as a data structure. This is a common thing to want to do. To contrast, the usual means of reading, say, a file, is to open it, get a cursor into the file (such as a FileReader or an InputStream), and read the contents of the file as it is being processed. You must of course handle IO exceptions and remember to close the file when you are done. The problem with this approach is that it is not modular. Functions written in this way are performing one-off side-effects. And as we know, side-effects do not compose.</p>
-
-<p>Treating the stream of inputs as an enumeration is therefore desirable. It at least holds the lure of modularity, since we would be able to treat a File, from which we’re reading values, in the same way that we would treat an ordinary List of values, for example.</p>
-
-<p>A naive approach to this is to use iterators, or rather, Iterables. This is akin to the way that you would typically read a file in something like Ruby or Python. Basically you treat it as a collection of Strings:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">getContents</span><span class="o">(</span><span class="n">fileName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Iterable</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">val</span> <span class="n">fr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">FileReader</span><span class="o">(</span><span class="n">fileName</span><span class="o">))</span>
-</span><span class='line'>  <span class="k">new</span> <span class="nc">Iterable</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">def</span> <span class="n">iterator</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Iterator</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">def</span> <span class="n">hasNext</span> <span class="k">=</span> <span class="n">line</span> <span class="o">!=</span> <span class="kc">null</span>
-</span><span class='line'>      <span class="k">def</span> <span class="n">next</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">val</span> <span class="n">retVal</span> <span class="k">=</span> <span class="n">line</span>
-</span><span class='line'>        <span class="n">line</span> <span class="k">=</span> <span class="n">getLine</span>
-</span><span class='line'>        <span class="n">retVal</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="k">def</span> <span class="n">getLine</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">var</span> <span class="n">line</span><span class="k">:</span><span class="kt">String</span> <span class="o">=</span> <span class="kc">null</span>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">line</span> <span class="k">=</span> <span class="n">fr</span><span class="o">.</span><span class="n">readLine</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">{</span>
-</span><span class='line'>          <span class="k">case</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="n">line</span> <span class="k">=</span> <span class="kc">null</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="n">line</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="k">var</span> <span class="n">line</span> <span class="k">=</span> <span class="n">getLine</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What this is doing is a kind of lazy I/O. Nothing is read from the file until it is requested, and we only hold one line in memory at a time. But there are some serious issues with this approach. It’s not clear when you should close the file handle, or whose responsibility that is. You could have the Iterator close the file when it has read the last line, but what if you only want to read part of the file? Clearly this approach is not sufficient. There are some things we can do to make this more sophisticated, but only at the expense of breaking the illusion that the file really is a collection of Strings.</p>
-
-<h2>The Idea</h2>
-
-<p>Any red-blooded functional programmer should be thinking right about now: “Instead of getting Strings out of the file, just pass in a function that will serve as a handler for each new line!” Bingo. This is in fact the plot with Iteratees. Instead of implementing an interface from which we request Strings by pulling, we’re going to give an implementation of an interface that can receive Strings by pushing.</p>
-
-<p>And indeed, this idea is nothing new. This is exactly what we do when we fold a list:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldLeft</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">B</span><span class="o">,</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The second argument is exactly that, a handler for each element in the list, along with a means of combining it with the accumulated value so far.</p>
-
-<p>Now, there are two issues with an ordinary fold that prevent it from being useful when enumerating file contents. Firstly, there is no way of indicating that the fold should stop early. Secondly, a list is held all in memory at the same time.</p>
-
-<h2>The Iteratee Solution</h2>
-
-<p>Scalaz defines the following two data structures (actual implementation may differ, but this serves for illustration):</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">+E</span><span class="o">]</span>
-</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">El</span><span class="o">[</span><span class="kt">E</span><span class="o">](</span><span class="n">e</span><span class="k">:</span> <span class="kt">E</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span>
-</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">Empty</span> <span class="k">extends</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
-</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">EOF</span> <span class="k">extends</span> <span class="nc">Input</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">trait</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">run</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">// Implementation omitted</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Done</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cont</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">k</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So an input to an iteratee is represented by Input[E], where E is the element type of the input source. It can be either an element (the next element in the file or stream), or it’s one of two signals: Empty or EOF. The Empty signal tells the iteratee that there is not an element available, but to expect more elements later. The EOF signal tells the iteratee that there are no more elements to be had.</p>
-
-<p>Note that this particular set of signals is kind of arbitrary. It just facilitates a particular set of use cases. There’s no reason you couldn’t have other signals for other use cases. For example, a signal I can think of off the top of my head would be Restart, which would tell the iteratee to start its result from scratch at the current position in the input.</p>
-
-<p>IterV[E,A] represents a computation that can be in one of two states. It can be Done, in which case it will hold a result (the accumulated value) of type A. Or it can be waiting for more input of type E, in which case it will hold a continuation that accepts the next input.</p>
-
-<p>Let’s see how we would use this to process a List. The following function takes a list and an iteratee and feeds the list’s elements to the iteratee.</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">enumerate</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="o">(</span><span class="kt">List</span><span class="o">[</span><span class="kt">E</span><span class="o">],</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Nil</span><span class="o">,</span> <span class="n">i</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">i</span>
-</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="n">i</span><span class="nd">@Done</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">i</span>
-</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="n">x</span> <span class="o">::</span> <span class="n">xs</span><span class="o">,</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">k</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">enumerate</span><span class="o">(</span><span class="n">xs</span><span class="o">,</span> <span class="n">k</span><span class="o">(</span><span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)))</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now let’s see some actual iteratees. As a simple example, here is an iteratee that counts the number of elements it has seen:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counter</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">step</span><span class="o">(</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="o">))</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">(</span><span class="n">n</span><span class="o">))</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">EOF</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="nc">EOF</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">(</span><span class="mi">0</span><span class="o">))</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And here’s an iteratee that discards the first n elements:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">drop</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">A</span><span class="o">](</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">step</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">drop</span><span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">EOF</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">((),</span> <span class="nc">EOF</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="nc">Done</span><span class="o">((),</span> <span class="nc">Empty</span><span class="o">)</span> <span class="k">else</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And one that takes the first element from the input:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">head</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">step</span><span class="k">:</span> <span class="kt">Input</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">El</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="n">x</span><span class="o">),</span> <span class="nc">Empty</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">EOF</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">EOF</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="nc">Cont</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let’s go through this code. Each one defines a “step” function, which is the function that will handle the next input. Each one starts the iteratee in the Cont state, and the step function always returns a new iteratee in the next state based on the input received. Note in the last one (head), we are using the Empty signal to indicate that we want to remove the element from the input. The utility of this will be clear when we start composing iteratees.</p>
-
-<p>Now, an example usage. To get the length of a list, we write:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">length</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">enumerate</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">),</span> <span class="n">counter</span><span class="o">[</span><span class="kt">Int</span><span class="o">]).</span><span class="n">run</span> <span class="c1">// 3</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The run method on IterV just gets the accumulated value out of the Done iteratee. If it isn’t done, it sends the EOF signal to itself first and then gets the value.</p>
-
-<h2>Composing Iteratees</h2>
-
-<p>Notice a couple of things here. With iteratees, the input source can send the signal that it has finished producing values. And on the other side, the iteratee itself can signal to the input source that it has finished consuming values. So on one hand, we can leave an iteratee “running” by not sending it the EOF signal, so we can compose two input sources and feed them into the same iteratee. On the other hand, an iteratee can signal that it’s done, at which point we can start sending any remaining elements to another iteratee. In other words, iteratees compose sequentially.</p>
-
-<p>In fact, IterV[E,A] is an instance of the Monad type class for each fixed E, and composition is very similar to the way monadic parsers compose:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">flatMap</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IterV</span><span class="o">[</span><span class="kt">E</span>,<span class="kt">B</span><span class="o">])</span> <span class="k">=</span> <span class="k">this</span> <span class="k">match</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nc">Done</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">Done</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Done</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">k</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Cont</span><span class="o">(</span><span class="n">e</span> <span class="k">=&gt;</span> <span class="n">k</span><span class="o">(</span><span class="n">e</span><span class="o">)</span> <span class="n">flatMap</span> <span class="n">f</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here then is an example of composing iteratees with a for-comprehension:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">drop1Keep1</span><span class="o">[</span><span class="kt">E</span><span class="o">]</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">drop</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>  <span class="n">x</span> <span class="k">&lt;-</span> <span class="n">head</span>
-</span><span class='line'><span class="o">}</span> <span class="k">yield</span> <span class="n">x</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The iteratee above discards the first element it sees and returns the second one. The iteratee below does this n times, accumulating the kept elements into a list.</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">alternates</span><span class="o">[</span><span class="kt">E</span><span class="o">](</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">E</span>, <span class="kt">List</span><span class="o">[</span><span class="kt">E</span><span class="o">]]</span> <span class="k">=</span>
-</span><span class='line'>  <span class="n">drop1Keep1</span><span class="o">[</span><span class="kt">E</span><span class="o">].</span>
-</span><span class='line'>    <span class="n">replicate</span><span class="o">[</span><span class="kt">List</span><span class="o">](</span><span class="n">n</span><span class="o">).</span>
-</span><span class='line'>    <span class="n">foldRight</span><span class="o">(</span><span class="nc">Done</span><span class="o">(</span><span class="nc">List</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">E</span><span class="o">]](),</span><span class="nc">Empty</span><span class="o">))((</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">for</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">h</span> <span class="k">&lt;-</span> <span class="n">x</span>
-</span><span class='line'>      <span class="n">t</span> <span class="k">&lt;-</span> <span class="n">y</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">yield</span> <span class="n">h</span> <span class="o">::</span> <span class="n">t</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">flatten</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here’s an example run:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>scala> enumerate(List.range(1,15), alternates[Int](5)).run
-</span><span class='line'>res85: List[Int] = List(2, 4, 6, 8, 10)</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>File Input With Iteratees</h2>
-
-<p>Using the iteratees to read from file input turns out to be incredibly easy. The only difference is in how the data source is enumerated, and in order to remain lazy (and not prematurely perform any side-effects), we must return our iteratee in a monad:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">enumReader</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">r</span><span class="k">:</span> <span class="kt">BufferedReader</span><span class="o">,</span>
-</span><span class='line'>                  <span class="n">it</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">loop</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="n">i</span><span class="nd">@Done</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">i</span> <span class="o">}</span>
-</span><span class='line'>    <span class="k">case</span> <span class="n">i</span><span class="nd">@Cont</span><span class="o">(</span><span class="n">k</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">for</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">s</span> <span class="k">&lt;-</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">r</span><span class="o">.</span><span class="n">readLine</span> <span class="o">}</span>
-</span><span class='line'>      <span class="n">a</span> <span class="k">&lt;-</span> <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="nc">IO</span> <span class="o">{</span> <span class="n">i</span> <span class="o">}</span> <span class="k">else</span> <span class="n">loop</span><span class="o">(</span><span class="n">k</span><span class="o">(</span><span class="nc">El</span><span class="o">(</span><span class="n">s</span><span class="o">)))</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">yield</span> <span class="n">a</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="n">loop</span><span class="o">(</span><span class="n">it</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The monad being used here is an IO monad that I’ll explain in a second. The important thing to note is that the iteratee is completely oblivious to the fact that it’s being fed lines from a BufferedReader rather than a List.</p>
-
-<p>Here is the IO monad I’m using. As you can see, it’s really just a lazy identity monad:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">io</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">def</span> <span class="n">unsafePerformIO</span><span class="k">:</span> <span class="kt">A</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">object</span> <span class="nc">IO</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">def</span> <span class="n">apply</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">def</span> <span class="n">unsafePerformIO</span> <span class="k">=</span> <span class="n">a</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">implicit</span> <span class="k">val</span> <span class="nc">IOMonad</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">def</span> <span class="n">pure</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">IO</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">def</span> <span class="n">bind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span> <span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">implicitly</span><span class="o">[</span><span class="kt">Monad</span><span class="o">[</span><span class="kt">Function0</span><span class="o">]].</span><span class="n">bind</span><span class="o">(</span>
-</span><span class='line'>        <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">unsafePerformIO</span><span class="o">,</span>
-</span><span class='line'>        <span class="o">(</span><span class="n">x</span><span class="k">:</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="n">unsafePerformIO</span><span class="o">)()</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To read lines from a file, we’ll do something like this:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">bufferFile</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">File</span><span class="o">)</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">FileReader</span><span class="o">(</span><span class="n">f</span><span class="o">))</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">closeReader</span><span class="o">(</span><span class="n">r</span><span class="k">:</span> <span class="kt">Reader</span><span class="o">)</span> <span class="k">=</span> <span class="nc">IO</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">r</span><span class="o">.</span><span class="n">close</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">bracket</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span>,<span class="kt">C</span><span class="o">](</span><span class="n">init</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">A</span><span class="o">],</span>
-</span><span class='line'>                   <span class="n">fin</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">B</span><span class="o">],</span>
-</span><span class='line'>                   <span class="n">body</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">C</span><span class="o">]</span> <span class="k">=</span>
-</span><span class='line'><span class="k">for</span> <span class="o">{</span> <span class="n">a</span> <span class="k">&lt;-</span> <span class="n">init</span>
-</span><span class='line'>      <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">body</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
-</span><span class='line'>      <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">fin</span><span class="o">(</span><span class="n">a</span><span class="o">)</span> <span class="o">}</span>
-</span><span class='line'>  <span class="k">yield</span> <span class="n">c</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">enumFile</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">File</span><span class="o">,</span> <span class="n">i</span><span class="k">:</span> <span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">IterV</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
-</span><span class='line'>  <span class="n">bracket</span><span class="o">(</span><span class="n">bufferFile</span><span class="o">(</span><span class="n">f</span><span class="o">),</span>
-</span><span class='line'>          <span class="n">closeReader</span><span class="o">(</span><span class="k">_:</span><span class="kt">BufferedReader</span><span class="o">),</span>
-</span><span class='line'>          <span class="n">enumReader</span><span class="o">(</span><span class="k">_:</span><span class="kt">BufferedReader</span><span class="o">,</span> <span class="n">i</span><span class="o">))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The enumFile method uses bracketing to ensure that the file always gets closed. It’s completely lazy though, so nothing actually happens until you call unsafePerformIO on the resulting IO action:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>scala> enumFile(new File("/Users/runar/Documents/Iteratees.txt"), head) map (_.run)                
-</span><span class='line'>res2: io.IO[Option[String]] = io$IO@5f90b584
-</span><span class='line'>
-</span><span class='line'>scala> res2.unsafePerformIO
-</span><span class='line'>res3: Option[String] = Some(Scalaz Tutorial: Enumeration-Based I/O With Iteratees)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That uses the “head” iteratee from above to get the first line of the file that I’m using to edit this blog post.</p>
-
-<p>We can get the number of lines in two files combined, by composing two enumerations and using our “counter” iteratee from above:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">lengthOfTwoFiles</span><span class="o">(</span><span class="n">f1</span><span class="k">:</span> <span class="kt">File</span><span class="o">,</span> <span class="n">f2</span><span class="k">:</span> <span class="kt">File</span><span class="o">)</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">l1</span> <span class="k">&lt;-</span> <span class="n">enumFile</span><span class="o">(</span><span class="n">f1</span><span class="o">,</span> <span class="n">counter</span><span class="o">)</span>
-</span><span class='line'>  <span class="n">l2</span> <span class="k">&lt;-</span> <span class="n">enumFile</span><span class="o">(</span><span class="n">f2</span><span class="o">,</span> <span class="n">l1</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span> <span class="k">yield</span> <span class="n">l2</span><span class="o">.</span><span class="n">run</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So what we have here is a uniform and compositional interface for enumerating both pure and effectful data sources. We can avoid holding on to the entire input in memory when we don’t want to, and we have complete control over when to stop iterating. The iteratee can decide whether to consume elements, leave them intact, or even truncate the input. The enumerator can decide whether to shut the iteratee down by sending it the EOF signal, or to leave it open for other enumerators.</p>
-
-<p>There is even more to this approach, as we can use iteratees not just to read from data sources, but also to write to them. That will have to await another post.</p>
+<p>All of the old content and comments will still be available at the old address, and I&rsquo;ll probably cross-post to both places for a little while.</p>
 </div>
   
   
@@ -1786,7 +1632,7 @@
   
   <div class="pagination">
     
-      <a class="prev" href="/blog/page/2/">&larr; Older</a>
+      <a class="prev" href="2">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -1803,6 +1649,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A better reading list with Mathematica</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/21/maximally-powerful/">Maximally Powerful, Minimally Useful</a>
       </li>
     
@@ -1816,10 +1666,6 @@
     
       <li class="post">
         <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/01/free-and-yoneda/">Free monads and the Yoneda lemma</a>
       </li>
     
   </ul>
@@ -1872,7 +1718,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Rúnar Bjarnason -
+  Copyright &copy; 2015 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

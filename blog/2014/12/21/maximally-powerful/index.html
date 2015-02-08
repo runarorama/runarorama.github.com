@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="It&#8217;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive &hellip;">
+  <meta name="description" content="It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -101,30 +101,30 @@
   
 
 
-<time datetime="2014-12-21T23:23:00-05:00" pubdate data-updated="true">Dec 21<span>st</span>, 2014</time>
+<time datetime="2014-12-21T23:23:00-05:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>It&#8217;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
+<div class="entry-content"><p>It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
 
-<p>This principle is very widely applicable, and it&#8217;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
+<p>This principle is very widely applicable, and it&rsquo;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
 
-<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&#8217;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
+<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&rsquo;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
 
-<p>What I want to do here is give a whole bunch of examples. Then we&#8217;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
+<p>What I want to do here is give a whole bunch of examples. Then we&rsquo;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
 
 <h2>Examples from computer science</h2>
 
 <h3>Context-free and regular grammars</h3>
 
-<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&#8217;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
+<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&rsquo;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
 
 <h3>Monads and applicative functors</h3>
 
-<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&#8217;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &#8220;bind&#8221;, or &#8220;flatMap&#8221;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
+<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&rsquo;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &ldquo;bind&rdquo;, or &ldquo;flatMap&rdquo;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
 
 <p>This power comes at a cost. Whereas we can always compose any two applicatives to form a composite applicative, two monads do not in general compose to form a monad. It may be the case that a given monad composes with any other monad, but we need some additional information about it in order to be able to conclude that it does.</p>
 
@@ -132,7 +132,7 @@
 
 <p>Futures have an algebraic theory, so we can reason about them algebraically. Namely, they form an applicative functor which means that two futures <code>x</code> and <code>y</code> make a composite future that does <code>x</code> and <code>y</code> in parallel. They also compose sequentially since they form a monad.</p>
 
-<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &#8220;fire and forget&#8221;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
+<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &ldquo;fire and forget&rdquo;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
 
 <h3>Typed and untyped programming</h3>
 
@@ -144,7 +144,7 @@
 
 <h3>Total functional programming</h3>
 
-<p>Programming in non-total languages affords us the power of general recursion and &#8220;fast and loose reasoning&#8221; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
+<p>Programming in non-total languages affords us the power of general recursion and &ldquo;fast and loose reasoning&rdquo; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>map (- n) (map (+ n) xs)) == xs</span></code></pre></td></tr></table></div></figure>
@@ -161,8 +161,8 @@
 <p>There is a principle in computer security called <em>The Principle of Least Privilege</em>. It says that a user or program should have exactly as much authority as necessary but no more. This constrains the power of the entity, but greatly enhances the power of others to predict and reason about what the entity is going to do, resulting in the following benefits:</p>
 
 <ul>
-<li><strong>Compositionality</strong> &#8211; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
-<li><strong>Modularity</strong> &#8211; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
+<li><strong>Compositionality</strong> &ndash; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
+<li><strong>Modularity</strong> &ndash; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
 </ul>
 
 
@@ -170,7 +170,7 @@
 
 <p>Some might notice an analogy between the Principle of Least Privilege and the idea of a constitutionally limited government. An absolute dictatorship or pure democracy will have absolute power to enact whatever whim strikes the ruler or majority at the moment. But the overall stability, security, and freedom of the people is greatly enhanced by the presence of legal limits on the power of the government. A limited constitutional republic also makes for a better neighbor to other states.</p>
 
-<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &#8220;cost&#8221; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
+<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &ldquo;cost&rdquo; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
 
 <h2>An example from mathematics</h2>
 
@@ -180,11 +180,11 @@
 
 <h3>Driving on roads</h3>
 
-<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&#8217;re going much faster and more safely than we would otherwise.</p>
+<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&rsquo;re going much faster and more safely than we would otherwise.</p>
 
 <h3>Commodity components</h3>
 
-<p>Let&#8217;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
+<p>Let&rsquo;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
 
 <h2>Summary</h2>
 
@@ -197,7 +197,7 @@
 </ul>
 
 
-<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&#8217;m just late to the party?</p>
+<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&rsquo;m just late to the party?</p>
 </div>
 
 
@@ -220,7 +220,7 @@
   
 
 
-<time datetime="2014-12-21T23:23:00-05:00" pubdate data-updated="true">Dec 21<span>st</span>, 2014</time>
+<time datetime="2014-12-21T23:23:00-05:00" pubdate data-updated="true"></time>
       
 
 
@@ -244,6 +244,8 @@
         <a class="basic-alignment left" href="/blog/2014/10/29/taking-a-break-from-twitter/" title="Previous Post: Taking a break from Twitter">&laquo; Taking a break from Twitter</a>
       
       
+        <a class="basic-alignment right" href="/blog/2015/02/08/a-better-reading-list-with-mathematica/" title="Next Post: A better reading list with Mathematica">A better reading list with Mathematica &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -251,7 +253,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/12"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/12"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
     </div>
   </div>
 <script type="text/javascript">
@@ -292,6 +294,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A better reading list with Mathematica</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/21/maximally-powerful/">Maximally Powerful, Minimally Useful</a>
       </li>
     
@@ -307,17 +313,13 @@
         <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2013/11/01/free-and-yoneda/">Free monads and the Yoneda lemma</a>
-      </li>
-    
   </ul>
 </section>
 
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/runarorama">@runarorama</a> on GitHub
@@ -362,7 +364,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Rúnar Bjarnason -
+  Copyright &copy; 2015 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

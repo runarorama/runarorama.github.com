@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Scalaz Tutorial: Enumeration-based I/O with iteratees - Higher Order</title>
+  <title>Higher Order</title>
   <meta name="author" content="Rúnar Bjarnason">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/">
+  <link rel="canonical" href="http://runarorama.github.com/posts/2/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -77,15 +77,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<script type="text/javascript" src="http://datejs.googlecode.com/svn/trunk/build/date-en-US.js"></script>
-
-<div>
-<article class="hentry" role="article">
+      <div class="blog-index">
   
+  
+  
+    <article>
+      
   <header>
     
-      <h1 class="entry-title">Scalaz Tutorial: Enumeration-based I/O With Iteratees</h1>
+      <h1 class="entry-title"><a href="/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/">Scalaz Tutorial: Enumeration-based I/O With Iteratees</a></h1>
     
     
       <p class="meta">
@@ -108,7 +108,7 @@
   </header>
 
 
-<div class="entry-content"><p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
+  <div class="entry-content"><p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
 
 <p>A lot of people have asked me to write a tutorial on how this works, specifically on how it is implemented in Scalaz and how to be productive with it, so here we go.</p>
 
@@ -527,90 +527,308 @@
 
 <p>There is even more to this approach, as we can use iteratees not just to read from data sources, but also to write to them. That will have to await another post.</p>
 </div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
-
-      
-
-
-
-
-
-
-
-
   
 
 
-<time datetime="2010-10-14T00:00:00-04:00" pubdate data-updated="true"></time>
+    </article>
+  
+  
+    <article>
       
-
-
-    </p>
+  <header>
     
-      <div class="sharing">
+      <h1 class="entry-title"><a href="/blog/2009/04/27/a-critique-of-impure-reason/">A Critique of Impure Reason</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/" >Tweet</a>
-  
-  
-  <div class="g-plusone" data-size="medium"></div>
-  
-  
-    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
-  
+
+
+<time datetime="2009-04-27T00:00:00-04:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Much has been made of the difference between &ldquo;object-oriented&rdquo; and &ldquo;functional&rdquo; programming. As much as I&rsquo;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&rsquo;t think it&rsquo;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
+
+<p>Looking at pure (referentially transparent, purely functional) programming from a perspective of having accepted the premise of impurity, it&rsquo;s easy to be intimidated, and to see it as something foreign. Dijkstra once said that some programmers are &ldquo;mentally mutilated beyond hope of regeneration&rdquo;. I think that on one account, he was right, and that he was talking about this mental barrier of making the leap, from thinking about programming in terms of data mutation and effects, to the &ldquo;pure&rdquo; perspective. But I believe he was wrong on the other account. There is hope.</p>
+
+<p>Contrary to what the last post indicated, this will not be a post about problems in &ldquo;object-oriented&rdquo; programming in particular, but about problems in impure programming in general. I will illustrate the issue of data mutation by way of two difficulties with it:</p>
+
+<ul>
+<li>It blurs the distinction between values and variables, such that a term can be both a value and a variable.</li>
+<li>It introduces an artificial distinction between equality and identity.</li>
+</ul>
+
+
+<p>I will talk briefly about what the implications of each are, and what the alternative view is. But first I will discuss what I think motivates the impure perspective: an aversion to abstraction.</p>
+
+<h2>The Primacy of the Machine</h2>
+
+<p>In the early days of programming, there were no computers. The first programs were written, and executed, on paper. It wasn&rsquo;t until later that machines were first built that could execute programs automatically.</p>
+
+<p>During the ascent of computers, an industry of professional computer programmers emerged. Perhaps because early computers were awkward and difficult to use, the focus of these professionals became less thinking about programs and more manipulating the machine.</p>
+
+<p>Indeed, if you read the Wikipedia entry on &ldquo;Computer Program&rdquo;, it tells you that computer programs are &ldquo;instructions for a computer&rdquo;, and that &ldquo;a computer requires programs to function&rdquo;. This is a curious position, since it&rsquo;s completely backwards. It implies that programming is done in order to make computers do things, as a primary. I&rsquo;ll warrant that the article was probably written by a professional programmer.</p>
+
+<p>But why does a computer need to function? Why does a computer even exist? The reality is that computers exist solely for the purpose of executing programs. The machine is not a metaphysical primary. Reality has primacy, a program is a description, an abstraction, a proof of some hypothesis about an aspect of reality, and the computer exists to deduce the implications of that fact for the pursuit of human values.</p>
+
+<p>To say that a computer &ldquo;requires programs to function&rdquo; is not at all like saying that an automobile requires fuel. It&rsquo;s like saying that it needs a driver. While that&rsquo;s true, the driver doesn&rsquo;t exist for the sake of the car. The driver has somewhere to go and the car exists to serve that purpose.</p>
+
+<h2>Shaping Programs in the Machine&rsquo;s Image</h2>
+
+<p>There&rsquo;s a certain kind of programming that lends itself well to manipulating a computer at a low level. You must think in terms of copying data between registers and memory, and executing instructions based on the machine&rsquo;s current state. In this kind of activity, the programmer serves as the interpreter between the abstract algorithm and the physical machine. But this in itself is a mechanical task. We can instead write a program, once and for all, that performs the interpretation for us, and direct that program using a general-purpose programming language.</p>
+
+<p>But what kind of structure will that language have? Ideally, we would be able to express programs in a natural and concise notation without regard to the machine. Such was the motivation behind LISP. It was designed as an implementation of the lambda calculus, a minimal formal system for expressing algorithms.</p>
+
+<p>This is not what has happened with languages like Java, C++, and some other of today&rsquo;s most popular languages. The abstractions in those languages largely simulate the machine. You have mutable records, or objects, into which you copy data and execute instructions based on their current state. The identity of objects is based on their location in the computer&rsquo;s memory. You have constructs like &ldquo;factories&rdquo;, &ldquo;builders&rdquo;, &ldquo;generators&rdquo;&hellip; <em>machines</em>!</p>
+
+<p>What we have is a generation of programmers accustomed to writing programs as if they were constructing a machine. We hear about &ldquo;engineering&rdquo; and &ldquo;architecture&rdquo; when talking about software. Indeed, as users, we interact with software using pictures of buttons, knobs, and switches. More machinery.</p>
+
+<h2>Equality and Identity</h2>
+
+<p>Programmers are generally used to thinking of equality and identity as distinct. For example, in Java, <code>(x == y)</code> means that the variable <code>x</code> holds a pointer to the same memory address as the variable <code>y</code>, i.e. that the variable <code>x</code> is identical with <code>y</code>. However, by convention, <code>x.equals(y)</code> means that the object at the memory address pointed to by <code>x</code> is equivalent in some sense to the object at the memory address pointed to by <code>y</code>, but <code>x</code> and <code>y</code> are not necessarily identical.</p>
+
+<p>Note that the difference between the two can only be explained in terms of the underlying machine. We have to invoke the notion of memory addresses to understand what&rsquo;s going on, or else resort to an appeal to intuition with terms like &ldquo;same object&rdquo;, &ldquo;same instance&rdquo;, etc.</p>
+
+<p>In a pure program, side-effects are disallowed. So a function is not allowed to mutate arguments or make calls to functions that have side-effects. So the result of every function is purely determined by the value of its arguments, and a function does nothing except compute a result. Think about the implications of that for a moment. Given that constraint, is there any reason to maintain a distinction between equality and identity? Consider this example:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">y</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If the values referenced by <code>x</code> and <code>y</code> are forever immutable, what could it possibly mean for them to not be identical? In what meaningful sense are they not the &ldquo;same object&rdquo;?</p>
+
+<p>Note that there&rsquo;s a philosophical connection here. The notion that every object carries an extradimensional identity that is orthogonal to its attributes is a very Platonic idea. The idea that an object has, in addition to its measurable attributes, a distinguished, eternal, noumenal identity. Contrast this with the Aristotelian view, in which an object&rsquo;s identity is precisely the sum of its attributes.</p>
+
+<h2>Variables and Pseudovariables</h2>
+
+<p>So we find that, given the mutability premise, a term in the language may be not be equal to itself even as it remains identical with itself. In a sense, this is because it&rsquo;s not entirely clear whether we are comparing values or variables when we compare a term. If that sounds a bit strange, consider the following snippet:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="n">v</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">Foo</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">v</span> <span class="o">=</span> <span class="n">i</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">Foo</span> <span class="nf">f</span><span class="o">(</span><span class="n">Foo</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="na">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">v</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="n">Foo</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="kt">boolean</span> <span class="n">a</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">);</span> <span class="c1">// true</span>
+</span><span class='line'><span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="na">v</span> <span class="o">&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="na">v</span><span class="o">;</span> <span class="c1">// ???</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even that short and ostensibly simple code snippet is difficult to comprehend properly, because the <code>f</code> method mutates its argument. It seems that since the first boolean is true, the same object appears on either side of the <code>==</code> operator, so <code>f(x)</code> is identical with <code>f(x)</code>. They&rsquo;re the &ldquo;same object&rdquo;. Even so, it is not clear that this &ldquo;same object&rdquo; is equal to itself. To figure out the value of <code>b</code>, you have to know some things about how the machine executes the program, not just what the program actually says. You can argue about pass-by-reference and pass-by-value, but these are terms that describe the machine, not the program.</p>
+
+<p>You will note that the <code>Foo</code> type above is mutable in the sense that it has accessible components that can be assigned new values. But what does that mean? Is an object of type <code>Foo</code> a value or a variable? It seems to <em>have</em> a kind of pseudo-variable <code>v</code>. To clarify this, we can imagine that a variable holding a value of type <code>Foo</code> also holds a further value of type <code>int</code>. Assignment to a variable <code>x</code> of type <code>Foo</code> also assigns the variable <code>x.v</code> of type <code>int</code>, but the variable <code>x.v</code> can be assigned independently of <code>x</code>.</p>
+
+<p>So data mutation is, ultimately, variable assignment. Above, <code>Foo</code> is mutated by assigning a value to the pseudo-variable <code>v</code>.</p>
+
+<p>Now, I say pseudo-variable, because it&rsquo;s not obvious whether this is a value or a variable. A function that receives a value of type <code>Foo</code>, also receives the variable <code>Foo.v</code>, to which it can assign new values. So the variable is passed as if it were a value. Stated in terms of the machine, a pointer to a pointer is being passed, and the memory at that address can be mutated by writing another pointer to it. In terms of the program, the called function is able to <em>rebind a variable in the scope of the caller</em>.</p>
+
+<p>This is why you have bugs, why programs are hard to debug, and software is difficult to extend. It&rsquo;s because programs are difficult to comprehend to the extent that they are impure. And the reason for that is that they are not sufficiently abstract. A writer of impure code is not operating on the level of abstraction of programming. He&rsquo;s operating at the level of abstraction of the machine.</p>
+
+<h2>Thinking Pure Thoughts</h2>
+
+<p>In a pure program, there are no side-effects at all. Every function is just that, a function from its arguments to its result. Values are immutable and eternal. A is A, and will always remain A. The only way to get from A to B is for there to be a function that takes A and returns B.</p>
+
+<p>To a lot of programmers used to thinking in terms of mutable state, this perspective is completely baffling. And yet, most of them use immutable values all the time, without finding them particularly profound. For example:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In that example, 1 is an immutable value. The + operator doesn&rsquo;t modify the value of 1, nor of x, nor of y. It doesn&rsquo;t take the value 1 and turn it into a 2. Every integer is equal to and identical with itself, always and forever.</p>
+
+<p>But what&rsquo;s special about integers? When adding a value to a list, a Java programmer will ordinarily do something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">one</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This modifies the list in place, so that any variable referencing it will change values. But why shouldn&rsquo;t lists be as immutable as integers? I&rsquo;m sure some readers just mumbled something about primitives and passing by reference versus passing by value. But why the distinction? If everything were immutable, you would never know if it were passed by value or reference under the covers. Nor would you care what&rsquo;s primitive and what isn&rsquo;t. For an immutable list, for example, the add function would not be able to modify the list in place, and so would return a new one:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">list</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">one</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From this perspective, you can write programs that perform arithmetic with complex values as if they were primitive. But why stop with lists? When functions are pure, we can understand programs themselves as objects that are subject to calculation just like numbers in arithmetic, using simple and composable operators.</p>
+
+<h2>Assignment in a Pure World</h2>
+
+<p>Let&rsquo;s take a simple example of just such an operator. We&rsquo;ve talked about how mutation is really assignment. Now let&rsquo;s take the leap fully into the pure perspective, in which assignment is really just closure (pure functions with free variables). To illustrate, here is an example that all Java and C programmers are familiar with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+</span><span class='line'><span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'><span class="n">t</span><span class="o">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The familiar semicolon represents a combinator called &ldquo;bind&rdquo;. In Haskell, this operator is denoted <code>(&gt;&gt;=)</code>. In Scala, it&rsquo;s called <code>flatMap</code>. To better see how this works, here&rsquo;s a rough transliteration into Haskell:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">f</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="kr">where</span>
+</span><span class='line'>    <span class="n">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">return</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span>
+</span><span class='line'>    <span class="n">g</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">return</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">t</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Of course, this isn&rsquo;t at all the kind of code you would normally write, but it serves to demonstrate the idea that assignment can be understood as binding the argument to a function. The Haskell code above roughly means:</p>
+
+<p><em>Pass <code>1</code> to <code>f</code>, where <code>f</code> passes its argument to unchanged to <code>g</code>. And <code>g</code> adds <code>1</code> to its argument and passes the result to a function that adds <code>y</code> to its argument and passes that to <code>t</code>.</em></p>
+
+<p>So in the Java version, we can understand everything after the first semicolon to be a <em>function</em> that takes an argument <code>x</code> and we happen to be passing it <code>1</code>. Everything after the second semicolon is a function that takes an argument <code>y</code> and we happen to be passing it <code>x</code> (which has the value <code>1</code>). And everything after the third semicolon is a function that takes an argument called <code>x</code> (shadowing the first <code>x</code>) and passes <code>x + y</code> to some function <code>t</code>.</p>
+
+<p>Haskell is a purely functional language, and purity is enforced by its type system. If you haven&rsquo;t taken it for a spin, I challenge you to do so. For more on the benefits of purely functional programming, see &ldquo;Why Haskell Matters&rdquo;.</p>
+
+<p>Of course, purity is not purely the prerogative of Haskell. Sure, Haskell enforces purity, but you can write pure code in any language. That Java code above is pure, you know. If this is all new to you, I challenge you to give purity a shot. In your favourite language, be it Java or something else, start using immutable datastructure in preference to mutable ones. Try thinking in terms of functions from arguments to results rather than in terms of mutation and effects. For Java, you might consider using the immutable datastructures provided by Functional Java or Google Collections. Scala also has immutable datastructures as part of its standard libraries.</p>
+
+<p>It&rsquo;s time that we graduate from punching buttons and pulling levers — manipulating the machines. Here&rsquo;s to programming as it could be and ought to be.</p>
 </div>
+  
+  
 
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
     
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2009/04/27/a-critique-of-impure-reason/" title="Previous Post: A Critique of Impure Reason">&laquo; A Critique of Impure Reason</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2012/09/04/this-blog-has-moved/" title="Next Post: New Beginnings">New Beginnings &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
-<section>
-  <div id="comments">
-    <h2>Comments</h2>
-    <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/5"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
-    </div>
+      <h1 class="entry-title"><a href="/blog/2008/12/04/no-such-thing/">Objects, Identity, and Concept-formation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-12-04T00:00:00-05:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612">GoF book</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&rsquo;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="http://en.wikipedia.org/wiki/Combinatory_logic">some governing principle</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="http://en.wikipedia.org/wiki/Category_theory">category theory</a>, and <a href="http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology">epistemology</a>. And I&rsquo;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
+
+<p><em>There is no such thing as Object-Oriented programming.</em></p>
+
+<p>I realise that I might risk starting a religious war here, but I don&rsquo;t intend to. If you think I&rsquo;m attacking you personally in some way, please stop reading and come back later with fresh eyes. Note that <strong>I&rsquo;m not saying that OO is a bad thing</strong>. I&rsquo;m saying that there isn&rsquo;t any special kind of programming that is object-oriented as against programming that isn&rsquo;t. It is a useless distinction, in exactly the same way that <a href="http://freedomkeys.com/ar-racism.htm">&ldquo;race&rdquo;</a> is a useless distinction. And holding on to a useless concept isn&rsquo;t good for anybody. The term &ldquo;object-oriented&rdquo; is at least honest in that it says what it implies, which is a frame of mind, an orientation of the programmer. However, the practical effect of this orientation is anti-conceptual, in that it displaces actual concepts like algebra, calculus, closure, function, identity, type, value, variable, etc. It fosters an aversion to abstraction. So you could say that there are object-orientated programmers.</p>
+
+<h2>&ldquo;Object-Oriented&rdquo; as a non-concept</h2>
+
+<p>Remember, you cannot be called upon to prove a negative. The burden of proof falls on whomever is claiming that there is such a thing as OO. But try as you might, <a href="http://www.paulgraham.com/reesoo.html">there&rsquo;s no objective definition of what &ldquo;object-oriented&rdquo; refers to</a>. It means anything you want, which is to say that it&rsquo;s rather meaningless. Peddlers of &ldquo;object methodology&rdquo; readily admit that &ldquo;object-oriented&rdquo; means different things to different people. To quote Aristotle: &ldquo;Not to have one meaning is to have no meaning, and if words have no meaning, our reasoning with one another, and indeed with ourselves, has been annihilated.&rdquo;</p>
+
+<p>When I say that there&rsquo;s no such thing as OO, I mean, more precisely, that there exists some abstraction (or several) that is referred to as &ldquo;object-oriented&rdquo;, but that this abstraction has no actual referent in reality. It is an abstraction that is made in error. It is not necessary, and serves no cognitive purpose. It is &ldquo;not even false&rdquo;.</p>
+
+<p>This is to say that it&rsquo;s not like the concept of Santa Claus, which is a fiction, a falsehood. OO is not a fiction, but a misintegration. It is a term that sounds like a concept, but denotes nothing more than a vague collection of disparate elements, any of which can be omitted, and none of which are essential.</p>
+
+<h2>A Proper Method of Concept-Formation</h2>
+
+<p>How is Object-Oriented a non-concept? Let&rsquo;s demonstrate that very cursorily. First, we have to explicitly identify what it means for a concept to be valid.</p>
+
+<p><em>Valid concepts are arrived at by induction. </em>Induction is the process of integrating facts of reality by observing similarities and omitting particulars. Or, if you will, the process of applying logic to experience. Our induction must adhere to the corollary laws of <a href="http://en.wikipedia.org/wiki/Law_of_identity">identity</a>, <a href="http://en.wikipedia.org/wiki/Law_of_noncontradiction">noncontradiction</a>, and <a href="http://en.wikipedia.org/wiki/Law_of_excluded_middle">the excluded middle</a>, and it must observe <a href="http://aynrandlexicon.com/lexicon/causality.html">causality</a>.</p>
+
+<p>Note that a correct concept of concepts is the vehicle and not the cargo of this post. In brief, a valid concept or theory must meet the following criteria (hat tip: <a href="http://www.theobjectivestandard.com/issues/2007-spring/induction-experimental-method.asp">David Harriman</a>):</p>
+
+<ol>
+<li>It must be derived from observations by a valid method (by logical induction from experience or experiment as described above). A valid concept can have no arbitrary elements and no relations that are unsupported by the facts being integrated.</li>
+<li>It must form an integrated whole in which every part supports every other. It cannot be a conglomeration of independent parts that are freely adjusted to fit a given situation.</li>
+<li>It must be no more and no less general than required to meet criteria 1 and 2.</li>
+</ol>
+
+
+<p><strong>OO doesn&rsquo;t meet criterion #1</strong>. There&rsquo;s nothing about the nature of programming that gives rise to a concept of object-orientation. Rather, the notion is sparked by the desire to make an analogy between manipulating physical objects in the real world and manipulating abstract entities in the computer. The motivation is understandable, to help people think about programs in the same way that they are used to reasoning about physical objects. But the analogy isn&rsquo;t warranted by the facts, and therefore it is arbitrary. The concepts simply don&rsquo;t transfer, because they are abstractions over entities of a different kind. The mistake is to use the concepts anyway, choosing the illusion that software is like physical systems rather than understanding the actual nature of programs.</p>
+
+<p><strong>OO doesn&rsquo;t meet criterion #2</strong>: There&rsquo;s no consistent definition of object-orientation. It&rsquo;s a loose grab-bag in which nothing is essential. Even if you start removing things, it&rsquo;s not at all clear at what point your programming stops being object-oriented. One would think that it&rsquo;s at the point where you stop programming with objects, but that&rsquo;s merely begging the question since it&rsquo;s not clear what kind of entity is an object and what kind of entity isn&rsquo;t. We are to rely on intuition alone in discovering that. What&rsquo;s more, some of the contents of the &ldquo;object-oriented&rdquo; bag contradict one another (both inheritance and mutation contradict encapsulation, for example).</p>
+
+<h2>Repairing the Disorientation</h2>
+
+<p>Of course, it does no good to tear down the cognitive package-deal that is &ldquo;object-oriented&rdquo; if you don&rsquo;t replace it with something. If you entered a village of <a href="http://www.smurf.com/">little blue creatures</a> and convinced them that the term &ldquo;smurf&rdquo; had no cognitive utility, you would have to teach them a whole host of concepts to use in its stead. There are two main ideas that the anti-concept &ldquo;object-oriented&rdquo; annihilates:</p>
+
+<ol>
+<li>It introduces the false dichotomy of identity as apart from equivalence.</li>
+<li>It blurs the distinction between values and variables.</li>
+</ol>
+
+
+<p>I will elaborate on each of these points in two follow-up posts. Stay tuned.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="1">Newer &rarr;</a>
+    
   </div>
-<script type="text/javascript">
-
-  function loadComments(data) {  
-    for (var i=0; i<data.length; i++) {
-      var cuser = data[i].user.login;
-      var cuserlink = "https://www.github.com/" + data[i].user.login;
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/5#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
-      var cbody = data[i].body_html;
-      var cavatarlink = data[i].user.avatar_url;
-      var cdate = Date.parse(data[i].created_at).toString("yyyy-MM-dd HH:mm:ss");
-      
-      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
-    }
-  }
-
-  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/5/comments", {
-    headers: {Accept: "application/vnd.github.full+json"},
-    dataType: "json",
-    success: function(msg){
-      loadComments(msg);
-   }
-  });
-</script>
-</section>
-
 </div>
-
 <aside class="sidebar">
   
     <section>
@@ -687,7 +905,6 @@
 
   
 </aside>
-
 
     </div>
   </div>

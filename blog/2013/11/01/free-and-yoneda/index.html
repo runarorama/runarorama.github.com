@@ -101,20 +101,20 @@
   
 
 
-<time datetime="2013-11-01T00:00:00-04:00" pubdate data-updated="true">Nov 1<span>st</span>, 2013</time>
+<time datetime="2013-11-01T00:00:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &#8220;free monad&#8221;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
+<div class="entry-content"><p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &ldquo;free monad&rdquo;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
 
 <h2>IO as an application of Free</h2>
 
 <p>The <code>Free</code> monad in Scalaz is given a bit like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -127,7 +127,7 @@
 
 <p>But the <code>IO</code> monad I gave in the talk looks more like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -138,7 +138,7 @@
 
 <p>And it could actually be stated as an application of <code>Free</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">type</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[({</span><span class="k">type</span> <span class="kt">λ</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span> <span class="o">(</span><span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>, <span class="kt">I</span> <span class="k">=&gt;</span> <span class="kt">α</span><span class="o">)</span> <span class="k">forSome</span> <span class="o">{</span><span class="k">type</span> <span class="kt">I</span><span class="o">}})</span><span class="k">#</span><span class="kt">λ</span>, <span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -151,20 +151,20 @@
 
 <h3>The Yoneda lemma</h3>
 
-<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&#8230;</p>
+<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&hellip;</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>&#8230;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
+<p>&hellip;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
 
 <p>The Yoneda lemma says that this goes the other way around as well. If you have a value of type <code>F[A]</code> for any functor <code>F</code> and any type <code>A</code>, then you certainly have a <code>map</code> function with the signature above.</p>
 
 <p>In scala terms, we can capture this in a type:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
@@ -175,7 +175,7 @@
 
 <p>And the Yoneda lemma says that there is an isomorphism between <code>Yoneda[F,A]</code> and <code>F[A]</code>, for any functor <code>F</code> and any type <code>A</code>. Here is the proof:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -200,7 +200,7 @@
 
 <p>This is the permutation of the Yoneda lemma that we were using in <code>IO</code> above. That is, <code>IO[F, A]</code> is really <code>Free[({type λ[α] = CoYoneda[F,α]})#λ, A]</code>, given:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -215,7 +215,7 @@
 
 <p>And the lemma says that <code>CoYoneda[F,A]</code> is isomorphic to <code>F[A]</code>. Here is the proof:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -234,7 +234,7 @@
 
 <p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
 
-<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&#8217;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&#8217;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
+<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&rsquo;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&rsquo;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
 
 <p>I hope that sheds a little bit of light on the Yoneda lemma as well as the different embeddings of free monads.</p>
 </div>
@@ -259,7 +259,7 @@
   
 
 
-<time datetime="2013-11-01T00:00:00-04:00" pubdate data-updated="true">Nov 1<span>st</span>, 2013</time>
+<time datetime="2013-11-01T00:00:00-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -292,7 +292,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/7"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/7"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
     </div>
   </div>
 <script type="text/javascript">
@@ -333,6 +333,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A better reading list with Mathematica</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/21/maximally-powerful/">Maximally Powerful, Minimally Useful</a>
       </li>
     
@@ -348,17 +352,13 @@
         <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2013/11/01/free-and-yoneda/">Free monads and the Yoneda lemma</a>
-      </li>
-    
   </ul>
 </section>
 
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/runarorama">@runarorama</a> on GitHub
@@ -403,7 +403,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Rúnar Bjarnason -
+  Copyright &copy; 2015 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

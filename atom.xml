@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2014-12-21T23:39:16-05:00</updated>
+  <updated>2015-02-08T17:35:23-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -14,27 +14,299 @@
 
   
   <entry>
+    <title type="html"><![CDATA[A better reading list with Mathematica]]></title>
+    <link href="http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica/"/>
+    <updated>2015-02-08T11:04:00-05:00</updated>
+    <id>http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica</id>
+    <content type="html"><![CDATA[<p>Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read in my lifetime, this list has become quite long.</p>
+
+<p>In the olden days of brick-and-mortar bookstores and libraries, I would discover books to read by browsing shelves and picking up what looked interesting at the time. I might even find something that I knew was on my list. &ldquo;Oh, I&rsquo;ve been meaning to read that!&rdquo;</p>
+
+<p>The Internet changes this dynamic dramatically. It makes it much easier for me to discover books that interest me, and also to access any book that I might want to read, instantly, anywhere. At any given time, I have a couple of books that I&rsquo;m &ldquo;currently reading&rdquo;, and when I finish one I can start another immediately. I use Goodreads to manage my to-read list, and it&rsquo;s easy for me to scroll through the list and pick out my next book.</p>
+
+<p>But again, this list is very long. So I wanted a good way to filter out books I will really never read, and sort it such that the most &ldquo;important&rdquo; books in some sense show up first. Then every time I need a new book I could take the first one from the list and make a binary decision: either &ldquo;I will read this right now&rdquo;, or &ldquo;I am never reading this&rdquo;. In the latter case, if a book interests me enough at a later time, I&rsquo;m sure it will find its way back onto my list.</p>
+
+<p>The problem then is to find a good metric by which to rank books. Goodreads lets users rank books with a star-rating from 1 to 5, and presents you with an average rating by which you can sort the list. The problem is that a lot of books that interest me have only one rating and it&rsquo;s 5 stars, giving the book an &ldquo;average&rdquo; of 5.0. So if I go with that method I will be perpetually reading obscure books that one other person has read and loved. This is not necessarily a bad thing, but I do want to branch out a bit.</p>
+
+<p>Another possibility is to use the number of ratings to calculate a <a href="http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval">confidence interval</a> for the average rating. For example, using the <a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html">Wilson score</a> I could find an upper and lower bound <code>s1</code> and <code>s2</code> (higher and lower than the average rating, respectively) that will let me say &ldquo;I am 95% sure that any random sample of readers of an equal size would give an average rating between <code>s1</code> and <code>s2</code>.&rdquo; I could then sort the list by the lower bound <code>s1</code>.</p>
+
+<p>But this method is dissatisfactory for a number of reasons. Firstly, the lower bound of the confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
+
+<p>What&rsquo;s more, it turns out that if you take <em>any moderately popular book</em> on Goodreads at random, it will have an average rating somewhere close to 4. I could <a href="http://stephsun.com/silverizing.html">manufacture a prior</a> based on this knowledge and use that instead of the normal distribution in the confidence interval, but that would still not be a very good ranking because <a href="http://stephsun.com/metascores.html">reader review metascores are meaningless</a>.</p>
+
+<p>In the article <a href="http://stephsun.com/metascores.html">&ldquo;Reader review metascores are meaningless&rdquo;</a>, Stephanie Shun suggests using the <em>percentage of 5-star ratings</em> as the relevant metric rather than the <em>average rating</em>. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.</p>
+
+<p>I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. We can then just use the normal distribution instead of working with an artisanally curated prior.</p>
+
+<p>Mathematica makes it easy to generate the Wilson score. Here, <code>pos</code> is the number of positive trials (number of 5-star ratings), <code>n</code> is the number of total ratings, and <code>confidence</code> is the desired confidence percentage. I&rsquo;m taking the lower bound of the confidence interval to get my score.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Wilson</span><span class="p">[</span><span class="nv">pos_</span><span class="p">,</span><span class="w"> </span><span class="nv">n_</span><span class="p">,</span><span class="w"> </span><span class="nv">confidence_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">If</span><span class="p">[</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="err">&lt;</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Quantile</span><span class="p">[</span><span class="n">NormalDistribution</span><span class="p">[],</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">confidence</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span>
+</span><span class='line'><span class="w">      </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pos</span><span class="o">/</span><span class="n">n</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">},</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="w"> </span><span class="n">Sqrt</span><span class="p">[(</span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="o">/</span><span class="n">n</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">(</span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I just need to get the book data from Goodreads. Fortunately, <a href="https://www.goodreads.com/api">it has a pretty rich API</a>. I just need a developer key, which anyone can get for free.</p>
+
+<p>For example, to get the ratings for a given book <code>id</code>, we can use their XML api for books and pattern match on the result to get the ratings by score:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Ratings</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cases</span><span class="p">[</span><span class="n">Import</span><span class="p">[</span><span class="n">ToString</span><span class="p">[</span><span class="n">StringForm</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">        </span><span class="s">&quot;http://www.goodreads.com/book/show.xml?key=``&amp;id=``&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">]]],</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;rating_dist&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">d_</span><span class="p">}]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">Infinity</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">},</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringSplit</span><span class="p">[</span><span class="nv">#</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">StringSplit</span><span class="p">[</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="n">Block</span><span class="p">[{},</span><span class="w"> </span><span class="n">Pause</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">FromDigits</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">Association</span><span class="p">[</span><span class="n">Rule</span><span class="w"> </span><span class="o">@@@</span><span class="w"> </span><span class="n">First</span><span class="p">[</span><span class="n">data</span><span class="p">]]]]];</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, <code>key</code> is my Goodreads developer API key, defined elsewhere. I put a <code>Pause[1]</code> in the call since Goodreads throttles API calls so you can&rsquo;t make more than one call per second to each API endpoint. I&rsquo;m also memoizing the result, by assigning to <code>Ratings[id]</code> in the global environment.</p>
+
+<p><code>Ratings</code> will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, &ldquo;Harry Potter and the Half-Blood Prince&rdquo;, here are the scores:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="err">&lt;</span><span class="o">|</span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">782740</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">352725</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">111068</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">         </span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">17693</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">5289</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;total&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">1269515</span><span class="o">|</span><span class="err">&gt;</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sweet. Let&rsquo;s see how Harry Potter #6 would score with our rating:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Wilson</span><span class="p">[</span><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.95</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="mf">0.61572</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So Wilson is 95% confident that in any random sample of about 1.2 million users, 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
+
+<p>But now the lower bound for a relatively obscure title is pretty low. See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that Harry Potter has a lot of fans. So I&rsquo;ll introduce a scaling factor which will have the effect that 5-star ratings on a book with few total ratings weigh more than those on a book with a lot of ratings:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ScaledWilson</span><span class="p">[</span><span class="nv">pos_</span><span class="p">,</span><span class="w"> </span><span class="nv">n_</span><span class="p">,</span><span class="w"> </span><span class="nv">confidence_</span><span class="p">,</span><span class="w"> </span><span class="nv">scaling_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="n">Wilson</span><span class="p">[</span><span class="n">pos</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">confidence</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Experimenting with this a bit, I find that a scaling factor of 2 or so gives the appropriate amount of weight to more obscure books. But this is entirely subjective.</p>
+
+<p>We can now get the &ldquo;true rank&rdquo; of any book:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">ScaledWilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.95</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unfortunately, there&rsquo;s no way to get the ratings of all the books in my reading list in one fell swoop. I&rsquo;ll have to get the reading list first, then call <code>Rating</code> for each book&rsquo;s <code>id</code>. In Goodreads, books are managed by &ldquo;shelves&rdquo;, and the API allows getting the entire contents of a given shelf:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">GetShelf</span><span class="p">[</span><span class="nv">user_</span><span class="p">,</span><span class="w"> </span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="n">Cases</span><span class="p">[</span><span class="n">Import</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">ToString</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">       </span><span class="n">StringForm</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">        </span><span class="err">&quot;</span><span class="n">http</span><span class="err">:</span><span class="o">//</span><span class="n">www</span><span class="err">.</span><span class="n">goodreads</span><span class="err">.</span><span class="n">com</span><span class="o">/</span><span class="n">review</span><span class="o">/</span><span class="n">list</span><span class="err">.</span><span class="n">xml</span><span class="o">?</span><span class="n">v</span><span class="o">=</span><span class="mi">2</span><span class="o">&amp;</span><span class="n">key</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="n">id</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="err">\</span><span class="w"></span>
+</span><span class='line'><span class="n">shelf</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="n">sort</span><span class="o">=</span><span class="nv">avg_rating</span><span class="o">&amp;</span><span class="n">order</span><span class="o">=</span><span class="n">d</span><span class="o">&amp;</span><span class="nv">per_page</span><span class="o">=</span><span class="mi">200</span><span class="err">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">shelf</span><span class="p">]]],</span><span class="w"> </span>
+</span><span class='line'><span class="w">     </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">       </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">___</span><span class="p">,</span><span class="w"> </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">id_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">title_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;average_rating&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">avg_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">         </span><span class="s">&quot;authors&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">           </span><span class="s">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">            </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">             </span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">author_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;author&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">author</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;avg&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">avg</span><span class="p">},</span><span class="w"> </span>
+</span><span class='line'><span class="w">     </span><span class="n">Infinity</span><span class="p">]},</span><span class="w"> </span><span class="n">Association</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">raw</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m doing a bunch of XML pattern matching here to get the <code>id</code>, <code>title</code>, <code>average_rating</code>, and first <code>author</code> of each book. Then I put that in an association list.</p>
+
+<p>With that in hand, I can get the contents of my &ldquo;to-read&rdquo; shelf with <code>GetShelf[runar, "to-read"]</code>, where <code>runar</code> is my Goodreads user id. And given that, I can call <code>TrueRank</code> on each book on the shelf, then sort the result by that rank:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueSort</span><span class="p">[</span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w"> </span><span class="n">Sort</span><span class="p">[</span><span class="n">Map</span><span class="p">[</span><span class="n">Function</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">Append</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rank&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">TrueRank</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]]],</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="n">shelf</span><span class="p">],</span><span class="w"> </span><span class="nv">#1</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="nv">#2</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To get the ranked reading list of any user:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ReadingList</span><span class="p">[</span><span class="nv">user_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">TrueSort</span><span class="p">[</span><span class="n">GetShelf</span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;to-read&quot;</span><span class="p">]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And to print it out nicely:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="nv">books_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w"> </span><span class="n">Grid</span><span class="p">[</span><span class="n">Cases</span><span class="p">[</span><span class="n">books</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="nv">b_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;avg&quot;</span><span class="p">]}],</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">Alignment</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Left</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I can get, say, the first 10 books on my improved reading list:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="n">ReadingList</span><span class="p">[</span><span class="n">runar</span><span class="p">][[</span><span class="mi">1</span><span class="w"> </span><span class="o">;;</span><span class="w"> </span><span class="mi">10</span><span class="p">]]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>5546     The Feynman Lectures on Physics (0.678576, 4.58)
+</span><span class='line'>         Richard P. Feynman
+</span><span class='line'>
+</span><span class='line'>16157938 Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology (0.675592, 5.00)
+</span><span class='line'>         Allan Gotthelf
+</span><span class='line'>
+</span><span class='line'>8664353  Unbroken: A World War II Story of Survival, Resilience, and Redemption (0.609754,4.44)
+</span><span class='line'>         Laura Hillenbrand
+</span><span class='line'>
+</span><span class='line'>640909   The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth (0.609666, 5.00)
+</span><span class='line'>         Raymond Tallis
+</span><span class='line'>
+</span><span class='line'>640913   The Hand: A Philosophical Inquiry Into Human Being (0.609666, 5.00)
+</span><span class='line'>         Raymond Tallis
+</span><span class='line'>
+</span><span class='line'>4050770  Volition As Cognitive Self Regulation (0.600586, 4.86)
+</span><span class='line'>         Harry Binswanger 
+</span><span class='line'>
+</span><span class='line'>13539024 Free Market Revolution: How Ayn Rand's Ideas Can End Big Government (0.587592, 4.48)
+</span><span class='line'>         Yaron Brook 
+</span><span class='line'>
+</span><span class='line'>1609224  The Law (0.586947, 4.40)
+</span><span class='line'>         Frédéric Bastiat
+</span><span class='line'>
+</span><span class='line'>304079   The Essential Rumi (0.580289, 4.42)
+</span><span class='line'>         Rumi
+</span><span class='line'>
+</span><span class='line'>151848   Probability Theory: The Logic of Science (0.577267, 4.48)
+</span><span class='line'>         E.T. Jaynes</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. I&rsquo;ll get cracking on Feynman, then.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Maximally Powerful, Minimally Useful]]></title>
     <link href="http://runarorama.github.com/blog/2014/12/21/maximally-powerful/"/>
     <updated>2014-12-21T23:23:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2014/12/21/maximally-powerful</id>
-    <content type="html"><![CDATA[<p>It&#8217;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
+    <content type="html"><![CDATA[<p>It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
 
-<p>This principle is very widely applicable, and it&#8217;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
+<p>This principle is very widely applicable, and it&rsquo;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
 
-<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&#8217;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
+<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&rsquo;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
 
-<p>What I want to do here is give a whole bunch of examples. Then we&#8217;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
+<p>What I want to do here is give a whole bunch of examples. Then we&rsquo;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
 
 <h2>Examples from computer science</h2>
 
 <h3>Context-free and regular grammars</h3>
 
-<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&#8217;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
+<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&rsquo;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
 
 <h3>Monads and applicative functors</h3>
 
-<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&#8217;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &#8220;bind&#8221;, or &#8220;flatMap&#8221;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
+<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&rsquo;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &ldquo;bind&rdquo;, or &ldquo;flatMap&rdquo;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
 
 <p>This power comes at a cost. Whereas we can always compose any two applicatives to form a composite applicative, two monads do not in general compose to form a monad. It may be the case that a given monad composes with any other monad, but we need some additional information about it in order to be able to conclude that it does.</p>
 
@@ -42,7 +314,7 @@
 
 <p>Futures have an algebraic theory, so we can reason about them algebraically. Namely, they form an applicative functor which means that two futures <code>x</code> and <code>y</code> make a composite future that does <code>x</code> and <code>y</code> in parallel. They also compose sequentially since they form a monad.</p>
 
-<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &#8220;fire and forget&#8221;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
+<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &ldquo;fire and forget&rdquo;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
 
 <h3>Typed and untyped programming</h3>
 
@@ -54,7 +326,7 @@
 
 <h3>Total functional programming</h3>
 
-<p>Programming in non-total languages affords us the power of general recursion and &#8220;fast and loose reasoning&#8221; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
+<p>Programming in non-total languages affords us the power of general recursion and &ldquo;fast and loose reasoning&rdquo; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>map (- n) (map (+ n) xs)) == xs</span></code></pre></td></tr></table></div></figure>
@@ -71,8 +343,8 @@
 <p>There is a principle in computer security called <em>The Principle of Least Privilege</em>. It says that a user or program should have exactly as much authority as necessary but no more. This constrains the power of the entity, but greatly enhances the power of others to predict and reason about what the entity is going to do, resulting in the following benefits:</p>
 
 <ul>
-<li><strong>Compositionality</strong> &#8211; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
-<li><strong>Modularity</strong> &#8211; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
+<li><strong>Compositionality</strong> &ndash; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
+<li><strong>Modularity</strong> &ndash; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
 </ul>
 
 
@@ -80,7 +352,7 @@
 
 <p>Some might notice an analogy between the Principle of Least Privilege and the idea of a constitutionally limited government. An absolute dictatorship or pure democracy will have absolute power to enact whatever whim strikes the ruler or majority at the moment. But the overall stability, security, and freedom of the people is greatly enhanced by the presence of legal limits on the power of the government. A limited constitutional republic also makes for a better neighbor to other states.</p>
 
-<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &#8220;cost&#8221; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
+<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &ldquo;cost&rdquo; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
 
 <h2>An example from mathematics</h2>
 
@@ -90,11 +362,11 @@
 
 <h3>Driving on roads</h3>
 
-<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&#8217;re going much faster and more safely than we would otherwise.</p>
+<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&rsquo;re going much faster and more safely than we would otherwise.</p>
 
 <h3>Commodity components</h3>
 
-<p>Let&#8217;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
+<p>Let&rsquo;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
 
 <h2>Summary</h2>
 
@@ -107,7 +379,7 @@
 </ul>
 
 
-<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&#8217;m just late to the party?</p>
+<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&rsquo;m just late to the party?</p>
 ]]></content>
   </entry>
   
@@ -116,11 +388,11 @@
     <link href="http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter/"/>
     <updated>2014-10-29T13:23:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter</id>
-    <content type="html"><![CDATA[<p>Today I disabled my Twitter account. Probably only temporarily, but we&#8217;ll see. This is just a quick note to let everyone know that I&#8217;m not leaving Twitter because of anything specific. It&#8217;s not that you said or did anything wrong. I just find that it&#8217;s becoming an energy sink for me. I&#8217;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
+    <content type="html"><![CDATA[<p>Today I disabled my Twitter account. Probably only temporarily, but we&rsquo;ll see. This is just a quick note to let everyone know that I&rsquo;m not leaving Twitter because of anything specific. It&rsquo;s not that you said or did anything wrong. I just find that it&rsquo;s becoming an energy sink for me. I&rsquo;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
 
-<p>Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I&#8217;m available by email. My address is <code>runar</code> at this blog&#8217;s domain.</p>
+<p>Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I&rsquo;m available by email. My address is <code>runar</code> at this blog&rsquo;s domain.</p>
 
-<p>(UPDATE 2014-12-21): I&#8217;ve recreated my Twitter account, but I&#8217;m now using the service in a different way. The biggest change is that I don&#8217;t follow anyone. It&#8217;s strictly a broadcasting device for me, and not an information consumption device.</p>
+<p>(UPDATE 2014-12-21): I&rsquo;ve recreated my Twitter account, but I&rsquo;m now using the service in a different way. The biggest change is that I don&rsquo;t follow anyone. It&rsquo;s strictly a broadcasting device for me, and not an information consumption device.</p>
 ]]></content>
   </entry>
   
@@ -129,7 +401,7 @@
     <link href="http://runarorama.github.com/blog/2014/09/18/at-long-last/"/>
     <updated>2014-09-18T13:09:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/09/18/at-long-last</id>
-    <content type="html"><![CDATA[<p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&#8217;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
+    <content type="html"><![CDATA[<p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&rsquo;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
 
 <p>I just want to share my personal story of how this book came to exist. A much shorter version of this story became the preface for the finished book, but here is the long version.</p>
 
@@ -152,15 +424,15 @@
     <link href="http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts/"/>
     <updated>2014-03-19T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts</id>
-    <content type="html"><![CDATA[<p>Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
+    <content type="html"><![CDATA[<p>Today I want to talk about relationships between monoids. These can be useful to think about when we&rsquo;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
-<p>This post kind of fell together when writing notes on chapter 10, &#8220;Monoids&#8221;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
+<p>This post kind of fell together when writing notes on chapter 10, &ldquo;Monoids&rdquo;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
 
 <h2>Monoid homomorphisms</h2>
 
-<p>Let&#8217;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
+<p>Let&rsquo;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">length</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">).</span><span class="n">length</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -169,14 +441,14 @@
 
 <p>The <code>length</code> function maps from <code>String</code> to <code>Int</code> <em>while preserving the monoid structure</em>. Such a function, that maps from one monoid to another in such a preserving way, is called a <em>monoid homomorphism</em>. In general, for monoids <code>M</code> and <code>N</code>, a homomorphism <code>f: M =&gt; N</code>, and all values <code>x:M</code>, <code>y:M</code>, the following law holds:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="o">|+|</span> <span class="n">y</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">y</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>|+|</code> syntax is from <a href="http://github.com/scalaz/scalaz">Scalaz</a> and is obtained by importing <code>scalaz.syntax.monoid._</code>. It just references the <code>append</code> method on the <code>Monoid[T]</code> instance, where <code>T</code> is the type of the arguments.</p>
 
-<p>This law can have real practical benefits. Imagine for example a &#8220;result set&#8221; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
+<p>This law can have real practical benefits. Imagine for example a &ldquo;result set&rdquo; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
 
 <h2>Monoid isomorphisms</h2>
 
@@ -192,7 +464,7 @@
 
 <p>If <code>A</code> and <code>B</code> are monoids, then <code>(A,B)</code> is certainly a monoid, called their <em>product</em>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -215,13 +487,13 @@
 
 <p><img src="http://runarorama.github.com/images/Product.png"></p>
 
-<p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&#8217;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
+<p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&rsquo;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
 
 <p><img src="http://runarorama.github.com/images/Coproduct.png"></p>
 
 <p>We can easily show that our <code>productMonoid</code> above really is a monoid product. The homomorphisms are the methods <code>_1</code> and <code>_2</code> on <code>Tuple2</code>. They simply map every element of <code>(A,B)</code> to a corresponding element in <code>A</code> and <code>B</code>. The monoid structure is preserved because:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_1</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_2</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_2</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
@@ -230,7 +502,7 @@
 
 <p>And for any other monoid <code>Z</code>, and morphisms <code>f: Z =&gt; A</code> and <code>g: Z =&gt; B</code>, we can construct a unique morphism from <code>Z</code> to <code>(A,B)</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">factor</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">z</span><span class="k">:</span> <span class="kt">Z</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=</span>
 </span><span class='line'>  <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">z</span><span class="o">),</span> <span class="n">g</span><span class="o">(</span><span class="n">z</span><span class="o">))</span>
@@ -239,9 +511,9 @@
 
 <p>And this really is a homomorphism because we just inherit the homomorphism law from <code>f</code> and <code>g</code>.</p>
 
-<p>What does a coproduct then look like? Well, it&#8217;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
+<p>What does a coproduct then look like? Well, it&rsquo;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">left</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">left</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="n">left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="n">right</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">right</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="n">right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
@@ -250,7 +522,7 @@
 
 <p>And additionally, for any other monoid <code>Z</code> and homomorphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> we must be able to construct a unique homomorphism from <code>C[A,B]</code> to <code>Z</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">C</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -259,7 +531,7 @@
 
 <p>We can simply come up with a data structure required for the coproduct to satisfy a monoid. We will start with two constructors, one for the left side, and another for the right side:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">These</span><span class="o">[</span><span class="kt">+A</span>,<span class="kt">+B</span><span class="o">]</span>
@@ -268,16 +540,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&#8217;t quite form a monoid. What&#8217;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
+<p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&rsquo;t quite form a monoid. What&rsquo;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now <code>These[A,B]</code> is a monoid as long as <code>A</code> and <code>B</code> are monoids:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -314,18 +586,18 @@
 
 <p>First we must prove that <code>This</code> and <code>That</code> really are homomorphisms. We need to prove the following two properties:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
+<p>That&rsquo;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
 
 <p>But can we define <code>fold</code>? Yes we can:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -342,16 +614,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But is <code>fold</code> really a homomorphism? Let&#8217;s not assume that it is, but test it out.Here&#8217;s the homomorphism law:</p>
+<p>But is <code>fold</code> really a homomorphism? Let&rsquo;s not assume that it is, but test it out.Here&rsquo;s the homomorphism law:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span> <span class="o">|+|</span> <span class="n">t2</span><span class="o">)</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t2</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>What happens if both <code>t1</code> or <code>t2</code> are <code>This</code> or <code>That</code>?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -364,7 +636,7 @@
 
 <p>That holds. But what if we introduce a <code>Both</code> on one side?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -377,7 +649,7 @@
 
 <p>So far so good. That holds because of associativity. What about the other side?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -392,7 +664,7 @@
 
 <p>So what kind of thing would work? It would have to solve this case:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="o">???</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -401,21 +673,21 @@
 
 <p>We could modify the <code>Both</code> constructor this way:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">],</span> <span class="n">b</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And let&#8217;s add an empty case for the combined zero:</p>
+<p>And let&rsquo;s add an empty case for the combined zero:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Neither</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]()</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>In which case <code>These[A,B]</code> has become a kind of tree, or an unbalanced list of <code>This[A]</code> and <code>That[B]</code> values. A <em>free product</em> of the two monoids <code>A</code> and <code>B</code>. The implementation of <code>append</code> for the <code>coproduct</code> monoid could be:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -452,7 +724,7 @@
 
 <p>And we would modify <code>fold</code> to recurse over the tree:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -473,13 +745,13 @@
 
 <h3>Free monoids on coproducts</h3>
 
-<p>To better understand what&#8217;s going on, let&#8217;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
+<p>To better understand what&rsquo;s going on, let&rsquo;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
 
-<p>The underlying set of a monoid <code>A</code> is just the type <code>A</code> without the monoid structure. The coproduct of types <code>A</code> and <code>B</code> is the type <code>Either[A,B]</code>. Having &#8220;forgotten&#8221; the monoid structure of both <code>A</code> and <code>B</code>, we can recover it by generating a free monoid on <code>Either[A,B]</code>, which is just <code>List[Either[A,B]]</code>. The <code>append</code> operation of this monoid is list concatenation, and the identity for it is the empty list.</p>
+<p>The underlying set of a monoid <code>A</code> is just the type <code>A</code> without the monoid structure. The coproduct of types <code>A</code> and <code>B</code> is the type <code>Either[A,B]</code>. Having &ldquo;forgotten&rdquo; the monoid structure of both <code>A</code> and <code>B</code>, we can recover it by generating a free monoid on <code>Either[A,B]</code>, which is just <code>List[Either[A,B]]</code>. The <code>append</code> operation of this monoid is list concatenation, and the identity for it is the empty list.</p>
 
 <p>Clearly <code>List[Either[A,B]]</code> is a monoid, but does it permit a homomorphism from both monoids <code>A</code> and <code>B</code>? If so, then the following properties should hold:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">))</span>
 </span><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">))</span>
@@ -488,9 +760,9 @@
 
 <p>They clearly do not hold! The lists on the left of <code>==</code> will have two elements and the lists on the right will have one element. Can we do something about this?</p>
 
-<p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&#8217;s &#8220;too big&#8221; in a sense. But if we were to reduce the list to a normal form that approximates a &#8220;free product&#8221;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
+<p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&rsquo;s &ldquo;too big&rdquo; in a sense. But if we were to reduce the list to a normal form that approximates a &ldquo;free product&rdquo;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -525,7 +797,7 @@
 
 <p>This is now a monoid coproduct because it permits monoid homomorphisms from <code>A</code> and <code>B</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -538,7 +810,7 @@
 
 <p>And we can implement the <code>fold</code> homomorphism:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -553,16 +825,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&#8217;s the law again:</p>
+<p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&rsquo;s the law again:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">fold</span><span class="o">(</span><span class="n">e1</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">))</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">e1</span> <span class="o">++</span> <span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>If either of <code>e1</code> or <code>e2</code> is empty then the result is the fold of the other, so those cases are trivial. If they are both nonempty, then they will have one of these forms:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -591,7 +863,7 @@
 
 <p>Since we have already convinced ourselves that <code>These</code> is a monoid coproduct, we could also simply show that there is a homomorphism from <code>Eithers</code> to <code>These</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -617,13 +889,13 @@
     <link href="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/"/>
     <updated>2013-11-01T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2013/11/01/free-and-yoneda</id>
-    <content type="html"><![CDATA[<p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &#8220;free monad&#8221;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
+    <content type="html"><![CDATA[<p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &ldquo;free monad&rdquo;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
 
 <h2>IO as an application of Free</h2>
 
 <p>The <code>Free</code> monad in Scalaz is given a bit like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -636,7 +908,7 @@
 
 <p>But the <code>IO</code> monad I gave in the talk looks more like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -647,7 +919,7 @@
 
 <p>And it could actually be stated as an application of <code>Free</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">type</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[({</span><span class="k">type</span> <span class="kt">λ</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span> <span class="o">(</span><span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>, <span class="kt">I</span> <span class="k">=&gt;</span> <span class="kt">α</span><span class="o">)</span> <span class="k">forSome</span> <span class="o">{</span><span class="k">type</span> <span class="kt">I</span><span class="o">}})</span><span class="k">#</span><span class="kt">λ</span>, <span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -660,20 +932,20 @@
 
 <h3>The Yoneda lemma</h3>
 
-<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&#8230;</p>
+<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&hellip;</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>&#8230;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
+<p>&hellip;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
 
 <p>The Yoneda lemma says that this goes the other way around as well. If you have a value of type <code>F[A]</code> for any functor <code>F</code> and any type <code>A</code>, then you certainly have a <code>map</code> function with the signature above.</p>
 
 <p>In scala terms, we can capture this in a type:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
@@ -684,7 +956,7 @@
 
 <p>And the Yoneda lemma says that there is an isomorphism between <code>Yoneda[F,A]</code> and <code>F[A]</code>, for any functor <code>F</code> and any type <code>A</code>. Here is the proof:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -709,7 +981,7 @@
 
 <p>This is the permutation of the Yoneda lemma that we were using in <code>IO</code> above. That is, <code>IO[F, A]</code> is really <code>Free[({type λ[α] = CoYoneda[F,α]})#λ, A]</code>, given:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -724,7 +996,7 @@
 
 <p>And the lemma says that <code>CoYoneda[F,A]</code> is isomorphic to <code>F[A]</code>. Here is the proof:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -743,7 +1015,7 @@
 
 <p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
 
-<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&#8217;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&#8217;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
+<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&rsquo;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&rsquo;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
 
 <p>I hope that sheds a little bit of light on the Yoneda lemma as well as the different embeddings of free monads.</p>
 ]]></content>
@@ -758,7 +1030,7 @@
 
 <p><code>List</code> is a <em>free monoid</em>. That is, for any given type <code>A</code>, <code>List[A]</code> is a monoid, with list concatenation as the operation and the empty list as the identity element.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -769,9 +1041,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Being a free monoid means that it&#8217;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monoid homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
+<p>Being a free monoid means that it&rsquo;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monoid homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldMap</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B:Monoid</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -780,9 +1052,9 @@
 
 <h2>Free monads</h2>
 
-<p>Now, if you followed my old posts, you already know that monads are &#8220;higher-kinded monoids&#8221;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
+<p>Now, if you followed my old posts, you already know that monads are &ldquo;higher-kinded monoids&rdquo;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">~&gt;</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
@@ -793,7 +1065,7 @@
 
 <p>And it turns out that there is a free monad for any given functor <code>F</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -804,9 +1076,9 @@
 
 <p>Analogous to how a <code>List[A]</code> is either <code>Nil</code> (the empty list) or a product of a <code>head</code> element and <code>tail</code> list, a value of type <code>Free[F,A]</code> is either an <code>A</code> or a product of <code>F[_]</code> and <code>Free[F,_]</code>. It is a recursive structure. And indeed, it has <em>exactly enough structure</em> to be a monad, for any given <code>F</code>, and no more.</p>
 
-<p>When I say &#8220;product&#8221; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
+<p>When I say &ldquo;product&rdquo; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">:*:</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
@@ -817,21 +1089,21 @@
 
 <p>So we might expect that there is a <em>monad homomorphism</em> from a free monad on <code>F</code> to any monad that <code>F</code> can be transformed to. And indeed, it turns out that there is. The free monad catamorphism is in fact a monad homomorphism. Given a natural transformation from <code>F</code> to <code>G</code>, we can collapse a <code>Free[F,A]</code> to <code>G[A]</code>, just like with <code>foldMap</code> when given a function from <code>A</code> to <code>B</code> we could collapse a <code>List[A]</code> to <code>B</code>.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">runFree</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Monad</span>,<span class="kt">A</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span> <span class="kt">~&gt;</span> <span class="kt">G</span><span class="o">)</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But what&#8217;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a function that accumulates into <code>B</code> so that <code>B</code> doesn&#8217;t actually have to be a monoid. Here, <code>f</code> is a lot like the monoid operation, except it takes the current <code>A</code> on the left:</p>
+<p>But what&rsquo;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a function that accumulates into <code>B</code> so that <code>B</code> doesn&rsquo;t actually have to be a monoid. Here, <code>f</code> is a lot like the monoid operation, except it takes the current <code>A</code> on the left:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldRight</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">z</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>The equivalent for <code>Free</code> takes a natural transformation as its unit element, which for a monad happens to be monadic <code>unit</code>. Then it takes a natural transformation as its <code>f</code> argument, that looks a lot like monadic <code>join</code>, except it takes the current <code>F</code> on the left:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -857,7 +1129,7 @@
     <link href="http://runarorama.github.com/blog/2013/01/26/machines/"/>
     <updated>2013-01-26T12:34:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2013/01/26/machines</id>
-    <content type="html"><![CDATA[<p>I gave a talk on &#8220;Machines&#8221; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
+    <content type="html"><![CDATA[<p>I gave a talk on &ldquo;Machines&rdquo; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
 <p><a href="https://dl.dropbox.com/u/4588997/Machines.pdf">Machines.pdf</a></p>
 
@@ -870,7 +1142,7 @@
     <link href="http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/"/>
     <updated>2012-09-13T22:07:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt</id>
-    <content type="html"><![CDATA[<p>A lot of discussion about &#8220;purity&#8221; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
+    <content type="html"><![CDATA[<p>A lot of discussion about &ldquo;purity&rdquo; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
 
 <h3>What purity is</h3>
 
@@ -880,13 +1152,13 @@
 
 <p>A function <code>f</code> is <em>pure</em> if the expression <code>f(x)</code> is referentially transparent for all referentially transparent <code>x</code>.</p>
 
-<p>Now, something needs to be made clear right up front. Like all definitions, this holds in a specific <em>context</em>. In particular, the context needs to specify what &#8220;evaluating&#8221; means. It also needs to define &#8220;program&#8221;, &#8220;occurrence&#8221;, and the semantics of &#8220;replacing&#8221; one thing with another.</p>
+<p>Now, something needs to be made clear right up front. Like all definitions, this holds in a specific <em>context</em>. In particular, the context needs to specify what &ldquo;evaluating&rdquo; means. It also needs to define &ldquo;program&rdquo;, &ldquo;occurrence&rdquo;, and the semantics of &ldquo;replacing&rdquo; one thing with another.</p>
 
 <p>In a programming language like Haskell, Java, or Scala, this context is pretty well established. The process of evaluation is a reduction to some <em>normal form</em> such as weak head or beta normal form.</p>
 
 <h3>A simple example</h3>
 
-<p>To illustrate, let&#8217;s consider programs in an exceedingly simple language that we will call <em>Sigma</em>. An expression in Sigma has one of the following forms:</p>
+<p>To illustrate, let&rsquo;s consider programs in an exceedingly simple language that we will call <em>Sigma</em>. An expression in Sigma has one of the following forms:</p>
 
 <ul>
 <li>A literal character string like <code>"a"</code>, <code>"foo"</code>, <code>""</code>, etc.</li>
@@ -895,7 +1167,7 @@
 </ul>
 
 
-<p>Now, without an evaluator for Sigma, it is a purely abstract algebra. So let&#8217;s define a straigtforward evaluator <code>eval</code> for it, with the following rules:</p>
+<p>Now, without an evaluator for Sigma, it is a purely abstract algebra. So let&rsquo;s define a straigtforward evaluator <code>eval</code> for it, with the following rules:</p>
 
 <ul>
 <li>A literal string is already in normal form.</li>
@@ -904,11 +1176,11 @@
 </ul>
 
 
-<p>This might seem very simple, but it is still not clear whether <code>Ext</code> is referentially transparent with regard to <code>eval</code>. It depends. What does &#8220;reads a line&#8221; mean, and what is &#8220;standard input&#8221; exactly? This is all part of a context that needs to be established.</p>
+<p>This might seem very simple, but it is still not clear whether <code>Ext</code> is referentially transparent with regard to <code>eval</code>. It depends. What does &ldquo;reads a line&rdquo; mean, and what is &ldquo;standard input&rdquo; exactly? This is all part of a context that needs to be established.</p>
 
-<p>Here&#8217;s one implementation of an evaluator for Sigma, in Scala:</p>
+<p>Here&rsquo;s one implementation of an evaluator for Sigma, in Scala:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -939,9 +1211,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now, it&#8217;s easy to see that the <code>Ext</code> instruction is <em>not</em> referentially transparent with regard to <code>eval1</code>. Replacing <code>Ext</code> with <code>eval1(ext)</code> does not preserve meaning. Consider this:</p>
+<p>Now, it&rsquo;s easy to see that the <code>Ext</code> instruction is <em>not</em> referentially transparent with regard to <code>eval1</code>. Replacing <code>Ext</code> with <code>eval1(ext)</code> does not preserve meaning. Consider this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">x</span> <span class="k">=</span> <span class="nc">Ext</span>
 </span><span class='line'><span class="n">eval1</span><span class="o">(</span><span class="nc">Concat</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span>
@@ -950,18 +1222,18 @@
 
 <p>VS this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">x</span> <span class="k">=</span> <span class="n">eval1</span><span class="o">(</span><span class="nc">Ext</span><span class="o">)</span>
 </span><span class='line'><span class="n">eval1</span><span class="o">(</span><span class="nc">Concat</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s clearly not the same thing. The former will get two strings from standard input and concatenate them together. The latter will get only one string, store it as <code>x</code>, and return <code>x + x</code>.</p>
+<p>That&rsquo;s clearly not the same thing. The former will get two strings from standard input and concatenate them together. The latter will get only one string, store it as <code>x</code>, and return <code>x + x</code>.</p>
 
 <p>Now consider a slightly different evaluator:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -984,19 +1256,19 @@
 
 <p>In this case, the <code>Ext</code> instruction clearly <em>is</em> referentially transparent with regard to <code>eval2</code>, because our standard input is just a string, and it is always the same string. So you see, the purity of functions in the Sigma language very much depends on how that language is interpreted.</p>
 
-<p>This is the reason why Haskell programs are considered &#8220;pure&#8221;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
+<p>This is the reason why Haskell programs are considered &ldquo;pure&rdquo;, even in the presence of <code>IO</code>. A value of type <code>IO a</code> in Haskell is simply a function. Reducing it to normal form (evaluating it) has no effect. An <code>IO</code> action is of course not referentially transparent with regard to <code>unsafePerformIO</code>, but as long as your program does not use that it remains a referentially transparent expression.</p>
 
 <h3>What purity is not</h3>
 
 <p>In my experience there are more or less two camps into which unhelpful views on purity fall.</p>
 
-<p>The first view, which we will call the <em>empiricist</em> view, is typically taken by people who understand &#8220;pure&#8221; as a pretentious term, meant to denegrate regular everyday programming as being somehow &#8220;impure&#8221; or &#8220;unclean&#8221;. They see purity as being &#8220;academic&#8221;, detached from reality, in an ivory tower, or the like.</p>
+<p>The first view, which we will call the <em>empiricist</em> view, is typically taken by people who understand &ldquo;pure&rdquo; as a pretentious term, meant to denegrate regular everyday programming as being somehow &ldquo;impure&rdquo; or &ldquo;unclean&rdquo;. They see purity as being &ldquo;academic&rdquo;, detached from reality, in an ivory tower, or the like.</p>
 
-<p>This view is premised on a superficial understanding of purity. The assumption is that purity is somehow about the absence of I/O, or not mutating memory. But how could any programs be written that don&#8217;t change the state of memory? At the end of the day, you have to update the CPU&#8217;s registers, write to memory, and produce output on a display. A program has to make the computer <em>do something</em>, right? So aren&#8217;t we just pretending that our programs don&#8217;t run on real computers? Isn&#8217;t it all just an academic exercise in making the CPU warm?</p>
+<p>This view is premised on a superficial understanding of purity. The assumption is that purity is somehow about the absence of I/O, or not mutating memory. But how could any programs be written that don&rsquo;t change the state of memory? At the end of the day, you have to update the CPU&rsquo;s registers, write to memory, and produce output on a display. A program has to make the computer <em>do something</em>, right? So aren&rsquo;t we just pretending that our programs don&rsquo;t run on real computers? Isn&rsquo;t it all just an academic exercise in making the CPU warm?</p>
 
-<p>Well, no. That&#8217;s not what purity means. Purity is not about the absence of program behaviors like I/O or mutable memory. It&#8217;s about delimiting such behavior in a specific way.</p>
+<p>Well, no. That&rsquo;s not what purity means. Purity is not about the absence of program behaviors like I/O or mutable memory. It&rsquo;s about delimiting such behavior in a specific way.</p>
 
-<p>The other view, which I will call the <em>rationalist</em> view, is typically taken by people with overexposure to modern analytic philosophy. Expressions are to be understood by their <em>denotation</em>, not by reference to any evaluator. Then of course every expression is really referentially transparent, and so purity is a distinction without a difference. After all, an imperative side-effectful C program can have the same denotation as a monadic, side-effect-free Haskell program. There is nothing wrong with this viewpoint, but it&#8217;s not instructive <em>in this context</em>. Sure, when designing in the abstract, we can think denotationally without regard to evaluation. But when concretizing the design in terms of an actual programming language, we do need to be aware of how we expect evaluation to take place. And only then are referential transparency and purity useful concepts.</p>
+<p>The other view, which I will call the <em>rationalist</em> view, is typically taken by people with overexposure to modern analytic philosophy. Expressions are to be understood by their <em>denotation</em>, not by reference to any evaluator. Then of course every expression is really referentially transparent, and so purity is a distinction without a difference. After all, an imperative side-effectful C program can have the same denotation as a monadic, side-effect-free Haskell program. There is nothing wrong with this viewpoint, but it&rsquo;s not instructive <em>in this context</em>. Sure, when designing in the abstract, we can think denotationally without regard to evaluation. But when concretizing the design in terms of an actual programming language, we do need to be aware of how we expect evaluation to take place. And only then are referential transparency and purity useful concepts.</p>
 
 <p>Both of these, the rationalist and empiricist views, conflate different levels of abstraction. A program written in a programming language is not the same thing as the physical machine that it may run on. Nor is it the same thing as the abstractions that capture its meaning.</p>
 
@@ -1011,13 +1283,13 @@
     <link href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/"/>
     <updated>2012-09-04T01:29:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved</id>
-    <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&#8217;s also partly that putting a post up on WordPress is a chore. It&#8217;s like building a ship in a bottle.</p>
+    <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&rsquo;s also partly that putting a post up on WordPress is a chore. It&rsquo;s like building a ship in a bottle.</p>
 
 <p>So I have decided to make posting really easy for myself by hosting the blog <a href="http://github.com/runarorama/runarorama.github.com">on GitHub</a>. I am using a dead-simple markdown-based framework called <a href="http://octopress.org">Octopress</a>. With this setup I can very easily write a new post from my command line and publish by pushing to GitHub. This is already part of my normal coding workflow, so it feels more friction-free.</p>
 
-<p>The new blog is simply titled &#8220;Higher Order&#8221;, and is available at <a href="http://blog.higher-order.com">blog.higher-order.com</a>. Check back soon for posts that I&#8217;ve been sitting on but have been too <del>lazy</del> busy to post.</p>
+<p>The new blog is simply titled &ldquo;Higher Order&rdquo;, and is available at <a href="http://blog.higher-order.com">blog.higher-order.com</a>. Check back soon for posts that I&rsquo;ve been sitting on but have been too <del>lazy</del> busy to post.</p>
 
-<p>All of the old content and comments will still be available at the old address, and I&#8217;ll probably cross-post to both places for a little while.</p>
+<p>All of the old content and comments will still be available at the old address, and I&rsquo;ll probably cross-post to both places for a little while.</p>
 ]]></content>
   </entry>
   
@@ -1040,7 +1312,7 @@
 
 <p>A naive approach to this is to use iterators, or rather, Iterables. This is akin to the way that you would typically read a file in something like Ruby or Python. Basically you treat it as a collection of Strings:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1097,7 +1369,7 @@
 
 <p>And indeed, this idea is nothing new. This is exactly what we do when we fold a list:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldLeft</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">B</span><span class="o">,</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -1110,7 +1382,7 @@
 
 <p>Scalaz defines the following two data structures (actual implementation may differ, but this serves for illustration):</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1141,7 +1413,7 @@
 
 <p>Let’s see how we would use this to process a List. The following function takes a list and an iteratee and feeds the list’s elements to the iteratee.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1156,7 +1428,7 @@
 
 <p>Now let’s see some actual iteratees. As a simple example, here is an iteratee that counts the number of elements it has seen:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1177,7 +1449,7 @@
 
 <p>And here’s an iteratee that discards the first n elements:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1198,7 +1470,7 @@
 
 <p>And one that takes the first element from the input:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1221,7 +1493,7 @@
 
 <p>Now, an example usage. To get the length of a list, we write:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">length</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">enumerate</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">),</span> <span class="n">counter</span><span class="o">[</span><span class="kt">Int</span><span class="o">]).</span><span class="n">run</span> <span class="c1">// 3</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -1234,7 +1506,7 @@
 
 <p>In fact, IterV[E,A] is an instance of the Monad type class for each fixed E, and composition is very similar to the way monadic parsers compose:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1253,7 +1525,7 @@
 
 <p>Here then is an example of composing iteratees with a for-comprehension:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1266,7 +1538,7 @@
 
 <p>The iteratee above discards the first element it sees and returns the second one. The iteratee below does this n times, accumulating the kept elements into a list.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1295,7 +1567,7 @@
 
 <p>Using the iteratees to read from file input turns out to be incredibly easy. The only difference is in how the data source is enumerated, and in order to remain lazy (and not prematurely perform any side-effects), we must return our iteratee in a monad:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1324,7 +1596,7 @@
 
 <p>Here is the IO monad I’m using. As you can see, it’s really just a lazy identity monad:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1369,7 +1641,7 @@
 
 <p>To read lines from a file, we’ll do something like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1430,7 +1702,7 @@
 
 <p>We can get the number of lines in two files combined, by composing two enumerations and using our “counter” iteratee from above:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1452,11 +1724,11 @@
     <link href="http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason/"/>
     <updated>2009-04-27T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason</id>
-    <content type="html"><![CDATA[<p>Much has been made of the difference between &#8220;object-oriented&#8221; and &#8220;functional&#8221; programming. As much as I&#8217;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&#8217;t think it&#8217;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
+    <content type="html"><![CDATA[<p>Much has been made of the difference between &ldquo;object-oriented&rdquo; and &ldquo;functional&rdquo; programming. As much as I&rsquo;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&rsquo;t think it&rsquo;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
 
-<p>Looking at pure (referentially transparent, purely functional) programming from a perspective of having accepted the premise of impurity, it&#8217;s easy to be intimidated, and to see it as something foreign. Dijkstra once said that some programmers are &#8220;mentally mutilated beyond hope of regeneration&#8221;. I think that on one account, he was right, and that he was talking about this mental barrier of making the leap, from thinking about programming in terms of data mutation and effects, to the &#8220;pure&#8221; perspective. But I believe he was wrong on the other account. There is hope.</p>
+<p>Looking at pure (referentially transparent, purely functional) programming from a perspective of having accepted the premise of impurity, it&rsquo;s easy to be intimidated, and to see it as something foreign. Dijkstra once said that some programmers are &ldquo;mentally mutilated beyond hope of regeneration&rdquo;. I think that on one account, he was right, and that he was talking about this mental barrier of making the leap, from thinking about programming in terms of data mutation and effects, to the &ldquo;pure&rdquo; perspective. But I believe he was wrong on the other account. There is hope.</p>
 
-<p>Contrary to what the last post indicated, this will not be a post about problems in &#8220;object-oriented&#8221; programming in particular, but about problems in impure programming in general. I will illustrate the issue of data mutation by way of two difficulties with it:</p>
+<p>Contrary to what the last post indicated, this will not be a post about problems in &ldquo;object-oriented&rdquo; programming in particular, but about problems in impure programming in general. I will illustrate the issue of data mutation by way of two difficulties with it:</p>
 
 <ul>
 <li>It blurs the distinction between values and variables, such that a term can be both a value and a variable.</li>
@@ -1468,50 +1740,50 @@
 
 <h2>The Primacy of the Machine</h2>
 
-<p>In the early days of programming, there were no computers. The first programs were written, and executed, on paper. It wasn&#8217;t until later that machines were first built that could execute programs automatically.</p>
+<p>In the early days of programming, there were no computers. The first programs were written, and executed, on paper. It wasn&rsquo;t until later that machines were first built that could execute programs automatically.</p>
 
 <p>During the ascent of computers, an industry of professional computer programmers emerged. Perhaps because early computers were awkward and difficult to use, the focus of these professionals became less thinking about programs and more manipulating the machine.</p>
 
-<p>Indeed, if you read the Wikipedia entry on &#8220;Computer Program&#8221;, it tells you that computer programs are &#8220;instructions for a computer&#8221;, and that &#8220;a computer requires programs to function&#8221;. This is a curious position, since it&#8217;s completely backwards. It implies that programming is done in order to make computers do things, as a primary. I&#8217;ll warrant that the article was probably written by a professional programmer.</p>
+<p>Indeed, if you read the Wikipedia entry on &ldquo;Computer Program&rdquo;, it tells you that computer programs are &ldquo;instructions for a computer&rdquo;, and that &ldquo;a computer requires programs to function&rdquo;. This is a curious position, since it&rsquo;s completely backwards. It implies that programming is done in order to make computers do things, as a primary. I&rsquo;ll warrant that the article was probably written by a professional programmer.</p>
 
 <p>But why does a computer need to function? Why does a computer even exist? The reality is that computers exist solely for the purpose of executing programs. The machine is not a metaphysical primary. Reality has primacy, a program is a description, an abstraction, a proof of some hypothesis about an aspect of reality, and the computer exists to deduce the implications of that fact for the pursuit of human values.</p>
 
-<p>To say that a computer &#8220;requires programs to function&#8221; is not at all like saying that an automobile requires fuel. It&#8217;s like saying that it needs a driver. While that&#8217;s true, the driver doesn&#8217;t exist for the sake of the car. The driver has somewhere to go and the car exists to serve that purpose.</p>
+<p>To say that a computer &ldquo;requires programs to function&rdquo; is not at all like saying that an automobile requires fuel. It&rsquo;s like saying that it needs a driver. While that&rsquo;s true, the driver doesn&rsquo;t exist for the sake of the car. The driver has somewhere to go and the car exists to serve that purpose.</p>
 
-<h2>Shaping Programs in the Machine&#8217;s Image</h2>
+<h2>Shaping Programs in the Machine&rsquo;s Image</h2>
 
-<p>There&#8217;s a certain kind of programming that lends itself well to manipulating a computer at a low level. You must think in terms of copying data between registers and memory, and executing instructions based on the machine&#8217;s current state. In this kind of activity, the programmer serves as the interpreter between the abstract algorithm and the physical machine. But this in itself is a mechanical task. We can instead write a program, once and for all, that performs the interpretation for us, and direct that program using a general-purpose programming language.</p>
+<p>There&rsquo;s a certain kind of programming that lends itself well to manipulating a computer at a low level. You must think in terms of copying data between registers and memory, and executing instructions based on the machine&rsquo;s current state. In this kind of activity, the programmer serves as the interpreter between the abstract algorithm and the physical machine. But this in itself is a mechanical task. We can instead write a program, once and for all, that performs the interpretation for us, and direct that program using a general-purpose programming language.</p>
 
 <p>But what kind of structure will that language have? Ideally, we would be able to express programs in a natural and concise notation without regard to the machine. Such was the motivation behind LISP. It was designed as an implementation of the lambda calculus, a minimal formal system for expressing algorithms.</p>
 
-<p>This is not what has happened with languages like Java, C++, and some other of today&#8217;s most popular languages. The abstractions in those languages largely simulate the machine. You have mutable records, or objects, into which you copy data and execute instructions based on their current state. The identity of objects is based on their location in the computer&#8217;s memory. You have constructs like &#8220;factories&#8221;, &#8220;builders&#8221;, &#8220;generators&#8221;&#8230; <em>machines</em>!</p>
+<p>This is not what has happened with languages like Java, C++, and some other of today&rsquo;s most popular languages. The abstractions in those languages largely simulate the machine. You have mutable records, or objects, into which you copy data and execute instructions based on their current state. The identity of objects is based on their location in the computer&rsquo;s memory. You have constructs like &ldquo;factories&rdquo;, &ldquo;builders&rdquo;, &ldquo;generators&rdquo;&hellip; <em>machines</em>!</p>
 
-<p>What we have is a generation of programmers accustomed to writing programs as if they were constructing a machine. We hear about &#8220;engineering&#8221; and &#8220;architecture&#8221; when talking about software. Indeed, as users, we interact with software using pictures of buttons, knobs, and switches. More machinery.</p>
+<p>What we have is a generation of programmers accustomed to writing programs as if they were constructing a machine. We hear about &ldquo;engineering&rdquo; and &ldquo;architecture&rdquo; when talking about software. Indeed, as users, we interact with software using pictures of buttons, knobs, and switches. More machinery.</p>
 
 <h2>Equality and Identity</h2>
 
 <p>Programmers are generally used to thinking of equality and identity as distinct. For example, in Java, <code>(x == y)</code> means that the variable <code>x</code> holds a pointer to the same memory address as the variable <code>y</code>, i.e. that the variable <code>x</code> is identical with <code>y</code>. However, by convention, <code>x.equals(y)</code> means that the object at the memory address pointed to by <code>x</code> is equivalent in some sense to the object at the memory address pointed to by <code>y</code>, but <code>x</code> and <code>y</code> are not necessarily identical.</p>
 
-<p>Note that the difference between the two can only be explained in terms of the underlying machine. We have to invoke the notion of memory addresses to understand what&#8217;s going on, or else resort to an appeal to intuition with terms like &#8220;same object&#8221;, &#8220;same instance&#8221;, etc.</p>
+<p>Note that the difference between the two can only be explained in terms of the underlying machine. We have to invoke the notion of memory addresses to understand what&rsquo;s going on, or else resort to an appeal to intuition with terms like &ldquo;same object&rdquo;, &ldquo;same instance&rdquo;, etc.</p>
 
 <p>In a pure program, side-effects are disallowed. So a function is not allowed to mutate arguments or make calls to functions that have side-effects. So the result of every function is purely determined by the value of its arguments, and a function does nothing except compute a result. Think about the implications of that for a moment. Given that constraint, is there any reason to maintain a distinction between equality and identity? Consider this example:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'><span class="n">String</span> <span class="n">y</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If the values referenced by <code>x</code> and <code>y</code> are forever immutable, what could it possibly mean for them to not be identical? In what meaningful sense are they not the &#8220;same object&#8221;?</p>
+<p>If the values referenced by <code>x</code> and <code>y</code> are forever immutable, what could it possibly mean for them to not be identical? In what meaningful sense are they not the &ldquo;same object&rdquo;?</p>
 
-<p>Note that there&#8217;s a philosophical connection here. The notion that every object carries an extradimensional identity that is orthogonal to its attributes is a very Platonic idea. The idea that an object has, in addition to its measurable attributes, a distinguished, eternal, noumenal identity. Contrast this with the Aristotelian view, in which an object&#8217;s identity is precisely the sum of its attributes.</p>
+<p>Note that there&rsquo;s a philosophical connection here. The notion that every object carries an extradimensional identity that is orthogonal to its attributes is a very Platonic idea. The idea that an object has, in addition to its measurable attributes, a distinguished, eternal, noumenal identity. Contrast this with the Aristotelian view, in which an object&rsquo;s identity is precisely the sum of its attributes.</p>
 
 <h2>Variables and Pseudovariables</h2>
 
-<p>So we find that, given the mutability premise, a term in the language may be not be equal to itself even as it remains identical with itself. In a sense, this is because it&#8217;s not entirely clear whether we are comparing values or variables when we compare a term. If that sounds a bit strange, consider the following snippet:</p>
+<p>So we find that, given the mutability premise, a term in the language may be not be equal to itself even as it remains identical with itself. In a sense, this is because it&rsquo;s not entirely clear whether we are comparing values or variables when we compare a term. If that sounds a bit strange, consider the following snippet:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1544,15 +1816,15 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Even that short and ostensibly simple code snippet is difficult to comprehend properly, because the <code>f</code> method mutates its argument. It seems that since the first boolean is true, the same object appears on either side of the <code>==</code> operator, so <code>f(x)</code> is identical with <code>f(x)</code>. They&#8217;re the &#8220;same object&#8221;. Even so, it is not clear that this &#8220;same object&#8221; is equal to itself. To figure out the value of <code>b</code>, you have to know some things about how the machine executes the program, not just what the program actually says. You can argue about pass-by-reference and pass-by-value, but these are terms that describe the machine, not the program.</p>
+<p>Even that short and ostensibly simple code snippet is difficult to comprehend properly, because the <code>f</code> method mutates its argument. It seems that since the first boolean is true, the same object appears on either side of the <code>==</code> operator, so <code>f(x)</code> is identical with <code>f(x)</code>. They&rsquo;re the &ldquo;same object&rdquo;. Even so, it is not clear that this &ldquo;same object&rdquo; is equal to itself. To figure out the value of <code>b</code>, you have to know some things about how the machine executes the program, not just what the program actually says. You can argue about pass-by-reference and pass-by-value, but these are terms that describe the machine, not the program.</p>
 
 <p>You will note that the <code>Foo</code> type above is mutable in the sense that it has accessible components that can be assigned new values. But what does that mean? Is an object of type <code>Foo</code> a value or a variable? It seems to <em>have</em> a kind of pseudo-variable <code>v</code>. To clarify this, we can imagine that a variable holding a value of type <code>Foo</code> also holds a further value of type <code>int</code>. Assignment to a variable <code>x</code> of type <code>Foo</code> also assigns the variable <code>x.v</code> of type <code>int</code>, but the variable <code>x.v</code> can be assigned independently of <code>x</code>.</p>
 
 <p>So data mutation is, ultimately, variable assignment. Above, <code>Foo</code> is mutated by assigning a value to the pseudo-variable <code>v</code>.</p>
 
-<p>Now, I say pseudo-variable, because it&#8217;s not obvious whether this is a value or a variable. A function that receives a value of type <code>Foo</code>, also receives the variable <code>Foo.v</code>, to which it can assign new values. So the variable is passed as if it were a value. Stated in terms of the machine, a pointer to a pointer is being passed, and the memory at that address can be mutated by writing another pointer to it. In terms of the program, the called function is able to <em>rebind a variable in the scope of the caller</em>.</p>
+<p>Now, I say pseudo-variable, because it&rsquo;s not obvious whether this is a value or a variable. A function that receives a value of type <code>Foo</code>, also receives the variable <code>Foo.v</code>, to which it can assign new values. So the variable is passed as if it were a value. Stated in terms of the machine, a pointer to a pointer is being passed, and the memory at that address can be mutated by writing another pointer to it. In terms of the program, the called function is able to <em>rebind a variable in the scope of the caller</em>.</p>
 
-<p>This is why you have bugs, why programs are hard to debug, and software is difficult to extend. It&#8217;s because programs are difficult to comprehend to the extent that they are impure. And the reason for that is that they are not sufficiently abstract. A writer of impure code is not operating on the level of abstraction of programming. He&#8217;s operating at the level of abstraction of the machine.</p>
+<p>This is why you have bugs, why programs are hard to debug, and software is difficult to extend. It&rsquo;s because programs are difficult to comprehend to the extent that they are impure. And the reason for that is that they are not sufficiently abstract. A writer of impure code is not operating on the level of abstraction of programming. He&rsquo;s operating at the level of abstraction of the machine.</p>
 
 <h2>Thinking Pure Thoughts</h2>
 
@@ -1560,7 +1832,7 @@
 
 <p>To a lot of programmers used to thinking in terms of mutable state, this perspective is completely baffling. And yet, most of them use immutable values all the time, without finding them particularly profound. For example:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
@@ -1569,18 +1841,18 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In that example, 1 is an immutable value. The + operator doesn&#8217;t modify the value of 1, nor of x, nor of y. It doesn&#8217;t take the value 1 and turn it into a 2. Every integer is equal to and identical with itself, always and forever.</p>
+<p>In that example, 1 is an immutable value. The + operator doesn&rsquo;t modify the value of 1, nor of x, nor of y. It doesn&rsquo;t take the value 1 and turn it into a 2. Every integer is equal to and identical with itself, always and forever.</p>
 
-<p>But what&#8217;s special about integers? When adding a value to a list, a Java programmer will ordinarily do something like this:</p>
+<p>But what&rsquo;s special about integers? When adding a value to a list, a Java programmer will ordinarily do something like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">one</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This modifies the list in place, so that any variable referencing it will change values. But why shouldn&#8217;t lists be as immutable as integers? I&#8217;m sure some readers just mumbled something about primitives and passing by reference versus passing by value. But why the distinction? If everything were immutable, you would never know if it were passed by value or reference under the covers. Nor would you care what&#8217;s primitive and what isn&#8217;t. For an immutable list, for example, the add function would not be able to modify the list in place, and so would return a new one:</p>
+<p>This modifies the list in place, so that any variable referencing it will change values. But why shouldn&rsquo;t lists be as immutable as integers? I&rsquo;m sure some readers just mumbled something about primitives and passing by reference versus passing by value. But why the distinction? If everything were immutable, you would never know if it were passed by value or reference under the covers. Nor would you care what&rsquo;s primitive and what isn&rsquo;t. For an immutable list, for example, the add function would not be able to modify the list in place, and so would return a new one:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">list</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">one</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -1589,9 +1861,9 @@
 
 <h2>Assignment in a Pure World</h2>
 
-<p>Let&#8217;s take a simple example of just such an operator. We&#8217;ve talked about how mutation is really assignment. Now let&#8217;s take the leap fully into the pure perspective, in which assignment is really just closure (pure functions with free variables). To illustrate, here is an example that all Java and C programmers are familiar with:</p>
+<p>Let&rsquo;s take a simple example of just such an operator. We&rsquo;ve talked about how mutation is really assignment. Now let&rsquo;s take the leap fully into the pure perspective, in which assignment is really just closure (pure functions with free variables). To illustrate, here is an example that all Java and C programmers are familiar with:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1602,9 +1874,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The familiar semicolon represents a combinator called &#8220;bind&#8221;. In Haskell, this operator is denoted <code>(&gt;&gt;=)</code>. In Scala, it&#8217;s called <code>flatMap</code>. To better see how this works, here&#8217;s a rough transliteration into Haskell:</p>
+<p>The familiar semicolon represents a combinator called &ldquo;bind&rdquo;. In Haskell, this operator is denoted <code>(&gt;&gt;=)</code>. In Scala, it&rsquo;s called <code>flatMap</code>. To better see how this works, here&rsquo;s a rough transliteration into Haskell:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1615,17 +1887,17 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Of course, this isn&#8217;t at all the kind of code you would normally write, but it serves to demonstrate the idea that assignment can be understood as binding the argument to a function. The Haskell code above roughly means:</p>
+<p>Of course, this isn&rsquo;t at all the kind of code you would normally write, but it serves to demonstrate the idea that assignment can be understood as binding the argument to a function. The Haskell code above roughly means:</p>
 
 <p><em>Pass <code>1</code> to <code>f</code>, where <code>f</code> passes its argument to unchanged to <code>g</code>. And <code>g</code> adds <code>1</code> to its argument and passes the result to a function that adds <code>y</code> to its argument and passes that to <code>t</code>.</em></p>
 
 <p>So in the Java version, we can understand everything after the first semicolon to be a <em>function</em> that takes an argument <code>x</code> and we happen to be passing it <code>1</code>. Everything after the second semicolon is a function that takes an argument <code>y</code> and we happen to be passing it <code>x</code> (which has the value <code>1</code>). And everything after the third semicolon is a function that takes an argument called <code>x</code> (shadowing the first <code>x</code>) and passes <code>x + y</code> to some function <code>t</code>.</p>
 
-<p>Haskell is a purely functional language, and purity is enforced by its type system. If you haven&#8217;t taken it for a spin, I challenge you to do so. For more on the benefits of purely functional programming, see &#8220;Why Haskell Matters&#8221;.</p>
+<p>Haskell is a purely functional language, and purity is enforced by its type system. If you haven&rsquo;t taken it for a spin, I challenge you to do so. For more on the benefits of purely functional programming, see &ldquo;Why Haskell Matters&rdquo;.</p>
 
 <p>Of course, purity is not purely the prerogative of Haskell. Sure, Haskell enforces purity, but you can write pure code in any language. That Java code above is pure, you know. If this is all new to you, I challenge you to give purity a shot. In your favourite language, be it Java or something else, start using immutable datastructure in preference to mutable ones. Try thinking in terms of functions from arguments to results rather than in terms of mutation and effects. For Java, you might consider using the immutable datastructures provided by Functional Java or Google Collections. Scala also has immutable datastructures as part of its standard libraries.</p>
 
-<p>It&#8217;s time that we graduate from punching buttons and pulling levers — manipulating the machines. Here&#8217;s to programming as it could be and ought to be.</p>
+<p>It&rsquo;s time that we graduate from punching buttons and pulling levers — manipulating the machines. Here&rsquo;s to programming as it could be and ought to be.</p>
 ]]></content>
   </entry>
   
@@ -1634,23 +1906,23 @@
     <link href="http://runarorama.github.com/blog/2008/12/04/no-such-thing/"/>
     <updated>2008-12-04T00:00:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2008/12/04/no-such-thing</id>
-    <content type="html"><![CDATA[<p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612">GoF book</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&#8217;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="http://en.wikipedia.org/wiki/Combinatory_logic">some governing principle</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="http://en.wikipedia.org/wiki/Category_theory">category theory</a>, and <a href="http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology">epistemology</a>. And I&#8217;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
+    <content type="html"><![CDATA[<p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612">GoF book</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&rsquo;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="http://en.wikipedia.org/wiki/Combinatory_logic">some governing principle</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="http://en.wikipedia.org/wiki/Category_theory">category theory</a>, and <a href="http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology">epistemology</a>. And I&rsquo;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
 
 <p><em>There is no such thing as Object-Oriented programming.</em></p>
 
-<p>I realise that I might risk starting a religious war here, but I don&#8217;t intend to. If you think I&#8217;m attacking you personally in some way, please stop reading and come back later with fresh eyes. Note that <strong>I&#8217;m not saying that OO is a bad thing</strong>. I&#8217;m saying that there isn&#8217;t any special kind of programming that is object-oriented as against programming that isn&#8217;t. It is a useless distinction, in exactly the same way that <a href="http://freedomkeys.com/ar-racism.htm">&#8220;race&#8221;</a> is a useless distinction. And holding on to a useless concept isn&#8217;t good for anybody. The term &#8220;object-oriented&#8221; is at least honest in that it says what it implies, which is a frame of mind, an orientation of the programmer. However, the practical effect of this orientation is anti-conceptual, in that it displaces actual concepts like algebra, calculus, closure, function, identity, type, value, variable, etc. It fosters an aversion to abstraction. So you could say that there are object-orientated programmers.</p>
+<p>I realise that I might risk starting a religious war here, but I don&rsquo;t intend to. If you think I&rsquo;m attacking you personally in some way, please stop reading and come back later with fresh eyes. Note that <strong>I&rsquo;m not saying that OO is a bad thing</strong>. I&rsquo;m saying that there isn&rsquo;t any special kind of programming that is object-oriented as against programming that isn&rsquo;t. It is a useless distinction, in exactly the same way that <a href="http://freedomkeys.com/ar-racism.htm">&ldquo;race&rdquo;</a> is a useless distinction. And holding on to a useless concept isn&rsquo;t good for anybody. The term &ldquo;object-oriented&rdquo; is at least honest in that it says what it implies, which is a frame of mind, an orientation of the programmer. However, the practical effect of this orientation is anti-conceptual, in that it displaces actual concepts like algebra, calculus, closure, function, identity, type, value, variable, etc. It fosters an aversion to abstraction. So you could say that there are object-orientated programmers.</p>
 
-<h2>&#8220;Object-Oriented&#8221; as a non-concept</h2>
+<h2>&ldquo;Object-Oriented&rdquo; as a non-concept</h2>
 
-<p>Remember, you cannot be called upon to prove a negative. The burden of proof falls on whomever is claiming that there is such a thing as OO. But try as you might, <a href="http://www.paulgraham.com/reesoo.html">there&#8217;s no objective definition of what &#8220;object-oriented&#8221; refers to</a>. It means anything you want, which is to say that it&#8217;s rather meaningless. Peddlers of &#8220;object methodology&#8221; readily admit that &#8220;object-oriented&#8221; means different things to different people. To quote Aristotle: &#8220;Not to have one meaning is to have no meaning, and if words have no meaning, our reasoning with one another, and indeed with ourselves, has been annihilated.&#8221;</p>
+<p>Remember, you cannot be called upon to prove a negative. The burden of proof falls on whomever is claiming that there is such a thing as OO. But try as you might, <a href="http://www.paulgraham.com/reesoo.html">there&rsquo;s no objective definition of what &ldquo;object-oriented&rdquo; refers to</a>. It means anything you want, which is to say that it&rsquo;s rather meaningless. Peddlers of &ldquo;object methodology&rdquo; readily admit that &ldquo;object-oriented&rdquo; means different things to different people. To quote Aristotle: &ldquo;Not to have one meaning is to have no meaning, and if words have no meaning, our reasoning with one another, and indeed with ourselves, has been annihilated.&rdquo;</p>
 
-<p>When I say that there&#8217;s no such thing as OO, I mean, more precisely, that there exists some abstraction (or several) that is referred to as &#8220;object-oriented&#8221;, but that this abstraction has no actual referent in reality. It is an abstraction that is made in error. It is not necessary, and serves no cognitive purpose. It is &#8220;not even false&#8221;.</p>
+<p>When I say that there&rsquo;s no such thing as OO, I mean, more precisely, that there exists some abstraction (or several) that is referred to as &ldquo;object-oriented&rdquo;, but that this abstraction has no actual referent in reality. It is an abstraction that is made in error. It is not necessary, and serves no cognitive purpose. It is &ldquo;not even false&rdquo;.</p>
 
-<p>This is to say that it&#8217;s not like the concept of Santa Claus, which is a fiction, a falsehood. OO is not a fiction, but a misintegration. It is a term that sounds like a concept, but denotes nothing more than a vague collection of disparate elements, any of which can be omitted, and none of which are essential.</p>
+<p>This is to say that it&rsquo;s not like the concept of Santa Claus, which is a fiction, a falsehood. OO is not a fiction, but a misintegration. It is a term that sounds like a concept, but denotes nothing more than a vague collection of disparate elements, any of which can be omitted, and none of which are essential.</p>
 
 <h2>A Proper Method of Concept-Formation</h2>
 
-<p>How is Object-Oriented a non-concept? Let&#8217;s demonstrate that very cursorily. First, we have to explicitly identify what it means for a concept to be valid.</p>
+<p>How is Object-Oriented a non-concept? Let&rsquo;s demonstrate that very cursorily. First, we have to explicitly identify what it means for a concept to be valid.</p>
 
 <p><em>Valid concepts are arrived at by induction. </em>Induction is the process of integrating facts of reality by observing similarities and omitting particulars. Or, if you will, the process of applying logic to experience. Our induction must adhere to the corollary laws of <a href="http://en.wikipedia.org/wiki/Law_of_identity">identity</a>, <a href="http://en.wikipedia.org/wiki/Law_of_noncontradiction">noncontradiction</a>, and <a href="http://en.wikipedia.org/wiki/Law_of_excluded_middle">the excluded middle</a>, and it must observe <a href="http://aynrandlexicon.com/lexicon/causality.html">causality</a>.</p>
 
@@ -1663,13 +1935,13 @@
 </ol>
 
 
-<p><strong>OO doesn&#8217;t meet criterion #1</strong>. There&#8217;s nothing about the nature of programming that gives rise to a concept of object-orientation. Rather, the notion is sparked by the desire to make an analogy between manipulating physical objects in the real world and manipulating abstract entities in the computer. The motivation is understandable, to help people think about programs in the same way that they are used to reasoning about physical objects. But the analogy isn&#8217;t warranted by the facts, and therefore it is arbitrary. The concepts simply don&#8217;t transfer, because they are abstractions over entities of a different kind. The mistake is to use the concepts anyway, choosing the illusion that software is like physical systems rather than understanding the actual nature of programs.</p>
+<p><strong>OO doesn&rsquo;t meet criterion #1</strong>. There&rsquo;s nothing about the nature of programming that gives rise to a concept of object-orientation. Rather, the notion is sparked by the desire to make an analogy between manipulating physical objects in the real world and manipulating abstract entities in the computer. The motivation is understandable, to help people think about programs in the same way that they are used to reasoning about physical objects. But the analogy isn&rsquo;t warranted by the facts, and therefore it is arbitrary. The concepts simply don&rsquo;t transfer, because they are abstractions over entities of a different kind. The mistake is to use the concepts anyway, choosing the illusion that software is like physical systems rather than understanding the actual nature of programs.</p>
 
-<p><strong>OO doesn&#8217;t meet criterion #2</strong>: There&#8217;s no consistent definition of object-orientation. It&#8217;s a loose grab-bag in which nothing is essential. Even if you start removing things, it&#8217;s not at all clear at what point your programming stops being object-oriented. One would think that it&#8217;s at the point where you stop programming with objects, but that&#8217;s merely begging the question since it&#8217;s not clear what kind of entity is an object and what kind of entity isn&#8217;t. We are to rely on intuition alone in discovering that. What&#8217;s more, some of the contents of the &#8220;object-oriented&#8221; bag contradict one another (both inheritance and mutation contradict encapsulation, for example).</p>
+<p><strong>OO doesn&rsquo;t meet criterion #2</strong>: There&rsquo;s no consistent definition of object-orientation. It&rsquo;s a loose grab-bag in which nothing is essential. Even if you start removing things, it&rsquo;s not at all clear at what point your programming stops being object-oriented. One would think that it&rsquo;s at the point where you stop programming with objects, but that&rsquo;s merely begging the question since it&rsquo;s not clear what kind of entity is an object and what kind of entity isn&rsquo;t. We are to rely on intuition alone in discovering that. What&rsquo;s more, some of the contents of the &ldquo;object-oriented&rdquo; bag contradict one another (both inheritance and mutation contradict encapsulation, for example).</p>
 
 <h2>Repairing the Disorientation</h2>
 
-<p>Of course, it does no good to tear down the cognitive package-deal that is &#8220;object-oriented&#8221; if you don&#8217;t replace it with something. If you entered a village of <a href="http://www.smurf.com/">little blue creatures</a> and convinced them that the term &#8220;smurf&#8221; had no cognitive utility, you would have to teach them a whole host of concepts to use in its stead. There are two main ideas that the anti-concept &#8220;object-oriented&#8221; annihilates:</p>
+<p>Of course, it does no good to tear down the cognitive package-deal that is &ldquo;object-oriented&rdquo; if you don&rsquo;t replace it with something. If you entered a village of <a href="http://www.smurf.com/">little blue creatures</a> and convinced them that the term &ldquo;smurf&rdquo; had no cognitive utility, you would have to teach them a whole host of concepts to use in its stead. There are two main ideas that the anti-concept &ldquo;object-oriented&rdquo; annihilates:</p>
 
 <ol>
 <li>It introduces the false dichotomy of identity as apart from equivalence.</li>

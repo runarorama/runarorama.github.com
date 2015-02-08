@@ -101,7 +101,7 @@
   
 
 
-<time datetime="2013-08-20T00:00:00-04:00" pubdate data-updated="true">Aug 20<span>th</span>, 2013</time>
+<time datetime="2013-08-20T00:00:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
@@ -112,7 +112,7 @@
 
 <p><code>List</code> is a <em>free monoid</em>. That is, for any given type <code>A</code>, <code>List[A]</code> is a monoid, with list concatenation as the operation and the empty list as the identity element.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -123,9 +123,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Being a free monoid means that it&#8217;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monoid homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
+<p>Being a free monoid means that it&rsquo;s the <em>minimal</em> such structure. <code>List[A]</code> has exactly enough structure so that it is a monoid for any given <code>A</code>, and it has no further structure. This also means that for any given monoid <code>B</code>, there must exist a transformation, a <em>monoid homomorphism</em> from <code>List[A]</code> to <code>B</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldMap</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B:Monoid</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -134,9 +134,9 @@
 
 <h2>Free monads</h2>
 
-<p>Now, if you followed my old posts, you already know that monads are &#8220;higher-kinded monoids&#8221;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
+<p>Now, if you followed my old posts, you already know that monads are &ldquo;higher-kinded monoids&rdquo;. A monoid in a category where the objects are type constructors (functors, actually) and the arrows between them are natural transformations. As a reminder, a natural transformation from <code>F</code> to <code>G</code> can be represented this way in Scala:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">~&gt;</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
@@ -147,7 +147,7 @@
 
 <p>And it turns out that there is a free monad for any given functor <code>F</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
@@ -158,9 +158,9 @@
 
 <p>Analogous to how a <code>List[A]</code> is either <code>Nil</code> (the empty list) or a product of a <code>head</code> element and <code>tail</code> list, a value of type <code>Free[F,A]</code> is either an <code>A</code> or a product of <code>F[_]</code> and <code>Free[F,_]</code>. It is a recursive structure. And indeed, it has <em>exactly enough structure</em> to be a monad, for any given <code>F</code>, and no more.</p>
 
-<p>When I say &#8220;product&#8221; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
+<p>When I say &ldquo;product&rdquo; of two functors like <code>F[_]</code> and <code>Free[F,_]</code>, I mean a product like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">:*:</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
@@ -171,21 +171,21 @@
 
 <p>So we might expect that there is a <em>monad homomorphism</em> from a free monad on <code>F</code> to any monad that <code>F</code> can be transformed to. And indeed, it turns out that there is. The free monad catamorphism is in fact a monad homomorphism. Given a natural transformation from <code>F</code> to <code>G</code>, we can collapse a <code>Free[F,A]</code> to <code>G[A]</code>, just like with <code>foldMap</code> when given a function from <code>A</code> to <code>B</code> we could collapse a <code>List[A]</code> to <code>B</code>.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">runFree</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Monad</span>,<span class="kt">A</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span> <span class="kt">~&gt;</span> <span class="kt">G</span><span class="o">)</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But what&#8217;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a function that accumulates into <code>B</code> so that <code>B</code> doesn&#8217;t actually have to be a monoid. Here, <code>f</code> is a lot like the monoid operation, except it takes the current <code>A</code> on the left:</p>
+<p>But what&rsquo;s the equivalent of <code>foldRight</code> for <code>Free</code>? Remember, foldRight takes a unit element <code>z</code> and a function that accumulates into <code>B</code> so that <code>B</code> doesn&rsquo;t actually have to be a monoid. Here, <code>f</code> is a lot like the monoid operation, except it takes the current <code>A</code> on the left:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">foldRight</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">z</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>The equivalent for <code>Free</code> takes a natural transformation as its unit element, which for a monad happens to be monadic <code>unit</code>. Then it takes a natural transformation as its <code>f</code> argument, that looks a lot like monadic <code>join</code>, except it takes the current <code>F</code> on the left:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -225,7 +225,7 @@
   
 
 
-<time datetime="2013-08-20T00:00:00-04:00" pubdate data-updated="true">Aug 20<span>th</span>, 2013</time>
+<time datetime="2013-08-20T00:00:00-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -258,7 +258,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/6"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/6"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
     </div>
   </div>
 <script type="text/javascript">
@@ -299,6 +299,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A better reading list with Mathematica</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/21/maximally-powerful/">Maximally Powerful, Minimally Useful</a>
       </li>
     
@@ -314,17 +318,13 @@
         <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2013/11/01/free-and-yoneda/">Free monads and the Yoneda lemma</a>
-      </li>
-    
   </ul>
 </section>
 
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/runarorama">@runarorama</a> on GitHub
@@ -369,7 +369,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Rúnar Bjarnason -
+  Copyright &copy; 2015 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

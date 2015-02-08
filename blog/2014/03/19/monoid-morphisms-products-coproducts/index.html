@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids &hellip;">
+  <meta name="description" content="Today I want to talk about relationships between monoids. These can be useful to think about when we&rsquo;re developing libraries involving monoids &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -101,22 +101,22 @@
   
 
 
-<time datetime="2014-03-19T00:00:00-04:00" pubdate data-updated="true">Mar 19<span>th</span>, 2014</time>
+<time datetime="2014-03-19T00:00:00-04:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Today I want to talk about relationships between monoids. These can be useful to think about when we&#8217;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
+<div class="entry-content"><p>Today I want to talk about relationships between monoids. These can be useful to think about when we&rsquo;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
-<p>This post kind of fell together when writing notes on chapter 10, &#8220;Monoids&#8221;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
+<p>This post kind of fell together when writing notes on chapter 10, &ldquo;Monoids&rdquo;, of <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>. I am putting it here so I can reference it from the chapter notes at the end of the book.</p>
 
 <h2>Monoid homomorphisms</h2>
 
-<p>Let&#8217;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
+<p>Let&rsquo;s take the <code>String</code> concatenation and <code>Int</code> addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">length</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">).</span><span class="n">length</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -125,14 +125,14 @@
 
 <p>The <code>length</code> function maps from <code>String</code> to <code>Int</code> <em>while preserving the monoid structure</em>. Such a function, that maps from one monoid to another in such a preserving way, is called a <em>monoid homomorphism</em>. In general, for monoids <code>M</code> and <code>N</code>, a homomorphism <code>f: M =&gt; N</code>, and all values <code>x:M</code>, <code>y:M</code>, the following law holds:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="o">|+|</span> <span class="n">y</span><span class="o">)</span> <span class="o">==</span> <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">f</span><span class="o">(</span><span class="n">y</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>|+|</code> syntax is from <a href="http://github.com/scalaz/scalaz">Scalaz</a> and is obtained by importing <code>scalaz.syntax.monoid._</code>. It just references the <code>append</code> method on the <code>Monoid[T]</code> instance, where <code>T</code> is the type of the arguments.</p>
 
-<p>This law can have real practical benefits. Imagine for example a &#8220;result set&#8221; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
+<p>This law can have real practical benefits. Imagine for example a &ldquo;result set&rdquo; monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a <code>Set</code> of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.</p>
 
 <h2>Monoid isomorphisms</h2>
 
@@ -148,7 +148,7 @@
 
 <p>If <code>A</code> and <code>B</code> are monoids, then <code>(A,B)</code> is certainly a monoid, called their <em>product</em>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -171,13 +171,13 @@
 
 <p><img src="/images/Product.png"></p>
 
-<p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&#8217;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
+<p>A <em>coproduct</em> <code>W</code> of two monoids <code>A</code> and <code>B</code> is the same except the arrows are reversed. It&rsquo;s a monoid such that there exist homomorphisms <code>left: A =&gt; W</code>, <code>right: B =&gt; W</code>, and for any monoid <code>Z</code> and morphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> there has to be a unique homomorphism <code>h: W =&gt; Z</code> such that <code>h(left(a)) == f(a)</code> and <code>h(right(b)) == g(b)</code> for all <code>a:A</code> and all <code>b:B</code>. In other words, the following diagram must commute:</p>
 
 <p><img src="/images/Coproduct.png"></p>
 
 <p>We can easily show that our <code>productMonoid</code> above really is a monoid product. The homomorphisms are the methods <code>_1</code> and <code>_2</code> on <code>Tuple2</code>. They simply map every element of <code>(A,B)</code> to a corresponding element in <code>A</code> and <code>B</code>. The monoid structure is preserved because:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_1</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="n">p</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">).</span><span class="n">_2</span> <span class="o">==</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_2</span> <span class="o">|+|</span> <span class="n">q</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
@@ -186,7 +186,7 @@
 
 <p>And for any other monoid <code>Z</code>, and morphisms <code>f: Z =&gt; A</code> and <code>g: Z =&gt; B</code>, we can construct a unique morphism from <code>Z</code> to <code>(A,B)</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">factor</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">z</span><span class="k">:</span> <span class="kt">Z</span><span class="o">)(</span><span class="n">f</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">Z</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="o">(</span><span class="kt">A</span><span class="o">,</span> <span class="kt">B</span><span class="o">)</span> <span class="k">=</span>
 </span><span class='line'>  <span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">z</span><span class="o">),</span> <span class="n">g</span><span class="o">(</span><span class="n">z</span><span class="o">))</span>
@@ -195,9 +195,9 @@
 
 <p>And this really is a homomorphism because we just inherit the homomorphism law from <code>f</code> and <code>g</code>.</p>
 
-<p>What does a coproduct then look like? Well, it&#8217;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
+<p>What does a coproduct then look like? Well, it&rsquo;s going to be a type <code>C[A,B]</code> together with an instance <code>coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]</code>. It will be equipped with two monoid homomorphisms, <code>left: A =&gt; C[A,B]</code> and <code>right: B =&gt; C[A,B]</code> that satisfy the following (according to the monoid homomorphism law):</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">left</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">left</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="n">left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="n">right</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">right</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="n">right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
@@ -206,7 +206,7 @@
 
 <p>And additionally, for any other monoid <code>Z</code> and homomorphisms <code>f: A =&gt; Z</code> and <code>g: B =&gt; Z</code> we must be able to construct a unique homomorphism from <code>C[A,B]</code> to <code>Z</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">fold</span><span class="o">[</span><span class="kt">A:Monoid</span>,<span class="kt">B:Monoid</span>,<span class="kt">Z:Monoid</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">C</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">Z</span><span class="o">)</span><span class="k">:</span> <span class="kt">Z</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -215,7 +215,7 @@
 
 <p>We can simply come up with a data structure required for the coproduct to satisfy a monoid. We will start with two constructors, one for the left side, and another for the right side:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">These</span><span class="o">[</span><span class="kt">+A</span>,<span class="kt">+B</span><span class="o">]</span>
@@ -224,16 +224,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&#8217;t quite form a monoid. What&#8217;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
+<p>This certainly allows an embedding of both monoids <code>A</code> and <code>B</code>. But <code>These</code> is now basically <code>Either</code>, which we know doesn&rsquo;t quite form a monoid. What&rsquo;s needed is a <code>zero</code>, and a way of appending an <code>A</code> to a <code>B</code>. The simplest way to do that is to add a product constructor to <code>These</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">B</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now <code>These[A,B]</code> is a monoid as long as <code>A</code> and <code>B</code> are monoids:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -270,18 +270,18 @@
 
 <p>First we must prove that <code>This</code> and <code>That</code> really are homomorphisms. We need to prove the following two properties:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="nc">This</span><span class="o">(</span><span class="n">a1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">This</span><span class="o">(</span><span class="n">a2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">This</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">)</span>
 </span><span class='line'><span class="o">(</span><span class="nc">That</span><span class="o">(</span><span class="n">b1</span><span class="o">)</span> <span class="o">|+|</span> <span class="nc">That</span><span class="o">(</span><span class="n">b2</span><span class="o">))</span> <span class="o">==</span> <span class="nc">That</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
+<p>That&rsquo;s easy. The first two cases of the <code>append</code> method on the <code>coproduct</code> monoid prove these properties.</p>
 
 <p>But can we define <code>fold</code>? Yes we can:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -298,16 +298,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But is <code>fold</code> really a homomorphism? Let&#8217;s not assume that it is, but test it out.Here&#8217;s the homomorphism law:</p>
+<p>But is <code>fold</code> really a homomorphism? Let&rsquo;s not assume that it is, but test it out.Here&rsquo;s the homomorphism law:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span> <span class="o">|+|</span> <span class="n">t2</span><span class="o">)</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t1</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)(</span><span class="n">t2</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>What happens if both <code>t1</code> or <code>t2</code> are <code>This</code> or <code>That</code>?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -320,7 +320,7 @@
 
 <p>That holds. But what if we introduce a <code>Both</code> on one side?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -333,7 +333,7 @@
 
 <p>So far so good. That holds because of associativity. What about the other side?</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -348,7 +348,7 @@
 
 <p>So what kind of thing would work? It would have to solve this case:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Both</span><span class="o">(</span><span class="n">a1</span><span class="o">,</span> <span class="n">b1</span><span class="o">),</span> <span class="nc">Both</span><span class="o">(</span><span class="n">a2</span><span class="o">,</span> <span class="n">b2</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="o">???</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -357,21 +357,21 @@
 
 <p>We could modify the <code>Both</code> constructor this way:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Both</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">],</span> <span class="n">b</span><span class="k">:</span> <span class="kt">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And let&#8217;s add an empty case for the combined zero:</p>
+<p>And let&rsquo;s add an empty case for the combined zero:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Neither</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]()</span> <span class="k">extends</span> <span class="nc">These</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>In which case <code>These[A,B]</code> has become a kind of tree, or an unbalanced list of <code>This[A]</code> and <code>That[B]</code> values. A <em>free product</em> of the two monoids <code>A</code> and <code>B</code>. The implementation of <code>append</code> for the <code>coproduct</code> monoid could be:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -408,7 +408,7 @@
 
 <p>And we would modify <code>fold</code> to recurse over the tree:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -429,13 +429,13 @@
 
 <h3>Free monoids on coproducts</h3>
 
-<p>To better understand what&#8217;s going on, let&#8217;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
+<p>To better understand what&rsquo;s going on, let&rsquo;s try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?</p>
 
-<p>The underlying set of a monoid <code>A</code> is just the type <code>A</code> without the monoid structure. The coproduct of types <code>A</code> and <code>B</code> is the type <code>Either[A,B]</code>. Having &#8220;forgotten&#8221; the monoid structure of both <code>A</code> and <code>B</code>, we can recover it by generating a free monoid on <code>Either[A,B]</code>, which is just <code>List[Either[A,B]]</code>. The <code>append</code> operation of this monoid is list concatenation, and the identity for it is the empty list.</p>
+<p>The underlying set of a monoid <code>A</code> is just the type <code>A</code> without the monoid structure. The coproduct of types <code>A</code> and <code>B</code> is the type <code>Either[A,B]</code>. Having &ldquo;forgotten&rdquo; the monoid structure of both <code>A</code> and <code>B</code>, we can recover it by generating a free monoid on <code>Either[A,B]</code>, which is just <code>List[Either[A,B]]</code>. The <code>append</code> operation of this monoid is list concatenation, and the identity for it is the empty list.</p>
 
 <p>Clearly <code>List[Either[A,B]]</code> is a monoid, but does it permit a homomorphism from both monoids <code>A</code> and <code>B</code>? If so, then the following properties should hold:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Left</span><span class="o">(</span><span class="n">a1</span> <span class="o">|+|</span> <span class="n">a2</span><span class="o">))</span>
 </span><span class='line'><span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span><span class="o">))</span> <span class="o">++</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b2</span><span class="o">)))</span> <span class="o">==</span> <span class="nc">List</span><span class="o">(</span><span class="nc">Right</span><span class="o">(</span><span class="n">b1</span> <span class="o">|+|</span> <span class="n">b2</span><span class="o">))</span>
@@ -444,9 +444,9 @@
 
 <p>They clearly do not hold! The lists on the left of <code>==</code> will have two elements and the lists on the right will have one element. Can we do something about this?</p>
 
-<p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&#8217;s &#8220;too big&#8221; in a sense. But if we were to reduce the list to a normal form that approximates a &#8220;free product&#8221;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
+<p>Well, the fact is that <code>List[Either[A,B]]</code> is not exactly the monoid coproduct of <code>A</code> and <code>B</code>. It&rsquo;s &ldquo;too big&rdquo; in a sense. But if we were to reduce the list to a normal form that approximates a &ldquo;free product&rdquo;, we can get a coproduct that matches our definition above. What we need is a new monoid:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -481,7 +481,7 @@
 
 <p>This is now a monoid coproduct because it permits monoid homomorphisms from <code>A</code> and <code>B</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -494,7 +494,7 @@
 
 <p>And we can implement the <code>fold</code> homomorphism:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -509,16 +509,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&#8217;s the law again:</p>
+<p>And this time <code>fold</code> really is a homomorphism, and we can prove it by case analysis. Here&rsquo;s the law again:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">fold</span><span class="o">(</span><span class="n">e1</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span> <span class="o">|+|</span> <span class="n">fold</span><span class="o">(</span><span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">))</span> <span class="o">==</span> <span class="n">fold</span><span class="o">(</span><span class="n">e1</span> <span class="o">++</span> <span class="n">e2</span><span class="o">)(</span><span class="n">f</span><span class="o">,</span><span class="n">g</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>If either of <code>e1</code> or <code>e2</code> is empty then the result is the fold of the other, so those cases are trivial. If they are both nonempty, then they will have one of these forms:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -547,7 +547,7 @@
 
 <p>Since we have already convinced ourselves that <code>These</code> is a monoid coproduct, we could also simply show that there is a homomorphism from <code>Eithers</code> to <code>These</code>:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -587,7 +587,7 @@
   
 
 
-<time datetime="2014-03-19T00:00:00-04:00" pubdate data-updated="true">Mar 19<span>th</span>, 2014</time>
+<time datetime="2014-03-19T00:00:00-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -620,7 +620,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/8"> this post's issue page on GitHub</a>. You'll need a GitHub account. If you're reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/8"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. If you&#8217;re reading functional programming blogs, you probably already have one. Comments made there will appear on this page. This saves me from having to moderate comments.
     </div>
   </div>
 <script type="text/javascript">
@@ -661,6 +661,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A better reading list with Mathematica</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/21/maximally-powerful/">Maximally Powerful, Minimally Useful</a>
       </li>
     
@@ -676,17 +680,13 @@
         <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2013/11/01/free-and-yoneda/">Free monads and the Yoneda lemma</a>
-      </li>
-    
   </ul>
 </section>
 
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/runarorama">@runarorama</a> on GitHub
@@ -731,7 +731,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Rúnar Bjarnason -
+  Copyright &copy; 2015 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
