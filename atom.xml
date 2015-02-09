@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-02-09T10:03:38-05:00</updated>
+  <updated>2015-02-09T11:04:48-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -116,7 +116,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>So Wilson is 95% confident that in any random sample of about 1.2 million users, 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
+<p>So Wilson is 95% confident that in any random sample of about 1.2 million users, <em>at least</em> 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
 
 <p>But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
 
