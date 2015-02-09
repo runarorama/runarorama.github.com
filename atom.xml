@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-02-09T11:07:52-05:00</updated>
+  <updated>2015-02-09T12:23:31-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -124,12 +124,12 @@
 
 <p>I can fix this by lowering the confidence level to 80% or so, which gives 3.76371 instead of 2.82759. And honestly, I don&rsquo;t need a high confidence level. I&rsquo;d rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem.</p>
 
-<p>We can now get the &ldquo;true rank&rdquo; of any book:</p>
+<p>I&rsquo;m going to call that, the lower bound of the 80% Wilson confidence interval, the &ldquo;true rank&rdquo; of a given book:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
-</span><span class='line'><span class="w">  </span><span class="n">Wilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">.8</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">Wilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">.8</span><span class="p">]]]</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
