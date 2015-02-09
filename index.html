@@ -182,7 +182,7 @@
 
 <p>Here, <code>key</code> is my Goodreads developer API key, defined elsewhere. I put a <code>Pause[1]</code> in the call since Goodreads throttles API calls so you can&rsquo;t make more than one call per second to each API endpoint. I&rsquo;m also memoizing the result, by assigning to <code>Ratings[id]</code> in the global environment.</p>
 
-<p><code>Ratings</code> will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, &ldquo;Harry Potter and the Half-Blood Prince&rdquo;, here are the scores:</p>
+<p><code>Ratings</code> will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, <em>Harry Potter and the Half-Blood Prince</em>, here are the scores:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -206,7 +206,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>So Wilson is 95% confident that in any random sample of about 1.2 million users, <em>at least</em> 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
+<p>So Wilson is 95% confident that in any random sample of about 1.2 million Harry Potter readers, at least 62% of them would give <em>The Half-Blood Prince</em> a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
 
 <p>But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
 
