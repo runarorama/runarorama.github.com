@@ -208,22 +208,22 @@
 
 <p>So Wilson is 95% confident that in any random sample of about 1.2 million Harry Potter readers, at least 62% of them would give <em>The Half-Blood Prince</em> a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
 
-<p>But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
+<p>But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a single-rating 5-star book will be 0.206549, which will be towards the bottom of any list. This means I would never get to any of the obscure books on my reading list, since they would be edged out by moderately popular books with an average rating close to 4.0.</p>
 
-<p>See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that people who like Harry Potter enough to read 5 previous books loved the 6th one.</p>
+<p>See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider five ratings that are all five stars a much stronger signal than the fact that people who like Harry Potter enough to read 5 previous books loved the 6th one. Currently the 5*5 book will score 57%, a bit weaker than the Potter book&rsquo;s 62%.</p>
 
-<p>I can fix this by lowering the confidence level to 80% or so, which gives 3.76371 instead of 2.82759. And honestly, I don&rsquo;t need a high confidence level. I&rsquo;d rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem.</p>
+<p>I can fix this by lowering the confidence level. Because honestly, I don&rsquo;t need a high confidence in the ranking. I&rsquo;d rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem. Experimenting with this a bit, I find that a confidence around 80% raises the obscure books enough to give me an interesting mix. For example, a 5*5 book gets a 75% rank, while the Harry Potter one stays at 62%.</p>
 
-<p>I&rsquo;m going to call that, the lower bound of the 80% Wilson confidence interval, the &ldquo;true rank&rdquo; of a given book:</p>
+<p>I&rsquo;m going to call that, the lower bound of the 80% Wilson confidence interval, the Rúnar Rank of a given book:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">RunarRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
 </span><span class='line'><span class="w">  </span><span class="n">Wilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">.8</span><span class="p">]]]</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Unfortunately, there&rsquo;s no way to get the ratings of all the books in my reading list in one fell swoop. I&rsquo;ll have to get the reading list first, then call <code>Rating</code> for each book&rsquo;s <code>id</code>. In Goodreads, books are managed by &ldquo;shelves&rdquo;, and the API allows getting the entire contents of a given shelf:</p>
+<p>Unfortunately, there&rsquo;s no way to get the rank of all the books in my reading list in one fell swoop. I&rsquo;ll have to get the reading list first, then call <code>RunarRank</code> for each book&rsquo;s <code>id</code>. In Goodreads, books are managed by &ldquo;shelves&rdquo;, and the API allows getting the contents of a given shelf, 200 books at a time:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -264,15 +264,15 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>I&rsquo;m doing a bunch of XML pattern matching here to get the <code>id</code>, <code>title</code>, <code>average_rating</code>, and first <code>author</code> of each book. Then I put that in an association list.</p>
+<p>I&rsquo;m doing a bunch of XML pattern matching here to get the <code>id</code>, <code>title</code>, <code>average_rating</code>, and first <code>author</code> of each book. Then I put that in an association list. I&rsquo;m getting only the top-200 books on the list by average rating (which currently is about half my list).</p>
 
-<p>With that in hand, I can get the contents of my &ldquo;to-read&rdquo; shelf with <code>GetShelf[runar, "to-read"]</code>, where <code>runar</code> is my Goodreads user id. And given that, I can call <code>TrueRank</code> on each book on the shelf, then sort the result by that rank:</p>
+<p>With that in hand, I can get the contents of my &ldquo;to-read&rdquo; shelf with <code>GetShelf[runar, "to-read"]</code>, where <code>runar</code> is my Goodreads user id. And given that, I can call <code>RunarRank</code> on each book on the shelf, then sort the result by that rank:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueSort</span><span class="p">[</span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
-</span><span class='line'><span class="w"> </span><span class="n">Sort</span><span class="p">[</span><span class="n">Map</span><span class="p">[</span><span class="n">Function</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">Append</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rank&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">TrueRank</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]]],</span><span class="w"> </span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">RunarSort</span><span class="p">[</span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w"> </span><span class="n">Sort</span><span class="p">[</span><span class="n">Map</span><span class="p">[</span><span class="n">Function</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">Append</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rank&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">RunarRank</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]]],</span><span class="w"> </span>
 </span><span class='line'><span class="w">   </span><span class="n">shelf</span><span class="p">],</span><span class="w"> </span><span class="nv">#1</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="nv">#2</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="p">]</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -280,7 +280,7 @@
 <p>To get the ranked reading list of any user:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ReadingList</span><span class="p">[</span><span class="nv">user_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">TrueSort</span><span class="p">[</span><span class="n">GetShelf</span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;to-read&quot;</span><span class="p">]]</span><span class="w"></span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ReadingList</span><span class="p">[</span><span class="nv">user_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">RunarSort</span><span class="p">[</span><span class="n">GetShelf</span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;to-read&quot;</span><span class="p">]]</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
