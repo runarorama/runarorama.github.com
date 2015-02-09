@@ -120,13 +120,13 @@
 
 <p>Another possibility is to use the number of ratings to calculate a <a href="http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval">confidence interval</a> for the average rating. For example, using the <a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html">Wilson score</a> I could find an upper and lower bound <code>s1</code> and <code>s2</code> (higher and lower than the average rating, respectively) that will let me say &ldquo;I am 95% sure that any random sample of readers of an equal size would give an average rating between <code>s1</code> and <code>s2</code>.&rdquo; I could then sort the list by the lower bound <code>s1</code>.</p>
 
-<p>But this method is dissatisfactory for a number of reasons. Firstly, the lower bound of the confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
+<p>But this method is dissatisfactory for a number of reasons. First, it&rsquo;s not clear how to fit star ratings to such a measure. If we do the naive thing and count a 1-star rating as 1/5 and a 5 star rating as 5/5, that counts a 1-star rating as a &ldquo;partial success&rdquo; in some sense. We could discard 1-stars as 0, and count 2, 3, 4, and 5 stars as 25%, 50%, 75%, and 100%, respectively.</p>
 
-<p>What&rsquo;s more, it turns out that if you take <em>any moderately popular book</em> on Goodreads at random, it will have an average rating somewhere close to 4. I could <a href="http://stephsun.com/silverizing.html">manufacture a prior</a> based on this knowledge and use that instead of the normal distribution in the confidence interval, but that would still not be a very good ranking because <a href="http://stephsun.com/metascores.html">reader review metascores are meaningless</a>.</p>
+<p>But even if we did make it fit somehow, it turns out that if you take <em>any moderately popular book</em> on Goodreads at random, it will have an average rating somewhere close to 4. I could <a href="http://stephsun.com/silverizing.html">manufacture a prior</a> based on this knowledge and use that instead of the normal distribution or the Jeffreys prior in the confidence interval, but that would still not be a very good ranking because <a href="http://stephsun.com/metascores.html">reader review metascores are meaningless</a>.</p>
 
-<p>In the article <a href="http://stephsun.com/metascores.html">&ldquo;Reader review metascores are meaningless&rdquo;</a>, Stephanie Shun suggests using the <em>percentage of 5-star ratings</em> as the relevant metric rather than the <em>average rating</em>. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.</p>
+<p>In the article <a href="http://stephsun.com/metascores.html">&ldquo;Reader review metascores are meaningless&rdquo;</a>, Stephanie Shun suggests using the <em>percentage of 5-star ratings</em> as the relevant metric rather than the average rating. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.</p>
 
-<p>I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. We can then just use the normal distribution instead of working with an artisanally curated prior.</p>
+<p>I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. I can then just use the normal distribution instead of working with an artisanally curated prior.</p>
 
 <p>Mathematica makes it easy to generate the Wilson score. Here, <code>pos</code> is the number of positive trials (number of 5-star ratings), <code>n</code> is the number of total ratings, and <code>confidence</code> is the desired confidence percentage. I&rsquo;m taking the lower bound of the confidence interval to get my score.</p>
 
@@ -208,23 +208,18 @@
 
 <p>So Wilson is 95% confident that in any random sample of about 1.2 million users, 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
 
-<p>But now the lower bound for a relatively obscure title is pretty low. See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that people who like Harry Potter enough to read 5 previous Harry Potter books loved the 6th one. So I&rsquo;ll introduce a scaling factor which will have the effect that 5-star ratings on a book with few total ratings weigh more than those on a book with a lot of ratings:</p>
+<p>But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ScaledWilson</span><span class="p">[</span><span class="nv">pos_</span><span class="p">,</span><span class="w"> </span><span class="nv">n_</span><span class="p">,</span><span class="w"> </span><span class="nv">confidence_</span><span class="p">,</span><span class="w"> </span><span class="nv">scaling_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
-</span><span class='line'><span class="w">   </span><span class="n">Wilson</span><span class="p">[</span><span class="n">pos</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">confidence</span><span class="p">]</span><span class="w"></span>
-</span></code></pre></td></tr></table></div></figure>
+<p>See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I&rsquo;d consider that a strong signal, moreso than the fact that people who like Harry Potter enough to read 5 previous books loved the 6th one.</p>
 
-
-<p>Experimenting with this a bit, I find that a scaling factor of 2 or so gives the appropriate amount of weight to more obscure books. But this is entirely subjective.</p>
+<p>I can fix this by lowering the confidence level to 80% or so, which gives 3.76371 instead of 2.82759. And honestly, I don&rsquo;t need a high confidence level. I&rsquo;d rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem.</p>
 
 <p>We can now get the &ldquo;true rank&rdquo; of any book:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">TrueRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
-</span><span class='line'><span class="w">  </span><span class="n">ScaledWilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.95</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">Wilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">.8</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]]</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -295,10 +290,16 @@
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="nv">books_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
-</span><span class='line'><span class="w"> </span><span class="n">Grid</span><span class="p">[</span><span class="n">Cases</span><span class="p">[</span><span class="n">books</span><span class="p">,</span><span class="w"> </span>
-</span><span class='line'><span class="w">   </span><span class="nv">b_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;avg&quot;</span><span class="p">]}],</span><span class="w"> </span>
-</span><span class='line'><span class="w">  </span><span class="n">Alignment</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Left</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w"> </span><span class="n">Grid</span><span class="p">[</span><span class="n">Flatten</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">   </span><span class="n">Cases</span><span class="p">[</span><span class="n">books</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="nv">b_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">{</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">UnitConvert</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;Percent&quot;</span><span class="p">]},</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;avg&quot;</span><span class="p">]},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">}</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"></span>
+</span><span class='line'><span class="w">   </span><span class="n">Alignment</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Left</span><span class="p">]</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -340,35 +341,35 @@
 <span class='line-number'>27</span>
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>5546     The Feynman Lectures on Physics (0.678576, 4.58)
-</span><span class='line'>         Richard P. Feynman
-</span><span class='line'>
-</span><span class='line'>16157938 Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology (0.675592, 5.00)
-</span><span class='line'>         Allan Gotthelf
-</span><span class='line'>
-</span><span class='line'>8664353  Unbroken: A World War II Story of Survival, Resilience, and Redemption (0.609754,4.44)
-</span><span class='line'>         Laura Hillenbrand
-</span><span class='line'>
-</span><span class='line'>640909   The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth (0.609666, 5.00)
-</span><span class='line'>         Raymond Tallis
-</span><span class='line'>
-</span><span class='line'>640913   The Hand: A Philosophical Inquiry Into Human Being (0.609666, 5.00)
-</span><span class='line'>         Raymond Tallis
-</span><span class='line'>
-</span><span class='line'>4050770  Volition As Cognitive Self Regulation (0.600586, 4.86)
-</span><span class='line'>         Harry Binswanger 
-</span><span class='line'>
-</span><span class='line'>13539024 Free Market Revolution: How Ayn Rand's Ideas Can End Big Government (0.587592, 4.48)
-</span><span class='line'>         Yaron Brook 
-</span><span class='line'>
-</span><span class='line'>1609224  The Law (0.586947, 4.40)
-</span><span class='line'>         Frédéric Bastiat
-</span><span class='line'>
-</span><span class='line'>304079   The Essential Rumi (0.580289, 4.42)
-</span><span class='line'>         Rumi
-</span><span class='line'>
-</span><span class='line'>151848   Probability Theory: The Logic of Science (0.577267, 4.48)
-</span><span class='line'>         E.T. Jaynes</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>16157938 Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology   70.8921%
+</span><span class='line'>  Allan Gotthelf  5.00
+</span><span class='line'>      
+</span><span class='line'>5546  The Feynman Lectures on Physics 67.9339%
+</span><span class='line'>  Richard P. Feynman  4.58
+</span><span class='line'>      
+</span><span class='line'>640909    The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth    64.6221%
+</span><span class='line'>  Raymond Tallis  5.00
+</span><span class='line'>      
+</span><span class='line'>640913    The Hand: A Philosophical Inquiry Into Human Being  64.6221%
+</span><span class='line'>  Raymond Tallis  5.00
+</span><span class='line'>      
+</span><span class='line'>4050770   Volition As Cognitive Self Regulation   62.231%
+</span><span class='line'>  Harry Binswanger    4.86
+</span><span class='line'>      
+</span><span class='line'>8664353   Unbroken: A World War II Story of Survival, Resilience, and Redemption  60.9849%
+</span><span class='line'>  Laura Hillenbrand   4.44
+</span><span class='line'>      
+</span><span class='line'>13539024  Free Market Revolution: How Ayn Rand's Ideas Can End Big Government 59.1102%
+</span><span class='line'>  Yaron Brook 4.48
+</span><span class='line'>      
+</span><span class='line'>1609224   The Law 58.767%
+</span><span class='line'>  Frédéric Bastiat  4.40
+</span><span class='line'>      
+</span><span class='line'>151848    Probability Theory: The Logic of Science    58.1478%
+</span><span class='line'>  E.T. Jaynes 4.48
+</span><span class='line'>      
+</span><span class='line'>304079    The Essential Rumi  58.0628%
+</span><span class='line'>  Rumi    4.42</span></code></pre></td></tr></table></div></figure>
 
 
 <p>I&rsquo;m quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. I&rsquo;ll get cracking on Feynman, then.</p>
