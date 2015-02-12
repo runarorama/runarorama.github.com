@@ -115,7 +115,7 @@ body > nav {
     position: absolute; top: -1px; left: 0;
     background-color: lighten($nav-color, 25);
   }
-  &:hover:after { background-color: $base3; }
+  &:hover:after { background-color: lighten($nav-color, 20); }
 }
 .maskImage {
   body > nav {
@@ -134,3 +134,4 @@ body > nav {
   a[rel=subscribe-rss]{ @include mask-subscription-nav('rss.png'); }
   a[rel=subscribe-email]{ @include mask-subscription-nav('email.png'); }
 }
+
