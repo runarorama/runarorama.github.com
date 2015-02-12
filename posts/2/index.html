@@ -561,7 +561,9 @@
   </header>
 
 
-  <div class="entry-content"><p>One of the great features of modern programming languages is structural pattern matching on algebraic data types. Once you&rsquo;ve used this feature, you don&rsquo;t ever want to program without it. You will find this in languages like Haskell and Scala.</p>
+  <div class="entry-content"><p>(updated for Java 8)</p>
+
+<p>One of the great features of modern programming languages is structural pattern matching on algebraic data types. Once you&rsquo;ve used this feature, you don&rsquo;t ever want to program without it. You will find this in languages like Haskell and Scala.</p>
 
 <p>In Scala, algebraic types are provided by case classes. For example:</p>
 
@@ -824,14 +826,18 @@ The type of such a function looks like this (Scala notation):</p>
 <p>Translated to Java, we need this method on Tree:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">F</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">);</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                            <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                            <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>F</code> interface is a first-class function from Functional Java. If you haven&rsquo;t seen that before, here it is:</p>
+<p>The <code>Function</code> interface is in the <code>java.util</code> package in Java 8, but you can definitely make it yourself in previous versions:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">F</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="o">{</span> <span class="kd">public</span> <span class="n">B</span> <span class="nf">f</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">);</span> <span class="o">}</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Function</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="o">{</span> <span class="kd">public</span> <span class="n">B</span> <span class="nf">apply</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">);</span> <span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -874,15 +880,27 @@ The type of such a function looks like this (Scala notation):</p>
 <span class='line-number'>35</span>
 <span class='line-number'>36</span>
 <span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Tree</span> <span class="o">{</span>
 </span><span class='line'>  <span class="c1">// Constructor private so the type is sealed.</span>
 </span><span class='line'>  <span class="kd">private</span> <span class="nf">Tree</span><span class="o">()</span> <span class="o">{}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">F</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">);</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">);</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Empty</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">F</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="na">f</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Funciton</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="kd">public</span> <span class="nf">Empty</span><span class="o">()</span> <span class="o">{}</span>
@@ -891,8 +909,10 @@ The type of such a function looks like this (Scala notation):</p>
 </span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Leaf</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
 </span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">n</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">F</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="na">f</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="kd">public</span> <span class="nf">Leaf</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">;</span> <span class="o">}</span>
@@ -902,8 +922,10 @@ The type of such a function looks like this (Scala notation):</p>
 </span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="n">Tree</span> <span class="n">left</span><span class="o">;</span>
 </span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="n">Tree</span> <span class="n">right</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">F</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="na">f</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="kd">public</span> <span class="nf">Node</span><span class="o">(</span><span class="n">Tree</span> <span class="n">left</span><span class="o">,</span> <span class="n">Tree</span> <span class="n">right</span><span class="o">)</span> <span class="o">{</span>
@@ -921,21 +943,15 @@ The type of such a function looks like this (Scala notation):</p>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">int</span> <span class="nf">depth</span><span class="o">(</span><span class="n">Tree</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">constant</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="n">constant</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="k">new</span> <span class="n">F</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;(){</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">f</span><span class="o">(</span><span class="n">Node</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">max</span><span class="o">(</span><span class="n">depth</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="na">left</span><span class="o">),</span> <span class="n">depth</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="na">right</span><span class="o">));</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">});</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="na">match</span><span class="o">((</span><span class="n">Empty</span> <span class="n">e</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">0</span><span class="o">,</span>
+</span><span class='line'>                 <span class="o">(</span><span class="n">Leaf</span> <span class="n">l</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="o">,</span>
+</span><span class='line'>                 <span class="o">(</span><span class="n">Node</span> <span class="n">n</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">max</span><span class="o">(</span><span class="n">depth</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="na">left</span><span class="o">),</span> <span class="n">depth</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="na">right</span><span class="o">));</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>This is almost as terse as the Scala code, and very easy to understand. Everything is checked by the type system, and we are guaranteed that our patterns are exhaustive. This is an ideal solution.</p>
-
-<p>By the way, if you&rsquo;re wondering what <code>constant(0)</code> means, it&rsquo;s a method that returns a function <code>F&lt;A, Integer&gt;</code> that always returns 0, ignoring the argument.</p>
 
 <h3>Conclusion</h3>
 
