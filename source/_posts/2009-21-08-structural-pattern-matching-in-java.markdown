@@ -8,6 +8,8 @@ author: Rúnar
 commentssIssueId: 14
 ---
 
+(updated for Java 8)
+
 One of the great features of modern programming languages is structural pattern matching on algebraic data types. Once you've used this feature, you don't ever want to program without it. You will find this in languages like Haskell and Scala.
 
 In Scala, algebraic types are provided by case classes. For example:
@@ -189,13 +191,15 @@ Or equivalently:
 Translated to Java, we need this method on Tree:
 
 {% codeblock lang:java %}
-public abstract <T> T match(F<Empty, T> a, F<Leaf, T> b, F<Node, T> c);
+public abstract <T> T match(Function<Empty, T> a,
+                            Function<Leaf, T> b,
+                            Function<Node, T> c);
 {% endcodeblock %}
 
-The `F` interface is a first-class function from Functional Java. If you haven't seen that before, here it is:
+The `Function` interface is in the `java.util` package in Java 8, but you can definitely make it yourself in previous versions:
 
 {% codeblock lang:java %}
-public interface F<A, B> { public B f(A a); }
+public interface Function<A, B> { public B apply(A a); }
 {% endcodeblock %}
 
 Now our Tree code looks like this:
@@ -205,11 +209,15 @@ public abstract class Tree {
   // Constructor private so the type is sealed.
   private Tree() {}
 
-  public abstract <T> T match(F<Empty, T> a, F<Leaf, T> b, F<Node, T> c);
+  public abstract <T> T match(Function<Empty, T> a,
+                              Function<Leaf, T> b,
+                              Function<Node, T> c);
 
   public static final class Empty extends Tree {
-    public <T> T match(F<Empty, T> a, F<Leaf, T> b, F<Node, T> c) {
-      return a.f(this);
+    public <T> T match(Function<Empty, T> a,
+                       Funciton<Leaf, T> b,
+                       Function<Node, T> c) {
+      return a.apply(this);
     }
 
     public Empty() {}
@@ -218,8 +226,10 @@ public abstract class Tree {
   public static final class Leaf extends Tree {
     public final int n;
 
-    public <T> T match(F<Empty, T> a, F<Leaf, T> b, F<Node, T> c) {
-      return b.f(this);
+    public <T> T match(Function<Empty, T> a,
+                       Function<Leaf, T> b,
+                       Function<Node, T> c) {
+      return b.apply(this);
     }
 
     public Leaf(int n) { this.n = n; }
@@ -229,8 +239,10 @@ public abstract class Tree {
     public final Tree left;
     public final Tree right;    
 
-    public <T> T match(F<Empty, T> a, F<Leaf, T> b, F<Node, T> c) {
-      return c.f(this);
+    public <T> T match(Function<Empty, T> a,
+                       Function<Leaf, T> b,
+                       Function<Node, T> c) {
+      return c.apply(this);
     }
 
     public Node(Tree left, Tree right) {
@@ -244,17 +256,13 @@ And we can do our pattern matching on the calling side:
 
 {% codeblock lang:java %}
 public int depth(Tree t) {
-  return t.match(constant(0), constant(1), new F<Node, Integer>(){
-    public Integer f(Node n) {
-      return 1 + max(depth(n.left), depth(n.right));
-    }
-  });
+  return t.match((Empty e) -> 0,
+                 (Leaf l) -> 1,
+                 (Node n) -> 1 + max(depth(n.left), depth(n.right));
 }
 {% endcodeblock %}
 
 This is almost as terse as the Scala code, and very easy to understand. Everything is checked by the type system, and we are guaranteed that our patterns are exhaustive. This is an ideal solution.
-
-By the way, if you're wondering what `constant(0)` means, it's a method that returns a function `F<A, Integer>` that always returns 0, ignoring the argument.
 
 ### Conclusion
 
