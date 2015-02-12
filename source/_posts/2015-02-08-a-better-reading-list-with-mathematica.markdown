@@ -5,7 +5,7 @@ date: 2015-02-08 11:04
 author: Rúnar
 comments: true
 categories:
-commentIssueId:
+commentIssueId: 13
 ---
 
 Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read in my lifetime, this list has become quite long.
@@ -20,13 +20,13 @@ The problem then is to find a good metric by which to rank books. Goodreads lets
 
 Another possibility is to use the number of ratings to calculate a [confidence interval](http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval) for the average rating. For example, using the [Wilson score](http://www.evanmiller.org/how-not-to-sort-by-average-rating.html) I could find an upper and lower bound `s1` and `s2` (higher and lower than the average rating, respectively) that will let me say "I am 95% sure that any random sample of readers of an equal size would give an average rating between `s1` and `s2`." I could then sort the list by the lower bound `s1`.
 
-But this method is dissatisfactory for a number of reasons. Firstly, the lower bound of the confidence interval for a book with only one 5-star rating will be 2.82759. This means I would never get to any of the obscure books on my list, since they would be edged out by books with a solid and confident rating of 3 out of 5.
+But this method is dissatisfactory for a number of reasons. First, it's not clear how to fit star ratings to such a measure. If we do the naive thing and count a 1-star rating as 1/5 and a 5 star rating as 5/5, that counts a 1-star rating as a "partial success" in some sense. We could discard 1-stars as 0, and count 2, 3, 4, and 5 stars as 25%, 50%, 75%, and 100%, respectively.
 
-What's more, it turns out that if you take _any moderately popular book_ on Goodreads at random, it will have an average rating somewhere close to 4. I could [manufacture a prior](http://stephsun.com/silverizing.html) based on this knowledge and use that instead of the normal distribution in the confidence interval, but that would still not be a very good ranking because [reader review metascores are meaningless](http://stephsun.com/metascores.html).
+But even if we did make it fit somehow, it turns out that if you take _any moderately popular book_ on Goodreads at random, it will have an average rating somewhere close to 4. I could [manufacture a prior](http://stephsun.com/silverizing.html) based on this knowledge and use that instead of the normal distribution or the Jeffreys prior in the confidence interval, but that would still not be a very good ranking because [reader review metascores are meaningless](http://stephsun.com/metascores.html).
 
-In the article ["Reader review metascores are meaningless"](http://stephsun.com/metascores.html), Stephanie Shun suggests using the _percentage of 5-star ratings_ as the relevant metric rather than the _average rating_. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.
+In the article ["Reader review metascores are meaningless"](http://stephsun.com/metascores.html), Stephanie Shun suggests using the _percentage of 5-star ratings_ as the relevant metric rather than the average rating. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.
 
-I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. We can then just use the normal distribution instead of working with an artisanally curated prior.
+I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. I can then just use the normal distribution instead of working with an artisanally curated prior.
 
 Mathematica makes it easy to generate the Wilson score. Here, `pos` is the number of positive trials (number of 5-star ratings), `n` is the number of total ratings, and `confidence` is the desired confidence percentage. I'm taking the lower bound of the confidence interval to get my score.
 
@@ -62,7 +62,7 @@ Ratings[id_] := Ratings[id] =
 
 Here, `key` is my Goodreads developer API key, defined elsewhere. I put a `Pause[1]` in the call since Goodreads throttles API calls so you can't make more than one call per second to each API endpoint. I'm also memoizing the result, by assigning to `Ratings[id]` in the global environment.
 
-`Ratings` will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, "Harry Potter and the Half-Blood Prince", here are the scores:
+`Ratings` will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, _Harry Potter and the Half-Blood Prince_, here are the scores:
 
 {% codeblock lang:mathematica %}
 In[1]:= Ratings[1]
@@ -79,25 +79,22 @@ In[2]:= Wilson[Out[1]["5"], Out[1]["total"], 0.95]
 Out[2]= 0.61572
 {% endcodeblock %}
 
-So Wilson is 95% confident that in any random sample of about 1.2 million users, 62% of them would give this book a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn't), it would feature pretty close to the very top.
+So Wilson is 95% confident that in any random sample of about 1.2 million Harry Potter readers, at least 62% of them would give _The Half-Blood Prince_ a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn't), it would feature pretty close to the very top.
 
-But now the lower bound for a relatively obscure title is pretty low. See, if I've picked a book that _I want to read_, I'd consider a single five-star rating to not carry much signal, but if it has five ratings that are all five stars, I'd consider that a strong signal, moreso than the fact that Harry Potter has a lot of fans. So I'll introduce a scaling factor which will have the effect that 5-star ratings on a book with few total ratings weigh more than those on a book with a lot of ratings:
+But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a single-rating 5-star book will be 0.206549, which will be towards the bottom of any list. This means I would never get to any of the obscure books on my reading list, since they would be edged out by moderately popular books with an average rating close to 4.0.
 
-{% codeblock lang:mathematica %}
-ScaledWilson[pos_, n_, confidence_, scaling_] := 
-   Wilson[pos*scaling, n*scaling, confidence]
-{% endcodeblock %}
+See, if I've picked a book that _I want to read_, I'd consider five ratings that are all five stars a much stronger signal than the fact that people who like Harry Potter enough to read 5 previous books loved the 6th one. Currently the 5*5 book will score 57%, a bit weaker than the Potter book's 62%.
 
-Experimenting with this a bit, I find that a scaling factor of 2 or so gives the appropriate amount of weight to more obscure books. But this is entirely subjective.
+I can fix this by lowering the confidence level. Because honestly, I don't need a high confidence in the ranking. I'd rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem. Experimenting with this a bit, I find that a confidence around 80% raises the obscure books enough to give me an interesting mix. For example, a 5*5 book gets a 75% rank, while the Harry Potter one stays at 62%.
 
-We can now get the "true rank" of any book:
+I'm going to call that, the lower bound of the 80% Wilson confidence interval, the Rúnar Rank of a given book:
 
 {% codeblock lang:mathematica %}
-TrueRank[id_] := With[{ratings = Ratings[id]},
-  ScaledWilson[ratings["5"], ratings["total"], 0.95, 2]]]
+RunarRank[id_] := With[{ratings = Ratings[id]},
+  Wilson[ratings["5"], ratings["total"], .8]]]
 {% endcodeblock %}
 
-Unfortunately, there's no way to get the ratings of all the books in my reading list in one fell swoop. I'll have to get the reading list first, then call `Rating` for each book's `id`. In Goodreads, books are managed by "shelves", and the API allows getting the entire contents of a given shelf:
+Unfortunately, there's no way to get the rank of all the books in my reading list in one fell swoop. I'll have to get the reading list first, then call `RunarRank` for each book's `id`. In Goodreads, books are managed by "shelves", and the API allows getting the contents of a given shelf, 200 books at a time:
 
 {% codeblock lang:mathematica %}
 GetShelf[user_, shelf_] :=
@@ -120,29 +117,32 @@ shelf=``&sort=avg_rating&order=d&per_page=200", key, user, shelf]]],
      Infinity]}, Association /@ raw]
 {% endcodeblock %}
 
-I'm doing a bunch of XML pattern matching here to get the `id`, `title`, `average_rating`, and first `author` of each book. Then I put that in an association list.
+I'm doing a bunch of XML pattern matching here to get the `id`, `title`, `average_rating`, and first `author` of each book. Then I put that in an association list. I'm getting only the top-200 books on the list by average rating (which currently is about half my list).
 
-With that in hand, I can get the contents of my "to-read" shelf with `GetShelf[runar, "to-read"]`, where `runar` is my Goodreads user id. And given that, I can call `TrueRank` on each book on the shelf, then sort the result by that rank:
+With that in hand, I can get the contents of my "to-read" shelf with `GetShelf[runar, "to-read"]`, where `runar` is my Goodreads user id. And given that, I can call `RunarRank` on each book on the shelf, then sort the result by that rank:
 
 {% codeblock lang:mathematica %}
-TrueSort[shelf_] :=
- Sort[Map[Function[x, Append[x, "rank" -> TrueRank[x["id"]]]], 
+RunarSort[shelf_] :=
+ Sort[Map[Function[x, Append[x, "rank" -> RunarRank[x["id"]]]], 
    shelf], #1["rank"] > #2["rank"] &]
 {% endcodeblock %}
 
 To get the ranked reading list of any user:
 
 {% codeblock lang:mathematica %}
-ReadingList[user_] := TrueSort[GetShelf[user, "to-read"]]
+ReadingList[user_] := RunarSort[GetShelf[user, "to-read"]]
 {% endcodeblock %}
 
 And to print it out nicely:
 
 {% codeblock lang:mathematica %}
 Gridify[books_] := 
- Grid[Cases[books, 
-   b_ -> {b["id"], b["title"], b["author"], b["rank"], b["avg"]}], 
-  Alignment -> Left]
+ Grid[Flatten[
+   Cases[books, 
+    b_ -> {
+      {b["id"], b["title"], UnitConvert[b["rank"], "Percent"]},
+      {"", b["author"], b["avg"]}, {"", "", ""} }], 1],
+   Alignment -> Left]
 {% endcodeblock %}
 
 Now I can get, say, the first 10 books on my improved reading list:
@@ -152,36 +152,73 @@ Gridify[ReadingList[runar][[1 ;; 10]]]
 {% endcodeblock %}
 
 {% codeblock %}
-5546     The Feynman Lectures on Physics (0.678576, 4.58)
-         Richard P. Feynman
-
-16157938 Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology (0.675592, 5.00)
-         Allan Gotthelf
-
-8664353  Unbroken: A World War II Story of Survival, Resilience, and Redemption (0.609754,4.44)
-         Laura Hillenbrand
-
-640909   The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth (0.609666, 5.00)
-         Raymond Tallis
-
-640913   The Hand: A Philosophical Inquiry Into Human Being (0.609666, 5.00)
-         Raymond Tallis
-
-4050770  Volition As Cognitive Self Regulation (0.600586, 4.86)
-         Harry Binswanger 
-
-13539024 Free Market Revolution: How Ayn Rand's Ideas Can End Big Government (0.587592, 4.48)
-         Yaron Brook 
-
-1609224  The Law (0.586947, 4.40)
-         Frédéric Bastiat
-
-304079   The Essential Rumi (0.580289, 4.42)
-         Rumi
-
-151848   Probability Theory: The Logic of Science (0.577267, 4.48)
-         E.T. Jaynes
+16157938	Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology	70.8921%
+	Allan Gotthelf	5.00
+		
+5546	The Feynman Lectures on Physics	67.9339%
+	Richard P. Feynman	4.58
+		
+640909	The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth	64.6221%
+	Raymond Tallis	5.00
+		
+640913	The Hand: A Philosophical Inquiry Into Human Being	64.6221%
+	Raymond Tallis	5.00
+		
+4050770	Volition As Cognitive Self Regulation	62.231%
+	Harry Binswanger	4.86
+		
+8664353	Unbroken: A World War II Story of Survival, Resilience, and Redemption	60.9849%
+	Laura Hillenbrand	4.44
+		
+13539024	Free Market Revolution: How Ayn Rand's Ideas Can End Big Government	59.1102%
+	Yaron Brook	4.48
+		
+1609224	The Law	58.767%
+	Frédéric Bastiat	4.40
+		
+151848	Probability Theory: The Logic of Science	58.1478%
+	E.T. Jaynes	4.48
+		
+304079	The Essential Rumi	58.0628%
+	Rumi	4.42
 {% endcodeblock %}
 
-I'm quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. I'll get cracking on Feynman, then.
+I'm quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. The most satisfying thing is that the rating carries a real meaning. It's basically the relative likelihood that I will enjoy the book enough to rate it five stars.
+
+I can test this ranking against books I've already read. Here's the top of my "read" shelf, according to their Runar Rank:
+
+{% codeblock %}
+17930467	The Fourth Phase of Water	68.0406%
+	Gerald H. Pollack	4.85
+		
+7687279	Nothing Less Than Victory: Decisive Wars and the Lessons of History	64.9297%
+	John David Lewis	4.65
+		
+43713	Structure and Interpretation of Computer Programs	62.0211%
+	Harold Abelson	4.47
+		
+7543507	Capitalism Unbound: The Incontestable Moral Case for Individual Rights	57.6085%
+	Andrew Bernstein	4.67
+		
+13542387	The DIM Hypothesis: Why the Lights of the West Are Going Out	55.3296%
+	Leonard Peikoff	4.37
+		
+5932	Twenty Love Poems and a Song of Despair	54.7205%
+	Pablo Neruda	4.36
+		
+24113	Gödel, Escher, Bach: An Eternal Golden Braid	53.5588%
+	Douglas R. Hofstadter	4.29
+		
+19312	The Brothers Lionheart	53.0952%
+	Astrid Lindgren	4.33
+		
+13541678	Functional Programming in Scala	52.6902%
+	Rúnar Bjarnason	4.54
+		
+375802	Ender's Game (The Ender Quintet, #1)	52.4954%
+	Orson Scott Card	4.28
+{% endcodeblock %}
+
+That's perfect. Those are definitely books I thouroughly enjoyed and would heartily recommend. Especially the penultimate one.
+
 
