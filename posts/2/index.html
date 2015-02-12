@@ -21,10 +21,11 @@
   <link rel="canonical" href="http://runarorama.github.com/posts/2/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -63,7 +64,7 @@
   
 <form action="http://google.com/search" method="get">
   <fieldset role="search">
-    <input type="hidden" name="q" value="site:runarorama.github.com" />
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
   </fieldset>
 </form>
@@ -94,14 +95,7 @@
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2010-10-14T00:00:00-04:00" pubdate data-updated="true"></time>
+<time class='entry-date' datetime='2010-10-14'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2010</span></span> <span class='time'>12:00 am</span></time>
         
       </p>
     
@@ -547,14 +541,7 @@
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2009-08-21T00:00:00-04:00" pubdate data-updated="true"></time>
+<time class='entry-date' datetime='2009-08-21'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2009</span></span> <span class='time'>12:00 am</span></time>
         
       </p>
     
@@ -979,14 +966,7 @@ The type of such a function looks like this (Scala notation):</p>
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2009-04-27T00:00:00-04:00" pubdate data-updated="true"></time>
+<time class='entry-date' datetime='2009-04-27'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2009</span></span> <span class='time'>12:00 am</span></time>
         
       </p>
     
@@ -1188,14 +1168,7 @@ The type of such a function looks like this (Scala notation):</p>
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2008-12-04T00:00:00-05:00" pubdate data-updated="true"></time>
+<time class='entry-date' datetime='2008-12-04'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2008</span></span> <span class='time'>12:00 am</span></time>
         
       </p>
     
@@ -1257,7 +1230,7 @@ The type of such a function looks like this (Scala notation):</p>
     
     <a href="/blog/archives">Blog Archives</a>
     
-    <a class="next" href="1">Newer &rarr;</a>
+    <a class="next" href="/index.html">Newer &rarr;</a>
     
   </div>
 </div>
@@ -1272,7 +1245,7 @@ The type of such a function looks like this (Scala notation):</p>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A better reading list with Mathematica</a>
+        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A Better Reading List With Mathematica</a>
       </li>
     
       <li class="post">
@@ -1280,15 +1253,15 @@ The type of such a function looks like this (Scala notation):</p>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/29/taking-a-break-from-twitter/">Taking a break from Twitter</a>
+        <a href="/blog/2014/10/29/taking-a-break-from-twitter/">Taking a Break From Twitter</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/09/18/at-long-last/">At long last</a>
+        <a href="/blog/2014/09/18/at-long-last/">At Long Last</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid morphisms, products, and coproducts</a>
+        <a href="/blog/2014/03/19/monoid-morphisms-products-coproducts/">Monoid Morphisms, Products, and Coproducts</a>
       </li>
     
   </ul>
@@ -1303,7 +1276,7 @@ The type of such a function looks like this (Scala notation):</p>
   <a href="https://github.com/runarorama">@runarorama</a> on GitHub
   
   <script type="text/javascript">
-    $.domReady(function(){
+    $(document).ready(function(){
         if (!window.jXHR){
             var jxhr = document.createElement('script');
             jxhr.type = 'text/javascript';
@@ -1324,15 +1297,21 @@ The type of such a function looks like this (Scala notation):</p>
 </section>
 
 
-<section class="googleplus googleplus-hidden">
-  <h1>
-    <a href="https://plus.google.com/runarorama?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("runarorama", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/runarorama" class="twitter-follow-button" data-show-count="false">Follow @runarorama</a>
+  
 </section>
-
 
 
   
@@ -1354,7 +1333,7 @@ The type of such a function looks like this (Scala notation):</p>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
+  js = d.createElement(s); js.id = id; js.async = true;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -1376,7 +1355,7 @@ The type of such a function looks like this (Scala notation):</p>
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>
