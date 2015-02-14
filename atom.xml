@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-02-14T11:52:40-05:00</updated>
+  <updated>2015-02-14T12:37:02-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -220,130 +220,334 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>9934419  Kvæðasafn 75.2743%
-</span><span class='line'>  Snorri Hjartarson   5.00
-</span><span class='line'>      
-</span><span class='line'>17278 The Feynman Lectures on Physics Vol 1   67.2231%
-</span><span class='line'>  Richard P. Feynman  4.58
-</span><span class='line'>      
-</span><span class='line'>640909    The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth    64.6221%
-</span><span class='line'>  Raymond Tallis  5.00
-</span><span class='line'>      
-</span><span class='line'>640913    The Hand: A Philosophical Inquiry Into Human Being  64.6221%
-</span><span class='line'>  Raymond Tallis  5.00
-</span><span class='line'>      
-</span><span class='line'>4050770   Volition As Cognitive Self Regulation   62.231%
-</span><span class='line'>  Harry Binswanger    4.86
-</span><span class='line'>      
-</span><span class='line'>8664353   Unbroken: A World War II Story of Survival, Resilience, and Redemption  60.9849%
-</span><span class='line'>  Laura Hillenbrand   4.45
-</span><span class='line'>      
-</span><span class='line'>13413455  Software Foundations    60.1596%
-</span><span class='line'>  Benjamin C. Pierce  4.80
-</span><span class='line'>      
-</span><span class='line'>77523 Harry Potter and the Sorcerer's Stone (Harry Potter #1) 59.1459%
-</span><span class='line'>  J.K. Rowling    4.39
-</span><span class='line'>      
-</span><span class='line'>13539024  Free Market Revolution: How Ayn Rand's Ideas Can End Big Government 59.1102%
-</span><span class='line'>  Yaron Brook 4.48
-</span><span class='line'>      
-</span><span class='line'>1609224   The Law 58.767%
-</span><span class='line'>  Frédéric Bastiat  4.40</span></code></pre></td></tr></table></div></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;"> </th>
+<th style="text-align:left;"> </th>
+<th style="text-align:right;"> </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"> 9934419 </td>
+<td style="text-align:left;"> Kvæðasafn </td>
+<td style="text-align:right;"> 75.2743% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Snorri Hjartarson </td>
+<td style="text-align:right;"> 5.00 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 17278 </td>
+<td style="text-align:left;"> The Feynman Lectures on Physics Vol 1 </td>
+<td style="text-align:right;"> 67.2231% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Richard P. Feynman </td>
+<td style="text-align:right;"> 4.58 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 640909 </td>
+<td style="text-align:left;"> The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth </td>
+<td style="text-align:right;"> 64.6221% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Raymond Tallis </td>
+<td style="text-align:right;"> 5.00 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 640913 </td>
+<td style="text-align:left;"> The Hand: A Philosophical Inquiry Into Human Being </td>
+<td style="text-align:right;"> 64.6221% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Raymond Tallis </td>
+<td style="text-align:right;"> 5.00 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 4050770 </td>
+<td style="text-align:left;"> Volition As Cognitive Self Regulation </td>
+<td style="text-align:right;"> 62.231% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Harry Binswanger </td>
+<td style="text-align:right;"> 4.86 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 8664353 </td>
+<td style="text-align:left;"> Unbroken: A World War II Story of Survival, Resilience, and Redemption </td>
+<td style="text-align:right;"> 60.9849% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Laura Hillenbrand </td>
+<td style="text-align:right;"> 4.45 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 13413455 </td>
+<td style="text-align:left;"> Software Foundations </td>
+<td style="text-align:right;"> 60.1596% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Benjamin C. Pierce </td>
+<td style="text-align:right;"> 4.80 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 77523 </td>
+<td style="text-align:left;"> Harry Potter and the Sorcerer&rsquo;s Stone (Harry Potter #1) </td>
+<td style="text-align:right;"> 59.1459% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> J.K. Rowling </td>
+<td style="text-align:right;"> 4.39 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 13539024 </td>
+<td style="text-align:left;"> Free Market Revolution: How Ayn Rand&rsquo;s Ideas Can End Big Government </td>
+<td style="text-align:right;"> 59.1102% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Yaron Brook </td>
+<td style="text-align:right;"> 4.48 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 1609224 </td>
+<td style="text-align:left;"> The Law </td>
+<td style="text-align:right;"> 58.767% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Frédéric Bastiat </td>
+<td style="text-align:right;"> 4.40 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 
 <p>I&rsquo;m quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. The most satisfying thing is that the rating carries a real meaning. It&rsquo;s basically the relative likelihood that I will enjoy the book enough to rate it five stars.</p>
 
 <p>I can test this ranking against books I&rsquo;ve already read. Here&rsquo;s the top of my &ldquo;read&rdquo; shelf, according to their Runar Rank:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>17930467 The Fourth Phase of Water   68.0406%
-</span><span class='line'>  Gerald H. Pollack   4.85
-</span><span class='line'>      
-</span><span class='line'>7687279   Nothing Less Than Victory: Decisive Wars and the Lessons of History 64.9297%
-</span><span class='line'>  John David Lewis    4.67
-</span><span class='line'>      
-</span><span class='line'>43713 Structure and Interpretation of Computer Programs   62.0211%
-</span><span class='line'>  Harold Abelson  4.47
-</span><span class='line'>      
-</span><span class='line'>7543507   Capitalism Unbound: The Incontestable Moral Case for Individual Rights  57.6085%
-</span><span class='line'>  Andrew Bernstein    4.67
-</span><span class='line'>      
-</span><span class='line'>13542387  The DIM Hypothesis: Why the Lights of the West Are Going Out    55.3296%
-</span><span class='line'>  Leonard Peikoff 4.37
-</span><span class='line'>      
-</span><span class='line'>5932  Twenty Love Poems and a Song of Despair 54.7205%
-</span><span class='line'>  Pablo Neruda    4.36
-</span><span class='line'>      
-</span><span class='line'>18007564  The Martian 53.9136%
-</span><span class='line'>  Andy Weir   4.36
-</span><span class='line'>      
-</span><span class='line'>24113 Gödel, Escher, Bach: An Eternal Golden Braid   53.5588%
-</span><span class='line'>  Douglas R. Hofstadter   4.29
-</span><span class='line'>      
-</span><span class='line'>19312 The Brothers Lionheart  53.0952%
-</span><span class='line'>  Astrid Lindgren 4.33
-</span><span class='line'>      
-</span><span class='line'>13541678  Functional Programming in Scala 52.6902%
-</span><span class='line'>  Rúnar Bjarnason    4.54</span></code></pre></td></tr></table></div></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">    </th>
+<th style="text-align:left;">    </th>
+<th style="text-align:right;">    </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">17930467</td>
+<td style="text-align:left;">The Fourth Phase of Water</td>
+<td style="text-align:right;">68.0406%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Gerald H. Pollack</td>
+<td style="text-align:right;">4.85</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">7687279</td>
+<td style="text-align:left;">Nothing Less Than Victory: Decisive Wars and the Lessons of History</td>
+<td style="text-align:right;">64.9297%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">John David Lewis</td>
+<td style="text-align:right;">4.67</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">43713</td>
+<td style="text-align:left;">Structure and Interpretation of Computer Programs</td>
+<td style="text-align:right;">62.0211%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Harold Abelson</td>
+<td style="text-align:right;">4.47</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">7543507</td>
+<td style="text-align:left;">Capitalism Unbound: The Incontestable Moral Case for Individual Rights</td>
+<td style="text-align:right;">57.6085%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Andrew Bernstein</td>
+<td style="text-align:right;">4.67</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">13542387</td>
+<td style="text-align:left;">The DIM Hypothesis: Why the Lights of the West Are Going Out</td>
+<td style="text-align:right;">55.3296%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Leonard Peikoff</td>
+<td style="text-align:right;">4.37</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">5932</td>
+<td style="text-align:left;">Twenty Love Poems and a Song of Despair</td>
+<td style="text-align:right;">54.7205%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Pablo Neruda</td>
+<td style="text-align:right;">4.36</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">18007564</td>
+<td style="text-align:left;">The Martian</td>
+<td style="text-align:right;">53.9136%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Andy Weir</td>
+<td style="text-align:right;">4.36</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">24113</td>
+<td style="text-align:left;">Gödel, Escher, Bach: An Eternal Golden Braid</td>
+<td style="text-align:right;">53.5588%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Douglas R. Hofstadter</td>
+<td style="text-align:right;">4.29</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">19312</td>
+<td style="text-align:left;">The Brothers Lionheart</td>
+<td style="text-align:right;">53.0952%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Astrid Lindgren</td>
+<td style="text-align:right;">4.33</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">13541678</td>
+<td style="text-align:left;">Functional Programming in Scala</td>
+<td style="text-align:right;">52.6902%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Rúnar Bjarnason</td>
+<td style="text-align:right;">4.54</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 
 <p>That&rsquo;s perfect. Those are definitely books I thouroughly enjoyed and would heartily recommend. Especially that last one.</p>
