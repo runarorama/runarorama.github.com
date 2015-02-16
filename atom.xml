@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-02-14T12:37:02-05:00</updated>
+  <updated>2015-02-16T10:36:44-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -98,10 +98,18 @@
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
 </pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
 </span><span class='line'>
-</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="err">&lt;</span><span class="o">|</span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">782740</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">352725</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">111068</span><span class="p">,</span><span class="w"></span>
-</span><span class='line'><span class="w">         </span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">17693</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">5289</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;total&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">1269515</span><span class="o">|</span><span class="err">&gt;</span><span class="w"></span>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="err">&lt;</span><span class="o">|</span><span class="s">&quot;5&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="mi">782740</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;4&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="mi">352725</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;3&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="mi">111068</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;2&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">   </span><span class="mi">17693</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;1&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">    </span><span class="mi">5289</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;total&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">1269515</span><span class="o">|</span><span class="err">&gt;</span><span class="w"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
