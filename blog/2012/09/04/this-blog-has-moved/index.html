@@ -174,7 +174,7 @@
       var clink = "https://github.com/runarorama/runarorama.github.com/issues/1#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
       var cbody = data[i].body_html;
       var cavatarlink = data[i].user.avatar_url;
-      var cdate = (new Date(Date.parse(data[i].created_at)).toString();
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
       
       $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
     }
