@@ -67,8 +67,12 @@ Here, `key` is my Goodreads developer API key, defined elsewhere. I put a `Pause
 {% codeblock lang:mathematica %}
 In[1]:= Ratings[1]
 
-Out[1]= <|"5" -> 782740, "4" -> 352725, "3" -> 111068,
-         "2" -> 17693, "1" -> 5289, "total" -> 1269515|>
+Out[1]= <|"5"     ->  782740,
+          "4"     ->  352725,
+          "3"     ->  111068,
+          "2"     ->   17693,
+          "1"     ->    5289,
+          "total" -> 1269515|>
 {% endcodeblock %}
 
 Sweet. Let's see how Harry Potter #6 would score with our rating:
@@ -79,7 +83,7 @@ In[2]:= Wilson[Out[1]["5"], Out[1]["total"], 0.95]
 Out[2]= 0.61572
 {% endcodeblock %}
 
-So Wilson is 95% confident that in any random sample of about 1.2 million Harry Potter readers, at least 62% of them would give _The Half-Blood Prince_ a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn't), it would feature pretty close to the very top.
+So Wilson is 95% confident that in any random sample of about 1.2 million Harry Potter readers, at least 61.572% of them would give _The Half-Blood Prince_ a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn't), it would feature pretty close to the very top.
 
 But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a single-rating 5-star book will be 0.206549, which will be towards the bottom of any list. This means I would never get to any of the obscure books on my reading list, since they would be edged out by moderately popular books with an average rating close to 4.0.
 
@@ -151,74 +155,76 @@ Now I can get, say, the first 10 books on my improved reading list:
 Gridify[ReadingList[runar][[1 ;; 10]]]
 {% endcodeblock %}
 
-{% codeblock %}
-16157938	Concepts and Their Role in Knowledge: Reflections on Objectivist Epistemology	70.8921%
-	Allan Gotthelf	5.00
-		
-5546	The Feynman Lectures on Physics	67.9339%
-	Richard P. Feynman	4.58
-		
-640909	The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth	64.6221%
-	Raymond Tallis	5.00
-		
-640913	The Hand: A Philosophical Inquiry Into Human Being	64.6221%
-	Raymond Tallis	5.00
-		
-4050770	Volition As Cognitive Self Regulation	62.231%
-	Harry Binswanger	4.86
-		
-8664353	Unbroken: A World War II Story of Survival, Resilience, and Redemption	60.9849%
-	Laura Hillenbrand	4.44
-		
-13539024	Free Market Revolution: How Ayn Rand's Ideas Can End Big Government	59.1102%
-	Yaron Brook	4.48
-		
-1609224	The Law	58.767%
-	Frédéric Bastiat	4.40
-		
-151848	Probability Theory: The Logic of Science	58.1478%
-	E.T. Jaynes	4.48
-		
-304079	The Essential Rumi	58.0628%
-	Rumi	4.42
-{% endcodeblock %}
+| | | |
+|:---|:---|---:|
+| 9934419 | Kvæðasafn | 75.2743% | 
+|  | Snorri Hjartarson | 5.00 | 
+|&nbsp;|
+| 17278 | The Feynman Lectures on Physics Vol 1 | 67.2231% | 
+|  | Richard P. Feynman | 4.58 | 
+|&nbsp;|
+| 640909 | The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth | 64.6221% | 
+|  | Raymond Tallis | 5.00 | 
+|&nbsp;|
+| 640913 | The Hand: A Philosophical Inquiry Into Human Being | 64.6221% | 
+|  | Raymond Tallis | 5.00 | 
+|&nbsp;|
+| 4050770 | Volition As Cognitive Self Regulation | 62.231% | 
+|  | Harry Binswanger | 4.86 | 
+|&nbsp;|
+| 8664353 | Unbroken: A World War II Story of Survival, Resilience, and Redemption | 60.9849% | 
+|  | Laura Hillenbrand | 4.45 | 
+|&nbsp;|
+| 13413455 | Software Foundations | 60.1596% | 
+|  | Benjamin C. Pierce | 4.80 | 
+|&nbsp;|
+| 77523 | Harry Potter and the Sorcerer's Stone (Harry Potter #1) | 59.1459% | 
+|  | J.K. Rowling | 4.39 | 
+|&nbsp;|
+| 13539024 | Free Market Revolution: How Ayn Rand's Ideas Can End Big Government | 59.1102% | 
+|  | Yaron Brook | 4.48 | 
+|&nbsp;|
+| 1609224 | The Law | 58.767% | 
+|  | Frédéric Bastiat | 4.40 | 
+|&nbsp;|
 
 I'm quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. The most satisfying thing is that the rating carries a real meaning. It's basically the relative likelihood that I will enjoy the book enough to rate it five stars.
 
-I can test this ranking against books I've already read. Here's the top of my "read" shelf, according to their Runar Rank:
+I can test this ranking against books I've already read. Here's the top of my "read" shelf, according to their Rúnar Rank:
 
-{% codeblock %}
-17930467	The Fourth Phase of Water	68.0406%
-	Gerald H. Pollack	4.85
-		
-7687279	Nothing Less Than Victory: Decisive Wars and the Lessons of History	64.9297%
-	John David Lewis	4.65
-		
-43713	Structure and Interpretation of Computer Programs	62.0211%
-	Harold Abelson	4.47
-		
-7543507	Capitalism Unbound: The Incontestable Moral Case for Individual Rights	57.6085%
-	Andrew Bernstein	4.67
-		
-13542387	The DIM Hypothesis: Why the Lights of the West Are Going Out	55.3296%
-	Leonard Peikoff	4.37
-		
-5932	Twenty Love Poems and a Song of Despair	54.7205%
-	Pablo Neruda	4.36
-		
-24113	Gödel, Escher, Bach: An Eternal Golden Braid	53.5588%
-	Douglas R. Hofstadter	4.29
-		
-19312	The Brothers Lionheart	53.0952%
-	Astrid Lindgren	4.33
-		
-13541678	Functional Programming in Scala	52.6902%
-	Rúnar Bjarnason	4.54
-		
-375802	Ender's Game (The Ender Quintet, #1)	52.4954%
-	Orson Scott Card	4.28
-{% endcodeblock %}
+|    |    |    |
+|:---|:---|---:|
+|17930467|The Fourth Phase of Water|68.0406%|
+||Gerald H. Pollack|4.85|
+|&nbsp;|
+|7687279|Nothing Less Than Victory: Decisive Wars and the Lessons of History|64.9297%|
+||John David Lewis|4.67|
+|&nbsp;|
+|43713|Structure and Interpretation of Computer Programs|62.0211%|
+||Harold Abelson|4.47|
+|&nbsp;|
+|7543507|Capitalism Unbound: The Incontestable Moral Case for Individual Rights|57.6085%|
+||Andrew Bernstein|4.67|
+|&nbsp;|
+|13542387|The DIM Hypothesis: Why the Lights of the West Are Going Out|55.3296%|
+||Leonard Peikoff|4.37|
+|&nbsp;|
+|5932|Twenty Love Poems and a Song of Despair|54.7205%|
+||Pablo Neruda|4.36|
+|&nbsp;|
+|18007564|The Martian|53.9136%|
+||Andy Weir|4.36|
+|&nbsp;|
+|24113|Gödel, Escher, Bach: An Eternal Golden Braid|53.5588%|
+||Douglas R. Hofstadter|4.29|
+|&nbsp;|
+|19312|The Brothers Lionheart|53.0952%|
+||Astrid Lindgren|4.33|
+|&nbsp;|
+|13541678|Functional Programming in Scala|52.6902%|
+||Rúnar Bjarnason|4.54|
+|&nbsp;|
 
-That's perfect. Those are definitely books I thouroughly enjoyed and would heartily recommend. Especially the penultimate one.
+That's perfect. Those are definitely books I thouroughly enjoyed and would heartily recommend. Especially that last one.
 
 
