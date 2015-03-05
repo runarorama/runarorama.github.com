@@ -218,7 +218,7 @@
 
 <p>I can fix this by lowering the confidence level. Because honestly, I don&rsquo;t need a high confidence in the ranking. I&rsquo;d rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem. Experimenting with this a bit, I find that a confidence around 80% raises the obscure books enough to give me an interesting mix. For example, a 5*5 book gets a 75% rank, while the Harry Potter one stays at 62%.</p>
 
-<p>I&rsquo;m going to call that the <em>Rúnar rank</em> of a given book. The Rúnar rank is defined as the lower bound of the 80% Wilson confidence interval for a 5-star rating:</p>
+<p>I&rsquo;m going to call that the <em>Rúnar rank</em> of a given book. The Rúnar rank is defined as the lower bound of the <em>1-1/q</em> Wilson confidence interval for scoring in the <em>q_th </em>q_-quantile. In the special case of Goodreads ratings, it&rsquo;s the 80% Wilson confidence interval for a 5-star rating.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
