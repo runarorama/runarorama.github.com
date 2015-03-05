@@ -91,14 +91,14 @@ See, if I've picked a book that _I want to read_, I'd consider five ratings that
 
 I can fix this by lowering the confidence level. Because honestly, I don't need a high confidence in the ranking. I'd rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem. Experimenting with this a bit, I find that a confidence around 80% raises the obscure books enough to give me an interesting mix. For example, a 5*5 book gets a 75% rank, while the Harry Potter one stays at 62%.
 
-I'm going to call that, the lower bound of the 80% Wilson confidence interval, the Rúnar Rank of a given book:
+I'm going to call that the _Rúnar rank_ of a given book. The Rúnar rank is defined as the lower bound of the _1-1/q_ Wilson confidence interval for scoring in the _q_th _q_-quantile. In the special case of Goodreads ratings, it's the 80% Wilson confidence interval for a 5-star rating.
 
 {% codeblock lang:mathematica %}
 RunarRank[id_] := With[{ratings = Ratings[id]},
   Wilson[ratings["5"], ratings["total"], .8]]]
 {% endcodeblock %}
 
-Unfortunately, there's no way to get the rank of all the books in my reading list in one fell swoop. I'll have to get the reading list first, then call `RunarRank` for each book's `id`. In Goodreads, books are managed by "shelves", and the API allows getting the contents of a given shelf, 200 books at a time:
+Unfortunately, there's no way to get the rank of all the books in my reading list in one call to the Goodreads API. And when I asked them about it they basically said "you can't do that", so I'm assuming that feature will not be added any time soon. So I'll have to get the reading list first, then call `RunarRank` for each book's `id`. In Goodreads, books are managed by "shelves", and the API allows getting the contents of a given shelf, 200 books at a time:
 
 {% codeblock lang:mathematica %}
 GetShelf[user_, shelf_] :=
