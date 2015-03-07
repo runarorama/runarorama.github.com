@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-03-05T10:38:12-05:00</updated>
+  <updated>2015-03-06T21:35:47-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -12,6 +12,33 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A Companion Booklet to FPiS]]></title>
+    <link href="http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/"/>
+    <updated>2015-03-06T15:17:35-05:00</updated>
+    <id>http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala</id>
+    <content type="html"><![CDATA[<p>Our book, <a href="http://manning.com/bjarnason">Functional Programming in Scala</a> relies heavily on exercises. Hints and answers for those exercises are not actually in the book, but are <a href="http://github.com/fpinscala/fpinscala">freely available on GitHub</a> under a permissive MIT license. Likewise, we have written chapter notes that we reference throughout the book and made them <a href="http://github.com/fpinscala/fpinscala/wiki">available as a community-editable wiki</a>.</p>
+
+<p>Naturally, readers get the most out of this book by downloading the source code from GitHub and doing the exercises as they read. But a number of readers have made the comment that they wish they could have the hints and answers with them when they read the book on the train to and from work, on a long flight, or wherever there is no internet connection or it&rsquo;s not convenient to use a computer.</p>
+
+<p>It is of course entirely possible to print out the chapter notes, hints, and exercises, and take them with you either as a hardcopy or as a PDF to use on a phone or tablet. Well, I&rsquo;ve taken the liberty of doing that work for you. I wrote a little script to concatenate all the chapter notes, errata, hints, and answers into Markdown files and then just printed them all to a single document, tweaking a few things here and there. I&rsquo;m calling this <em>A companion booklet to &ldquo;Functional Programming in Scala&rdquo;</em>. It is released under the same <a href="https://github.com/fpinscala/fpinscala/blob/master/LICENSE">MIT license</a> as the content it aggregates. This means you&rsquo;re free to copy it, distribute or sell it, or basically do whatever you want with it. The Markdown source of the manuscript is <a href="https://github.com/runarorama/fpiscompanion">available on my GitHub</a>.</p>
+
+<p>I have made <a href="https://leanpub.com/fpinscalacompanion">an electronic version of this booklet available on Leanpub</a> as as a PDF, ePub, and Kindle file on a pay-what-you-want basis (minimum of $0.99). It has full color syntax highlighting throughout and a few little tweaks to make it format nicely. The paper size is standard US Letter which makes it easy to print on most color printers. If you choose to buy the booklet from Leanpub, they get a small fee, a small portion of the proceeds goes to support <a href="http://www.libertyinnorthkorea.org/">Liberty in North Korea</a>, and the rest goes to yours truly. You&rsquo;ll also get updates when those inevitably happen.</p>
+
+<p>If you don&rsquo;t care about any of that, <a href="http://runarorama.github.com/assets/fpiscompanion.pdf">you can grab the PDF from here with my compliments</a>.</p>
+
+<p>The booklet is also <a href="https://www.createspace.com/5325404">available from CreateSpace</a> or <a href="http://www.amazon.com/companion-booklet-Functional-Programming-Scala/dp/1508537569">Amazon</a> as a full color printed paperback. This comes in a nicely bound glossy cover for just a little more than the price of printing (they print it on demand for you). I&rsquo;ve ordered one and I&rsquo;m really happy with the quality of this print:</p>
+
+<p><img src="http://runarorama.github.com/images/bookletcover.jpg">
+<img src="http://runarorama.github.com/images/chapternotes.jpg">
+<img src="http://runarorama.github.com/images/exercises.jpg"></p>
+
+<p>The print version is of course under the same permissive license, so you can make copies of it, make derivative works, or do whatever you want. It&rsquo;s important to note that with this booklet I&rsquo;ve not done anything other than design a little cover and then <em>literally print out this freely available content</em> and uploaded it to Amazon, which anybody could have done (and you still can if you want).</p>
+
+<p>I hope this makes <em>Functional Programming in Scala</em> more useful and more enjoyable for more people.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A Better Reading List With Mathematica]]></title>
