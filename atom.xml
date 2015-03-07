@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-03-06T21:41:55-05:00</updated>
+  <updated>2015-03-06T22:00:37-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -18,7 +18,7 @@
     <link href="http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/"/>
     <updated>2015-03-06T15:17:35-05:00</updated>
     <id>http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala</id>
-    <content type="html"><![CDATA[<p>Our book, <a href="http://manning.com/bjarnason">Functional Programming in Scala</a> relies heavily on exercises. Hints and answers for those exercises are not actually in the book, but are <a href="http://github.com/fpinscala/fpinscala">freely available on GitHub</a> under a permissive MIT license. Likewise, we have written chapter notes that we reference throughout the book and made them <a href="http://github.com/fpinscala/fpinscala/wiki">available as a community-editable wiki</a>.</p>
+    <content type="html"><![CDATA[<p>Our book, <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>, relies heavily on exercises. Hints and answers for those exercises are not actually in the book, but are <a href="http://github.com/fpinscala/fpinscala">freely available on GitHub</a> under a permissive MIT license. Likewise, we have written chapter notes that we reference throughout the book and made them <a href="http://github.com/fpinscala/fpinscala/wiki">available as a community-editable wiki</a>.</p>
 
 <p>Naturally, readers get the most out of this book by downloading the source code from GitHub and doing the exercises as they read. But a number of readers have made the comment that they wish they could have the hints and answers with them when they read the book on the train to and from work, on a long flight, or wherever there is no internet connection or it&rsquo;s not convenient to use a computer.</p>
 
