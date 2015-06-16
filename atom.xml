@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-03-07T07:42:45-05:00</updated>
+  <updated>2015-06-16T12:23:42-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Pulling Out of Functional Programming in Java]]></title>
+    <link href="http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/"/>
+    <updated>2015-06-16T11:37:34-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java</id>
+    <content type="html"><![CDATA[<p>After giving it a lot of thought I have come to the conclusion that I won&rsquo;t be involved in <a href="http://manning.com/saumont">“Functional Programming in Java”</a>. There are many reasons, including that I just don’t think I can spend the time to make this a good book. Looking at all the things I have scheduled for the rest of the year, I can’t find the time to work on it.</p>
+
+<p>More depressingly, the thought of spending a year or more writing another book makes me anxious. I know from experience that making a book (at least a good one) is really hard and takes up a lot of mental energy. Maybe one day there will be a book that I will want to forego a year of evenings and weekends for, but today is not that day.</p>
+
+<p>Originally, the content of FPiJ was going to be based on &ldquo;Functional Programming in Scala&rdquo;, but after some discussion with the publisher I think we were all beginning to see that this book deserved its own original content specifically on an FP style in Java.</p>
+
+<p>I really do think such a thing deserves its own original book. Since Java is strictly less suitable for functional programming than Scala is, a book on FP in Java will have to lay a lot of groundwork that we didn&rsquo;t have to do with FPiS, and it will have to forego a lot of the more advanced topics.</p>
+
+<p>I wish the author of that book, and the publisher, all the best and I hope they do well. I&rsquo;m sorry to let you all down, but I&rsquo;m sure this is for the best.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A Companion Booklet to FPiS]]></title>

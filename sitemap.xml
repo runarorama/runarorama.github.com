@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/</loc>
+    <lastmod>2015-06-16T11:37:34-04:00</lastmod>
+  </url>
+  <url>
     <loc>http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/</loc>
     <lastmod>2015-03-06T15:17:35-05:00</lastmod>
   </url>
@@ -62,14 +66,14 @@
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/archives/</loc>
-    <lastmod>2015-03-07T07:42:45-05:00</lastmod>
+    <lastmod>2015-06-16T12:23:42-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/</loc>
-    <lastmod>2015-03-07T07:42:45-05:00</lastmod>
+    <lastmod>2015-06-16T12:23:42-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/about/</loc>
-    <lastmod>2015-03-07T07:42:45-05:00</lastmod>
+    <lastmod>2015-06-16T12:23:42-04:00</lastmod>
   </url>
 </urlset>
