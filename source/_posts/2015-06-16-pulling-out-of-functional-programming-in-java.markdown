@@ -3,6 +3,7 @@ layout: post
 title: "Pulling out of Functional Programming in Java"
 date: 2015-06-16 11:37:34 -0400
 comments: true
+commentIssueId: 16
 ---
 
 After giving it a lot of thought I have come to the conclusion that I won't be involved in [“Functional Programming in Java”](http://manning.com/saumont). There are many reasons, including that I just don’t think I can spend the time to make this a good book. Looking at all the things I have scheduled for the rest of the year, I can’t find the time to work on it.
