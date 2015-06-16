@@ -156,7 +156,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/16"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
     </div>
   </div>
 <script type="text/javascript">
@@ -164,8 +164,8 @@
     for (var i=0; i<data.length; i++) {
       var cuser = data[i].user.login;
       var cuserlink = "https://www.github.com/" + cuser;
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/16#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/16#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
       var cbody = data[i].body_html;
       var cavatarlink = data[i].user.avatar_url;
       var cdate = (new Date(Date.parse(data[i].created_at))).toString();
@@ -173,7 +173,7 @@
       $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
     }
   }
-  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues//comments", {
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/16/comments", {
     headers: {Accept: "application/vnd.github.full+json"},
     dataType: "json",
     success: function(msg){
