@@ -150,15 +150,23 @@
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">scala.concurrent.Future</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">scala.concurrent.ExecutionContext.Implicits.global</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">def</span> <span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
 </span><span class='line'>  <span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="n">n</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span>
 </span><span class='line'>    <span class="k">case</span> <span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">case</span> <span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">(</span><span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>
-</span><span class='line'>    <span class="k">case</span> <span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="n">n</span><span class="o">)</span> <span class="k">=&gt;</span>
-</span><span class='line'>      <span class="nc">Future</span><span class="o">(</span><span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)).</span><span class="n">flatMap</span> <span class="o">{</span> <span class="n">x</span> <span class="k">=&gt;</span>
-</span><span class='line'>      <span class="nc">Future</span><span class="o">(</span><span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">,</span> <span class="n">x</span><span class="o">))</span> <span class="o">}</span>
+</span><span class='line'>    <span class="k">case</span> <span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">(</span><span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">)).</span><span class="n">flatMap</span><span class="o">(</span><span class="n">identity</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="n">n</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">for</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">x</span> <span class="k">&lt;-</span> <span class="nc">Future</span><span class="o">(</span><span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">))</span>
+</span><span class='line'>      <span class="n">y</span> <span class="k">&lt;-</span> <span class="n">x</span>
+</span><span class='line'>      <span class="n">z</span> <span class="k">&lt;-</span> <span class="nc">Future</span><span class="o">(</span><span class="n">ackermannF</span><span class="o">(</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">,</span> <span class="n">y</span><span class="o">))</span>
+</span><span class='line'>      <span class="n">r</span> <span class="k">&lt;-</span> <span class="n">z</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">yield</span> <span class="n">r</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
