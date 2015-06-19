@@ -103,11 +103,11 @@
 
 <div class="entry-content"><p>I&rsquo;ve found that if I&rsquo;m using <code>scala.concurrent.Future</code> in my code, I can get some really easy performance gains by just switching to <code>scalaz.concurrent.Task</code> instead, particularly if I&rsquo;m chaining them with <code>map</code> or <code>flatMap</code> calls, or with <code>for</code> comprehensions.</p>
 
-<h1>Jumping into thread pools</h1>
+<h2>Jumping into thread pools</h2>
 
 <p>Every <code>Future</code> is basically some work that needs to be submitted to a thread pool. When you call <code>futureA.flatMap(a =&gt; futureB)</code>, both <code>Future[A]</code> and <code>Future[B]</code> need to be submitted to the thread pool, even though they are not running concurrently and could theoretically run on the same thread. This context switching takes a bit of time.</p>
 
-<h1>Jumping on trampolines</h1>
+<h2>Jumping on trampolines</h2>
 
 <p>With <code>scalaz.concurrent.Task</code> you have a bit more control over when you submit work to a thread pool and when you actually want to continue on the thread that is already executing a <code>Task</code>. When you say <code>taskA.flatMap(a =&gt; taskB)</code>, the <code>taskB</code> will by default just continue running on the same thread that was already executing <code>taskA</code>. If you explicitly want to dip into the thread pool, you have to say so with <code>taskB.fork</code>.</p>
 
@@ -115,7 +115,7 @@
 
 <p>Jumping on a trampoline is a lot faster than jumping into a thread pool, so whenever we&rsquo;re composing <code>Future</code>s with <code>map</code> and <code>flatMap</code>, we can just switch to <code>Task</code> and make our code faster.</p>
 
-<h1>Making fewer jumps</h1>
+<h2>Making fewer jumps</h2>
 
 <p>But sometimes we know that we want to continue on the same thread and we don&rsquo;t want to spend the time jumping on a trampoline at every step. To demonstrate this, I&rsquo;ll use the Ackermann function. This is not necessarily a good use case for <code>Future</code> but it shows the difference well.</p>
 
@@ -232,7 +232,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h1>How fast is it?</h1>
+<h2>How fast is it?</h2>
 
 <p>I did some comparisons using <a href="https://github.com/google/caliper">Caliper</a> and made this pretty graph for you:</p>
 
