@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-19T15:45:21-04:00</updated>
+  <updated>2015-06-19T15:51:26-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -169,11 +169,11 @@
 
 <p>But if we jump on the trampoline instead of submitting to a thread pool (green line marked <em>Trampoline</em>), things are <em>between one and two orders of magnitude faster</em>.</p>
 
-<p>If we only jump on the trampoline when we really need it (red line marked <em>Optimized</em>), we can gain another order of magnitude.</p>
+<p>If we only jump on the trampoline when we really need it (red line marked <em>Optimized</em>), we can gain another order of magnitude. Compared to the original naïve version that always goes to the thread pool, <strong><em>this is now the difference between running your program on a 10 MHz machine and running it on a 1 GHz machine</em></strong>.</p>
 
 <p>If we measure without any trampolining at all, the line tracks the <em>Optimized</em> red line pretty closely then shoots to infinity around 1000 (or however many frames fit in your stack space).</p>
 
-<p>So if we&rsquo;re smart about trampolines vs thread pools, <code>Future</code> vs <code>Task</code>, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort. Or seconds to milliseconds, MHz to GHz, or weeks to hours, as the case may be.</p>
+<p>So if we&rsquo;re smart about trampolines vs thread pools, <code>Future</code> vs <code>Task</code>, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort. Or seconds to milliseconds, or weeks to hours, as the case may be.</p>
 ]]></content>
   </entry>
   
