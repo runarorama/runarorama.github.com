@@ -246,6 +246,8 @@
 
 <p>If we only jump on the trampoline when we really need it (red line marked <em>Optimized</em>), we can gain another order of magnitude.</p>
 
+<p>If we measure without any trampolining at all, the line tracks the <em>Optimized</em> red line pretty closely then shoots to infinity around 1000 (or however many frames fit in your stack space).</p>
+
 <p>So if we&rsquo;re smart about trampolines vs thread pools, <code>Future</code> vs <code>Task</code>, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort.</p>
 </div>
 
