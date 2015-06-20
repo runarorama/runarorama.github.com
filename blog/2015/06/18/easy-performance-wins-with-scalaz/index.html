@@ -248,15 +248,15 @@
 
 <p>The horizontal axis is the number of steps, and the vertical axis is the mean time that number of steps took over a few thousand runs.</p>
 
-<p>This graph shows that <code>Task</code> is slightly faster than <code>Future</code> for submitting to thread pools (blue and yellow lines marked <em>Future</em> and <em>Task</em> respectively) only for very small tasks; up to about when you get to 50 steps, when (on my Macbook) both futures and tasks cross the 30 μs threshold. This difference is probably due to the fact that a <code>Future</code> is a running computation while a <code>Task</code> is partially constructed up front and explicitly <code>run</code> later. The overhead of the trampoline seems to catch up with whatever benefit that gives at around 50 steps. But honestly the difference between these two lines is not something I would care about in a real application.</p>
+<p>This graph shows that <code>Task</code> is slightly faster than <code>Future</code> for submitting to thread pools (blue and yellow lines marked <em>Future</em> and <em>Task</em> respectively) only for very small tasks; up to about when you get to 50 steps, when (on my Macbook) both futures and tasks cross the 30 μs threshold. This difference is probably due to the fact that a <code>Future</code> is a running computation while a <code>Task</code> is partially constructed up front and explicitly <code>run</code> later. So with the <code>Future</code> the threads might just be waiting for more work. The overhead of <code>Task.run</code> seems to catch up with us at around 50 steps.</p>
 
-<p>But if we jump on the trampoline instead of submitting to a thread pool (green line marked <em>Trampoline</em>), things are <em>between one and two orders of magnitude faster</em>.</p>
+<p>But honestly the difference between these two lines is not something I would care about in a real application, because if we jump on the trampoline instead of submitting to a thread pool (green line marked <em>Trampoline</em>), things are <em>between one and two orders of magnitude faster</em>.</p>
 
 <p>If we only jump on the trampoline when we really need it (red line marked <em>Optimized</em>), we can gain another order of magnitude. Compared to the original naïve version that always goes to the thread pool, <strong><em>this is now the difference between running your program on a 10 MHz machine and running it on a 1 GHz machine</em></strong>.</p>
 
-<p>If we measure without any trampolining at all, the line tracks the <em>Optimized</em> red line pretty closely then shoots to infinity around 1000 (or however many frames fit in your stack space).</p>
+<p>If we measure without using any <code>Task</code>/<code>Future</code> at all, the line tracks the <em>Optimized</em> red line pretty closely then shoots to infinity around 1000 (or however many frames fit in your stack space) because the program crashes at that point.</p>
 
-<p>So if we&rsquo;re smart about trampolines vs thread pools, <code>Future</code> vs <code>Task</code>, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort. Or seconds to milliseconds, or weeks to hours, as the case may be.</p>
+<p>In summary, if we&rsquo;re smart about trampolines vs thread pools, <code>Future</code> vs <code>Task</code>, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort. Or seconds to milliseconds, or weeks to hours, as the case may be.</p>
 </div>
 
 
