@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-19T15:51:26-04:00</updated>
+  <updated>2015-06-20T09:00:09-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -26,7 +26,7 @@
 
 <h2>Jumping on trampolines</h2>
 
-<p>With <code>scalaz.concurrent.Task</code> you have a bit more control over when you submit work to a thread pool and when you actually want to continue on the thread that is already executing a <code>Task</code>. When you say <code>taskA.flatMap(a =&gt; taskB)</code>, the <code>taskB</code> will by default just continue running on the same thread that was already executing <code>taskA</code>. If you explicitly want to dip into the thread pool, you have to say so with <code>taskB.fork</code>.</p>
+<p>With <code>scalaz.concurrent.Task</code> you have a bit more control over when you submit work to a thread pool and when you actually want to continue on the thread that is already executing a <code>Task</code>. When you say <code>taskA.flatMap(a =&gt; taskB)</code>, the <code>taskB</code> will by default just continue running on the same thread that was already executing <code>taskA</code>. If you explicitly want to dip into the thread pool, you have to say so with <code>Task.fork</code>.</p>
 
 <p>This works since a <code>Task</code> is not a concurrently running computation. It&rsquo;s a <em>description</em> of a computation—a sequential list of instructions that may include instructions to submit some of the work to thread pools. The work is actually executed by a tight loop in <code>Task</code>&rsquo;s <code>run</code> method. This loop is called a <em>trampoline</em> since every step in the <code>Task</code> (that is, every subtask) returns control to this loop.</p>
 
