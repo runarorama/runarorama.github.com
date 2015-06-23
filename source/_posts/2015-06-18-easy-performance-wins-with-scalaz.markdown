@@ -16,7 +16,7 @@ Every `Future` is basically some work that needs to be submitted to a thread poo
 
 ## Jumping on trampolines
 
-With `scalaz.concurrent.Task` you have a bit more control over when you submit work to a thread pool and when you actually want to continue on the thread that is already executing a `Task`. When you say `taskA.flatMap(a => taskB)`, the `taskB` will by default just continue running on the same thread that was already executing `taskA`. If you explicitly want to dip into the thread pool, you have to say so with `taskB.fork`.
+With `scalaz.concurrent.Task` you have a bit more control over when you submit work to a thread pool and when you actually want to continue on the thread that is already executing a `Task`. When you say `taskA.flatMap(a => taskB)`, the `taskB` will by default just continue running on the same thread that was already executing `taskA`. If you explicitly want to dip into the thread pool, you have to say so with `Task.fork`.
 
 This works since a `Task` is not a concurrently running computation. It's a _description_ of a computation—a sequential list of instructions that may include instructions to submit some of the work to thread pools. The work is actually executed by a tight loop in `Task`'s `run` method. This loop is called a _trampoline_ since every step in the `Task` (that is, every subtask) returns control to this loop.
 
@@ -106,13 +106,13 @@ I did some comparisons using [Caliper](https://github.com/google/caliper) and ma
 
 The horizontal axis is the number of steps, and the vertical axis is the mean time that number of steps took over a few thousand runs.
 
-This graph shows that `Task` is slightly faster than `Future` for submitting to thread pools (blue and yellow lines marked _Future_ and _Task_ respectively) only for very small tasks; up to about when you get to 50 steps, when (on my Macbook) both futures and tasks cross the 30 μs threshold. This difference is probably due to the fact that a `Future` is a running computation while a `Task` is partially constructed up front and explicitly `run` later. The overhead of the trampoline seems to catch up with whatever benefit that gives at around 50 steps. But honestly the difference between these two lines is not something I would care about in a real application.
+This graph shows that `Task` is slightly faster than `Future` for submitting to thread pools (blue and yellow lines marked _Future_ and _Task_ respectively) only for very small tasks; up to about when you get to 50 steps, when (on my Macbook) both futures and tasks cross the 30 μs threshold. This difference is probably due to the fact that a `Future` is a running computation while a `Task` is partially constructed up front and explicitly `run` later. So with the `Future` the threads might just be waiting for more work. The overhead of `Task.run` seems to catch up with us at around 50 steps.
 
-But if we jump on the trampoline instead of submitting to a thread pool (green line marked _Trampoline_), things are _between one and two orders of magnitude faster_.
+But honestly the difference between these two lines is not something I would care about in a real application, because if we jump on the trampoline instead of submitting to a thread pool (green line marked _Trampoline_), things are _between one and two orders of magnitude faster_.
 
-If we only jump on the trampoline when we really need it (red line marked _Optimized_), we can gain another order of magnitude.
+If we only jump on the trampoline when we really need it (red line marked _Optimized_), we can gain another order of magnitude. Compared to the original naïve version that always goes to the thread pool, **_this is now the difference between running your program on a 10 MHz machine and running it on a 1 GHz machine_**.
 
-If we measure without any trampolining at all, the line tracks the _Optimized_ red line pretty closely then shoots to infinity around 1000 (or however many frames fit in your stack space).
+If we measure without using any `Task`/`Future` at all, the line tracks the _Optimized_ red line pretty closely then shoots to infinity around 1000 (or however many frames fit in your stack space) because the program crashes at that point.
 
-So if we're smart about trampolines vs thread pools, `Future` vs `Task`, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort. Or seconds to milliseconds, MHz to GHz, or weeks to hours, as the case may be.
+In summary, if we're smart about trampolines vs thread pools, `Future` vs `Task`, and optimize for our stack size, we can go from milliseconds to microseconds with not very much effort. Or seconds to milliseconds, or weeks to hours, as the case may be.
 

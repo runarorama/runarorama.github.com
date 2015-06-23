@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "A Scala Comonad Tutorial"
+title: "A Scala Comonad Tutorial, Part 1"
 date: 2015-06-23 13:15:47 -0400
 comments: true
 categories: 
@@ -110,7 +110,7 @@ def none[A]: Option[A] = None
 
 That's enough examples of monads. Let's now turn to comonads.
 
-### Comonads
+## Comonads
 
 A comonad is the same thing as a monad, only backwards:
 
@@ -125,7 +125,7 @@ Note that counit is pronounced "co-unit", not "cow-knit". It's also sometimes ca
 
 This also has to obey some laws. We'll get to those later on, but let's first look at some examples.
 
-## The identity comonad
+### The identity comonad
 
 A simple and obvious comonad is the dumb wrapper (the identity comonad):
 
@@ -139,7 +139,7 @@ case class Id[A](a: A) {
 
 This one is also the identity _monad_. `Id` doesn't have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting.
 
-## The reader comonad
+### The reader comonad
 
 There's a comonad with the same capabilities as the reader monad, namely that it can ask for a value:
 
@@ -199,7 +199,7 @@ class Cowriter[W:Monoid,A](tell: W => A) {
 
 Note that `duplicate` returns a whole `Cowriter` from its constructed `run` function, so the meaning is that subsequent operations (composed via `map` or `extend`) have access to exactly one `tell` function, which appends to the existing log or tally.
 
-## The comonad laws
+## Comonad laws
 
 The comonad laws are analogous to the monad laws:
 
