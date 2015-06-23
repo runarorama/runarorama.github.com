@@ -331,7 +331,7 @@
 
 <p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that subsequent operations are able to ask for the context of type <code>R</code>.</p>
 
-<p>Whether to use <code>Reader</code> or <code>Coreader</code> in your programs is largely a matter of style.</p>
+<h2>Comonad laws</h2>
 
 <p>The comonad laws are analogous to the monad laws:</p>
 
