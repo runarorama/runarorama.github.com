@@ -330,7 +330,7 @@
 
 <p>If <code>R</code> is a monoid, then <code>Coreader[R,?]</code> can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the <code>R</code>, and actions in the monad can add to it.</p>
 
-<h2>The writer comonad</h2>
+<h3>The writer comonad</h3>
 
 <p>Just like the writer monad, the writer comonad can append to a log or running tally using a monoid. But instead of keeping the log always available to be appended to, it uses the same trick as the reader monad by building up an operation that gets executed once a log becomes available:</p>
 
