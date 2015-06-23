@@ -253,7 +253,7 @@
 
 <p>Note that counit is pronounced &ldquo;co-unit&rdquo;, not &ldquo;cow-knit&rdquo;. It&rsquo;s also sometimes called <code>extract</code> because it allows you to get a value of type <code>A</code> <em>out of</em> a <code>W[A]</code>.</p>
 
-<p>The comonad laws are analogous to the monad laws. We&rsquo;ll get to those later on, but let&rsquo;s first look at some examples.</p>
+<p>This also has to obey some laws. We&rsquo;ll get to those later on, but let&rsquo;s first look at some examples.</p>
 
 <h3>The identity comonad</h3>
 
@@ -283,10 +283,10 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">ask</span><span class="k">:</span> <span class="kt">R</span><span class="o">,</span> <span class="n">extract</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coreader</span><span class="o">(</span><span class="n">ask</span><span class="o">,</span> <span class="n">f</span><span class="o">(</span><span class="n">extract</span><span class="o">))</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">extract</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">ask</span><span class="k">:</span> <span class="kt">R</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coreader</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">extract</span><span class="o">),</span> <span class="n">ask</span><span class="o">)</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>, <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
-</span><span class='line'>    <span class="nc">Coreader</span><span class="o">(</span><span class="n">ask</span><span class="o">,</span> <span class="k">this</span><span class="o">)</span>
+</span><span class='line'>    <span class="nc">Coreader</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">ask</span><span class="o">)</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -312,7 +312,7 @@
 
 <p>So <code>Coreader</code> just wraps up some value of type <code>A</code> together with some additional context of type <code>R</code>. Why is it important that this is a <em>comonad</em>? What is the meaning of <code>duplicate</code> here?</p>
 
-<p>The meaning of <code>duplicate</code> is that it puts the whole <code>Coreader</code> in the value slot. <strong>So any subsequent <code>extract</code> or <code>map</code> operation will be able to observe both the value of type <code>A</code> and the context of type <code>R</code>.</strong> We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.</p>
+<p>The meaning of <code>duplicate</code> is that it puts the whole <code>Coreader</code> in the value slot. So any subsequent <code>extract</code> or <code>map</code> operation will be able to observe both the value of type <code>A</code> and the context of type <code>R</code>. We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.</p>
 
 <p>In fact, just like <code>map</code> followed by <code>join</code> is usually expressed as <code>flatMap</code>, by the same token <code>duplicate</code> followed by <code>map</code> is usually expressed as a single operation, <code>extend</code>:</p>
 
@@ -321,7 +321,7 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">ask</span><span class="k">:</span> <span class="kt">R</span><span class="o">,</span> <span class="n">extract</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="o">{</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">extract</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">ask</span><span class="k">:</span> <span class="kt">R</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>  <span class="o">...</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
 </span><span class='line'>    <span class="n">duplicate</span> <span class="n">map</span> <span class="n">f</span>
@@ -329,18 +329,53 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that subsequent operations are able to ask for the context of type <code>R</code>.</p>
+<p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that <code>f</code> can use the context of type <code>R</code> to produce its <code>B</code>. Chaining operations this way using <code>flatMap</code> or <code>extend</code> is sometimes called <em>Kleisli composition</em>.</p>
+
+<p>If <code>R</code> is a monoid, then <code>Coreader[R,?]</code> can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the <code>R</code>, and actions in the monad can add to it.</p>
+
+<h2>The writer comonad</h2>
+
+<p>Just like the writer monad, the writer comonad can append to a log or running tally using a monoid. But instead of keeping the log always available to be appended to, it uses the same trick as the reader monad by building up an operation that gets executed once a log becomes available:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">class</span> <span class="nc">Cowriter</span><span class="o">[</span><span class="kt">W:Monoid</span>,<span class="kt">A</span><span class="o">](</span><span class="n">tell</span><span class="k">:</span> <span class="kt">W</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Cowriter</span><span class="o">(</span><span class="n">tell</span> <span class="n">andThen</span> <span class="n">f</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">extract</span> <span class="k">=</span> <span class="n">tell</span><span class="o">(</span><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">].</span><span class="n">zero</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">W</span>, <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">W</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Cowriter</span><span class="o">(</span><span class="n">w1</span> <span class="k">=&gt;</span> <span class="nc">Cowriter</span><span class="o">(</span><span class="n">w2</span> <span class="k">=&gt;</span> <span class="n">tell</span><span class="o">(</span><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">].</span><span class="n">append</span><span class="o">(</span><span class="n">w1</span><span class="o">,</span> <span class="n">w2</span><span class="o">))))</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">duplicate</span> <span class="n">map</span> <span class="n">f</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that <code>duplicate</code> returns a whole <code>Cowriter</code> from its constructed <code>run</code> function, so the meaning is that subsequent operations (composed via <code>map</code> or <code>extend</code>) have access to exactly one <code>tell</code> function, which appends to the existing log or tally.</p>
 
 <h2>Comonad laws</h2>
 
 <p>The comonad laws are analogous to the monad laws:</p>
 
 <ol>
-<li>Left idenity: <code>counit(duplicate(wa)) == wa</code></li>
-<li>Right identity: <code>map(duplicate(wa))(counit)</code></li>
-<li>Associativity: <code>duplicate(duplicate(wa)) == map(duplicate(wa))(duplicate)</code></li>
+<li>Left idenity: <code>wa.duplicate.extract == wa</code></li>
+<li>Right identity: <code>wa.extend(extract) == wa</code></li>
+<li>Associativity: <code>wa.duplicate.duplicate == wa.extend(duplicate)</code></li>
 </ol>
 
+
+<p>It can be hard to get an intuition for what these laws <em>mean</em>, but in short they mean that (co)Kleisli composition in a comonad should be associative and that <code>extract</code> (a.k.a. <code>counit</code>) should be an identity for it.</p>
+
+<p>Intuitively, both the monad and comonad laws mean that we should be able to write our programs top-down or bottom-up, or any combination thereof, and have that mean the same thing regardless.</p>
+
+<h2>Next time&hellip;</h2>
+
+<p>In part 2 we&rsquo;ll look at some more examples of comonads and follow some of the deeper connections. Like what&rsquo;s the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They&rsquo;re not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?</p>
 </div>
   
   
