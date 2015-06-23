@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-20T09:16:52-04:00</updated>
+  <updated>2015-06-23T19:33:24-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -12,6 +12,251 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A Scala Comonad Tutorial]]></title>
+    <link href="http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial/"/>
+    <updated>2015-06-23T13:15:47-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial</id>
+    <content type="html"><![CDATA[<p>In chapter 11 of <a href="http://manning.com/bjarnason">our book</a>, we talk about monads in Scala. This finally names a pattern that the reader has seen throughout the book and gives it a formal structure. We also give some intuition for what it <em>means</em> for something to be a monad. Once you have this concept, you start recognizing it everywhere in the daily business of programming.</p>
+
+<p>Today I want to talk about <em>comonads</em>, which are the dual of monads. The utility of comonads in everyday life is not quite as obviously applicable as that of monads, but they are a good tool to keep in your back pocket.</p>
+
+<h2>A monad, upside-down</h2>
+
+<p>Let&rsquo;s remind ourselves of what a monad is. A monad is a functor, which just means it has a <code>map</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">x</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This has to satisfy the law that <code>map(x)(a =&gt; a) == x</code>, i.e. that mapping the identity function over our functor is a no-op.</p>
+
+<h3>Monads</h3>
+
+<p>A monad is a functor <code>M</code> equipped with two additional polymorphic functions; One from <code>A</code> to <code>M[A]</code> and one from <code>M[M[A]]</code> to <code>M[A]</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="nc">extends</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">mma</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Recall that <code>join</code> has to satisfy associativity, and <code>unit</code> has to be an identity for <code>join</code>.</p>
+
+<p>In Scala a monad is often stated in terms of <code>flatMap</code>, which is <code>map</code> followed by <code>join</code>. But I find this formulation easier to explain.</p>
+
+<p>Every monad has the above operations, the so-called <em>proper morphisms</em> of a monad, and may also bring to the table some <em>nonproper morphisms</em> which give the specific monad some additional capabilities.</p>
+
+<h4>Reader monad</h4>
+
+<p>For example, the <code>Reader</code> monad brings the ability to ask for a value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Reader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">run</span><span class="k">:</span> <span class="kt">R</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">ask</span><span class="o">[</span><span class="kt">R</span><span class="o">]</span><span class="k">:</span> <span class="kt">Reader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">R</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Reader</span><span class="o">(</span><span class="n">r</span> <span class="k">=&gt;</span> <span class="n">r</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The meaning of <code>join</code> in the reader monad is to pass the context of type <code>R</code> from the outer scope to the inner scope:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">r</span><span class="k">:</span> <span class="kt">Reader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">Reader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]])</span> <span class="k">=</span>
+</span><span class='line'>  <span class="nc">Reader</span><span class="o">(</span><span class="n">c</span> <span class="k">=&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">c</span><span class="o">).</span><span class="n">run</span><span class="o">(</span><span class="n">c</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Writer monad</h4>
+
+<p>The <code>Writer</code> monad has the ability to write a value on the side:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">A</span><span class="o">](</span><span class="n">value</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">log</span><span class="k">:</span> <span class="kt">W</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">tell</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">w</span><span class="k">:</span> <span class="kt">W</span><span class="o">)</span><span class="k">:</span> <span class="kt">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Writer</span><span class="o">((),</span> <span class="n">w</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The meaning of <code>join</code> in the writer monad is to concatenate the &ldquo;log&rdquo; of written values using the monoid for <code>W</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">W:Monoid</span>,<span class="kt">A</span><span class="o">](</span><span class="n">w</span><span class="k">:</span> <span class="kt">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">A</span><span class="o">]])</span> <span class="k">=</span>
+</span><span class='line'>  <span class="nc">Writer</span><span class="o">(</span><span class="n">w</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="o">,</span> <span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">].</span><span class="n">append</span><span class="o">(</span><span class="n">w</span><span class="o">.</span><span class="n">log</span><span class="o">,</span> <span class="n">w</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">log</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the meaning of <code>unit</code> is to write the &ldquo;empty&rdquo; log:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">W:Monoid</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Writer</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">].</span><span class="n">zero</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>State monad</h4>
+
+<p>The <code>State</code> monad can both get and set the state:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">get</span><span class="o">[</span><span class="kt">S</span><span class="o">]</span><span class="k">:</span> <span class="kt">State</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">S</span><span class="o">]</span> <span class="k">=</span> <span class="nc">State</span><span class="o">(</span><span class="n">s</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="n">s</span><span class="o">))</span>
+</span><span class='line'><span class="k">def</span> <span class="n">put</span><span class="o">[</span><span class="kt">S</span><span class="o">](</span><span class="n">s</span><span class="k">:</span> <span class="kt">S</span><span class="o">)</span><span class="k">:</span> <span class="kt">State</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">State</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="o">((),</span> <span class="n">s</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The meaning of <code>join</code> in the state monad is to give the outer action an opportunity to get and put the state, then do the same for the inner action:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">State</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">](</span><span class="n">run</span><span class="k">:</span> <span class="kt">S</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">A</span><span class="o">,</span> <span class="n">S</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">](</span><span class="n">v1</span><span class="k">:</span> <span class="kt">State</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">State</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">]])</span><span class="k">:</span> <span class="kt">State</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="nc">State</span><span class="o">(</span><span class="n">s1</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="o">(</span><span class="n">v2</span><span class="o">,</span> <span class="n">s2</span><span class="o">)</span> <span class="k">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">s1</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">v2</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">s2</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Option monad</h4>
+
+<p>The <code>Option</code> monad can terminate without an answer:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">none</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">None</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s enough examples of monads. Let&rsquo;s now turn to comonads.</p>
+
+<h3>Comonads</h3>
+
+<p>A comonad is the same thing as a monad, only backwards:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Comonad</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="nc">extends</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">w</span><span class="k">:</span> <span class="kt">W</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">A</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">wa</span><span class="k">:</span> <span class="kt">W</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">W</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that counit is pronounced &ldquo;co-unit&rdquo;, not &ldquo;cow-knit&rdquo;. It&rsquo;s also sometimes called <code>extract</code> because it allows you to get a value of type <code>A</code> <em>out of</em> a <code>W[A]</code>.</p>
+
+<p>The comonad laws are analogous to the monad laws. We&rsquo;ll get to those later on, but let&rsquo;s first look at some examples.</p>
+
+<h2>The identity comonad</h2>
+
+<p>A simple and obvious comonad is the dumb wrapper (the identity comonad):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Id</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Id</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Id</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">a</span><span class="o">))</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">counit</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="n">a</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Id</span><span class="o">[</span><span class="kt">Id</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Id</span><span class="o">(</span><span class="k">this</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This one is also the identity <em>monad</em>. <code>Id</code> doesn&rsquo;t have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting.</p>
+
+<h2>The reader comonad</h2>
+
+<p>There&rsquo;s a comonad with the same capabilities as the reader monad, namely that it can ask for a value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">ask</span><span class="k">:</span> <span class="kt">R</span><span class="o">,</span> <span class="n">extract</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coreader</span><span class="o">(</span><span class="n">ask</span><span class="o">,</span> <span class="n">f</span><span class="o">(</span><span class="n">extract</span><span class="o">))</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>, <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Coreader</span><span class="o">(</span><span class="n">ask</span><span class="o">,</span> <span class="k">this</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It should be obvious how we can give a <code>Comonad</code> instance for this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">coreaderComonad</span><span class="o">[</span><span class="kt">R</span><span class="o">]</span><span class="k">:</span> <span class="kt">Comonad</span><span class="o">[</span><span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">?</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Comonad</span><span class="o">[</span><span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">?</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">BB</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span> <span class="k">=</span> <span class="n">c</span> <span class="n">map</span> <span class="n">f</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="n">c</span><span class="o">.</span><span class="n">extract</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">duplicate</span><span class="o">(</span><span class="n">c</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="n">c</span><span class="o">.</span><span class="n">duplicate</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Arguably, this is much more straightforward in Scala than the reader monad. In the reader <em>monad</em>, the <code>ask</code> function is the identity function. That&rsquo;s saying &ldquo;once the <code>R</code> value is available, return it to me&rdquo;, making it available to subsequent <code>map</code> and <code>flatMap</code> operations. But in <code>Coreader</code>, we don&rsquo;t have to pretend to have an <code>R</code> value. It&rsquo;s just right there and we can look at it.</p>
+
+<p>So <code>Coreader</code> just wraps up some value of type <code>A</code> together with some additional context of type <code>R</code>. Why is it important that this is a <em>comonad</em>? What is the meaning of <code>duplicate</code> here?</p>
+
+<p>The meaning of <code>duplicate</code> is that it puts the whole <code>Coreader</code> in the value slot. <strong>So any subsequent <code>extract</code> or <code>map</code> operation will be able to observe both the value of type <code>A</code> and the context of type <code>R</code>.</strong> We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.</p>
+
+<p>In fact, just like <code>map</code> followed by <code>join</code> is usually expressed as <code>flatMap</code>, by the same token <code>duplicate</code> followed by <code>map</code> is usually expressed as a single operation, <code>extend</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">ask</span><span class="k">:</span> <span class="kt">R</span><span class="o">,</span> <span class="n">extract</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">duplicate</span> <span class="n">map</span> <span class="n">f</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that subsequent operations are able to ask for the context of type <code>R</code>.</p>
+
+<p>Whether to use <code>Reader</code> or <code>Coreader</code> in your programs is largely a matter of style.</p>
+
+<p>The comonad laws are analogous to the monad laws:</p>
+
+<ol>
+<li>Left idenity: <code>counit(duplicate(wa)) == wa</code></li>
+<li>Right identity: <code>map(duplicate(wa))(counit)</code></li>
+<li>Associativity: <code>duplicate(duplicate(wa)) == map(duplicate(wa))(duplicate)</code></li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Easy Performance Wins With Scalaz]]></title>
