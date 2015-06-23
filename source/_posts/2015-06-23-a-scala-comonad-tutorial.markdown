@@ -123,7 +123,7 @@ trait Comonad[W[_]] extends Functor[W[_]] {
 
 Note that counit is pronounced "co-unit", not "cow-knit". It's also sometimes called `extract` because it allows you to get a value of type `A` _out of_ a `W[A]`.
 
-The comonad laws are analogous to the monad laws. We'll get to those later on, but let's first look at some examples.
+This also has to obey some laws. We'll get to those later on, but let's first look at some examples.
 
 ## The identity comonad
 
@@ -144,10 +144,10 @@ This one is also the identity _monad_. `Id` doesn't have any functionality other
 There's a comonad with the same capabilities as the reader monad, namely that it can ask for a value:
 
 ``` scala
-case class Coreader[R,A](ask: R, extract: A) {
-  def map[B](f: A => B): Coreader[R,B] = Coreader(ask, f(extract))
+case class Coreader[R,A](extract: A, ask: R) {
+  def map[B](f: A => B): Coreader[R,B] = Coreader(f(extract), ask)
   def duplicate: Coreader[R, Coreader[R, A]] =
-    Coreader(ask, this)
+    Coreader(this, ask)
 }
 ```
 
@@ -166,27 +166,53 @@ Arguably, this is much more straightforward in Scala than the reader monad. In t
 
 So `Coreader` just wraps up some value of type `A` together with some additional context of type `R`. Why is it important that this is a _comonad_? What is the meaning of `duplicate` here?
 
-The meaning of `duplicate` is that it puts the whole `Coreader` in the value slot. **So any subsequent `extract` or `map` operation will be able to observe both the value of type `A` and the context of type `R`.** We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.
+The meaning of `duplicate` is that it puts the whole `Coreader` in the value slot. So any subsequent `extract` or `map` operation will be able to observe both the value of type `A` and the context of type `R`. We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.
 
 In fact, just like `map` followed by `join` is usually expressed as `flatMap`, by the same token `duplicate` followed by `map` is usually expressed as a single operation, `extend`:
 
 ``` scala
-case class Coreader[R,A](ask: R, extract: A) {
+case class Coreader[R,A](extract: A, ask: R) {
   ...
   def extend[B](f: Coreader[R,A] => B): Coreader[R,B] =
     duplicate map f
 }
 ```
 
-Notice that the type signature of `extend` looks like `flatMap` with the direction of `f` reversed. And just like we can chain operations in a monad using `flatMap`, we can chain operations in a comonad using `extend`. In `Coreader`, `extend` is making sure that subsequent operations are able to ask for the context of type `R`.
+Notice that the type signature of `extend` looks like `flatMap` with the direction of `f` reversed. And just like we can chain operations in a monad using `flatMap`, we can chain operations in a comonad using `extend`. In `Coreader`, `extend` is making sure that `f` can use the context of type `R` to produce its `B`. Chaining operations this way using `flatMap` or `extend` is sometimes called _Kleisli composition_.
 
-Whether to use `Reader` or `Coreader` in your programs is largely a matter of style.
+If `R` is a monoid, then `Coreader[R,?]` can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the `R`, and actions in the monad can add to it.
 
+## The writer comonad
+
+Just like the writer monad, the writer comonad can append to a log or running tally using a monoid. But instead of keeping the log always available to be appended to, it uses the same trick as the reader monad by building up an operation that gets executed once a log becomes available:
+
+``` scala
+class Cowriter[W:Monoid,A](tell: W => A) {
+  def map[B](f: A => B): Cowriter[W,B] = Cowriter(tell andThen f)
+  def extract = tell(Monoid[W].zero)
+  def duplicate: Cowriter[W, Cowriter[W, A]] =
+    Cowriter(w1 => Cowriter(w2 => tell(Monoid[W].append(w1, w2))))
+  def extend[B](f: Cowriter[R,A] => B): Cowriter[R,B] =
+    duplicate map f
+}
+```
+
+Note that `duplicate` returns a whole `Cowriter` from its constructed `run` function, so the meaning is that subsequent operations (composed via `map` or `extend`) have access to exactly one `tell` function, which appends to the existing log or tally.
+
+## The comonad laws
 
 The comonad laws are analogous to the monad laws:
 
-  1. Left idenity: `counit(duplicate(wa)) == wa`
-  2. Right identity: `map(duplicate(wa))(counit)`
-  3. Associativity: `duplicate(duplicate(wa)) == map(duplicate(wa))(duplicate)`
+  1. Left idenity: `wa.duplicate.extract == wa`
+  2. Right identity: `wa.extend(extract) == wa`
+  3. Associativity: `wa.duplicate.duplicate == wa.extend(duplicate)`
+
+It can be hard to get an intuition for what these laws _mean_, but in short they mean that (co)Kleisli composition in a comonad should be associative and that `extract` (a.k.a. `counit`) should be an identity for it.
+
+Intuitively, both the monad and comonad laws mean that we should be able to write our programs top-down or bottom-up, or any combination thereof, and have that mean the same thing regardless.
+
+## Next time...
+
+In part 2 we'll look at some more examples of comonads and follow some of the deeper connections. Like what's the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They're not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?
 
 
