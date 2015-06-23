@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-23T19:33:54-04:00</updated>
+  <updated>2015-06-23T19:38:40-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -150,7 +150,7 @@
 
 <p>That&rsquo;s enough examples of monads. Let&rsquo;s now turn to comonads.</p>
 
-<h3>Comonads</h3>
+<h2>Comonads</h2>
 
 <p>A comonad is the same thing as a monad, only backwards:</p>
 
@@ -169,7 +169,7 @@
 
 <p>The comonad laws are analogous to the monad laws. We&rsquo;ll get to those later on, but let&rsquo;s first look at some examples.</p>
 
-<h2>The identity comonad</h2>
+<h3>The identity comonad</h3>
 
 <p>A simple and obvious comonad is the dumb wrapper (the identity comonad):</p>
 
@@ -188,7 +188,7 @@
 
 <p>This one is also the identity <em>monad</em>. <code>Id</code> doesn&rsquo;t have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting.</p>
 
-<h2>The reader comonad</h2>
+<h3>The reader comonad</h3>
 
 <p>There&rsquo;s a comonad with the same capabilities as the reader monad, namely that it can ask for a value:</p>
 
