@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "A Scala Comonad Tutorial"
+title: "A Scala Comonad Tutorial, Part 1"
 date: 2015-06-23 13:15:47 -0400
 comments: true
 categories: 
@@ -110,7 +110,7 @@ def none[A]: Option[A] = None
 
 That's enough examples of monads. Let's now turn to comonads.
 
-### Comonads
+## Comonads
 
 A comonad is the same thing as a monad, only backwards:
 
@@ -125,7 +125,7 @@ Note that counit is pronounced "co-unit", not "cow-knit". It's also sometimes ca
 
 The comonad laws are analogous to the monad laws. We'll get to those later on, but let's first look at some examples.
 
-## The identity comonad
+### The identity comonad
 
 A simple and obvious comonad is the dumb wrapper (the identity comonad):
 
@@ -139,7 +139,7 @@ case class Id[A](a: A) {
 
 This one is also the identity _monad_. `Id` doesn't have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting.
 
-## The reader comonad
+### The reader comonad
 
 There's a comonad with the same capabilities as the reader monad, namely that it can ask for a value:
 
@@ -180,8 +180,7 @@ case class Coreader[R,A](ask: R, extract: A) {
 
 Notice that the type signature of `extend` looks like `flatMap` with the direction of `f` reversed. And just like we can chain operations in a monad using `flatMap`, we can chain operations in a comonad using `extend`. In `Coreader`, `extend` is making sure that subsequent operations are able to ask for the context of type `R`.
 
-Whether to use `Reader` or `Coreader` in your programs is largely a matter of style.
-
+## Comonad laws
 
 The comonad laws are analogous to the monad laws:
 
