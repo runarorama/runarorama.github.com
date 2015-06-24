@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-24T08:11:23-04:00</updated>
+  <updated>2015-06-24T08:39:39-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[A Scala Comonad Tutorial, Part 1]]></title>
-    <link href="http://runarorama.github.com/blog/2015/06/24/a-scala-comonad-tutorial/"/>
-    <updated>2015-06-24T01:15:47-04:00</updated>
-    <id>http://runarorama.github.com/blog/2015/06/24/a-scala-comonad-tutorial</id>
+    <link href="http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial/"/>
+    <updated>2015-06-23T01:15:47-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial</id>
     <content type="html"><![CDATA[<p>In chapter 11 of <a href="http://manning.com/bjarnason">our book</a>, we talk about monads in Scala. This finally names a pattern that the reader has seen throughout the book and gives it a formal structure. We also give some intuition for what it <em>means</em> for something to be a monad. Once you have this concept, you start recognizing it everywhere in the daily business of programming.</p>
 
 <p>Today I want to talk about <em>comonads</em>, which are the dual of monads. The utility of comonads in everyday life is not quite as immediately obvious as that of monads, but they definitely come in handy sometimes.</p>
