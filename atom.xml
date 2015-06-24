@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-23T22:26:15-04:00</updated>
+  <updated>2015-06-23T22:35:20-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -89,11 +89,11 @@
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">A</span><span class="o">](</span><span class="n">value</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">log</span><span class="k">:</span> <span class="kt">W</span><span class="o">)</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">tell</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">w</span><span class="k">:</span> <span class="kt">W</span><span class="o">)</span><span class="k">:</span> <span class="kt">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Writer</span><span class="o">((),</span> <span class="n">w</span><span class="o">)</span>
+</span><span class='line'><span class="k">def</span> <span class="n">tell</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">A</span><span class="o">](</span><span class="n">w</span><span class="k">:</span> <span class="kt">W</span><span class="o">)</span><span class="k">:</span> <span class="kt">Writer</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Writer</span><span class="o">((),</span> <span class="n">w</span><span class="o">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The meaning of <code>join</code> in the writer monad is to concatenate the &ldquo;log&rdquo; of written values using the monoid for <code>W</code>:</p>
+<p>The meaning of <code>join</code> in the writer monad is to concatenate the &ldquo;log&rdquo; of written values using the monoid for <code>W</code> (this is using the <code>Monoid</code> class from <a href="http://github.com/scalaz/scalaz">Scalaz</a>):</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -135,7 +135,7 @@
 </span><span class='line'>  <span class="nc">State</span><span class="o">(</span><span class="n">s1</span> <span class="k">=&gt;</span> <span class="o">{</span>
 </span><span class='line'>    <span class="k">val</span> <span class="o">(</span><span class="n">v2</span><span class="o">,</span> <span class="n">s2</span><span class="o">)</span> <span class="k">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">s1</span><span class="o">)</span>
 </span><span class='line'>    <span class="n">v2</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">s2</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">})</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -158,7 +158,7 @@
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Comonad</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="nc">extends</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Comonad</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="nc">extends</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">W</span><span class="o">]</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">w</span><span class="k">:</span> <span class="kt">W</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">A</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">wa</span><span class="k">:</span> <span class="kt">W</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">W</span><span class="o">[</span><span class="kt">W</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span>
 </span><span class='line'><span class="o">}</span>
@@ -207,7 +207,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>It should be obvious how we can give a <code>Comonad</code> instance for this:</p>
+<p>It should be obvious how we can give a <code>Comonad</code> instance for this (I&rsquo;m using the <a href="https://github.com/non/kind-projector">Kind Projector SBT Plugin</a> to make the syntax look a little nicer than Vanilla Scala):</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
