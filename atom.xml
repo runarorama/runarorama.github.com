@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-23T21:49:33-04:00</updated>
+  <updated>2015-06-23T22:06:12-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -120,7 +120,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The meaning of <code>join</code> in the state monad is to give the outer action an opportunity to get and put the state, then do the same for the inner action:</p>
+<p>The meaning of <code>join</code> in the state monad is to give the outer action an opportunity to get and put the state, then do the same for the inner action, making sure any subsequent actions see the changes made by previous ones.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -167,7 +167,7 @@
 
 <p>Note that counit is pronounced &ldquo;co-unit&rdquo;, not &ldquo;cow-knit&rdquo;. It&rsquo;s also sometimes called <code>extract</code> because it allows you to get a value of type <code>A</code> <em>out of</em> a <code>W[A]</code>. While with monads you can generally only put values in and not get them out, with comonads you can generally only get them out and not put them in.</p>
 
-<p>And instead being able to <code>join</code> to levels of a monad into one, we can <code>duplicate</code> one level of a comonad into two.</p>
+<p>And instead being able to <code>join</code> two levels of a monad into one, we can <code>duplicate</code> one level of a comonad into two.</p>
 
 <p>Kind of weird, right? This also has to obey some laws. We&rsquo;ll get to those later on, but let&rsquo;s first look at some actual comonads.</p>
 
@@ -188,7 +188,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This one is also the identity <em>monad</em>. <code>Id</code> doesn&rsquo;t have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting. We can get the value out with our <code>counit</code>, and we can vacuously <code>duplicate</code> by adding another layer.</p>
+<p>This one is also the identity <em>monad</em>. <code>Id</code> doesn&rsquo;t have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting. We can get the value out with our <code>counit</code>, and we can vacuously <code>duplicate</code> by decorating our existing <code>Id</code> with another layer.</p>
 
 <h3>The reader comonad</h3>
 
