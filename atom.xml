@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-23T22:06:12-04:00</updated>
+  <updated>2015-06-23T22:23:41-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -261,7 +261,7 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">class</span> <span class="nc">Cowriter</span><span class="o">[</span><span class="kt">W:Monoid</span>,<span class="kt">A</span><span class="o">](</span><span class="n">tell</span><span class="k">:</span> <span class="kt">W</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span> <span class="o">{</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cowriter</span><span class="o">[</span><span class="kt">W:Monoid</span>,<span class="kt">A</span><span class="o">](</span><span class="n">tell</span><span class="k">:</span> <span class="kt">W</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Cowriter</span><span class="o">(</span><span class="n">tell</span> <span class="n">andThen</span> <span class="n">f</span><span class="o">)</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">extract</span> <span class="k">=</span> <span class="n">tell</span><span class="o">(</span><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">].</span><span class="n">zero</span><span class="o">)</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">W</span>, <span class="kt">Cowriter</span><span class="o">[</span><span class="kt">W</span>, <span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
