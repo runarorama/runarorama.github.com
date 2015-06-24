@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-23T20:13:07-04:00</updated>
+  <updated>2015-06-23T20:15:51-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -228,7 +228,7 @@
 
 <p>So <code>Coreader</code> just wraps up some value of type <code>A</code> together with some additional context of type <code>R</code>. Why is it important that this is a <em>comonad</em>? What is the meaning of <code>duplicate</code> here?</p>
 
-<p>The meaning of <code>duplicate</code> is that it puts the whole <code>Coreader</code> in the value slot. So any subsequent <code>extract</code> or <code>map</code> operation will be able to observe both the value of type <code>A</code> and the context of type <code>R</code>. We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.</p>
+<p>To see the meaning of <code>duplicate</code>, notice that it puts the whole <code>Coreader</code> in the value slot (in the <code>extract</code> portion). So any subsequent <code>extract</code> or <code>map</code> operation will be able to observe both the value of type <code>A</code> and the context of type <code>R</code>. We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.</p>
 
 <p>In fact, just like <code>map</code> followed by <code>join</code> is usually expressed as <code>flatMap</code>, by the same token <code>duplicate</code> followed by <code>map</code> is usually expressed as a single operation, <code>extend</code>:</p>
 
