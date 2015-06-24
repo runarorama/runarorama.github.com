@@ -3,12 +3,14 @@ layout: post
 title: "A Scala Comonad Tutorial, Part 1"
 date: 2015-06-23 13:15:47 -0400
 comments: true
-categories: 
+categories:
+author: Rúnar
+commentIssueId: 18
 ---
 
 In chapter 11 of [our book](http://manning.com/bjarnason), we talk about monads in Scala. This finally names a pattern that the reader has seen throughout the book and gives it a formal structure. We also give some intuition for what it _means_ for something to be a monad. Once you have this concept, you start recognizing it everywhere in the daily business of programming.
 
-Today I want to talk about _comonads_, which are the dual of monads. The utility of comonads in everyday life is not quite as obviously applicable as that of monads, but they are a good tool to keep in your back pocket.
+Today I want to talk about _comonads_, which are the dual of monads. The utility of comonads in everyday life is not quite as immediately obvious as that of monads, but they definitely come in handy sometimes.
 
 ## A monad, upside-down
 
@@ -121,9 +123,11 @@ trait Comonad[W[_]] extends Functor[W[_]] {
 }
 ```
 
-Note that counit is pronounced "co-unit", not "cow-knit". It's also sometimes called `extract` because it allows you to get a value of type `A` _out of_ a `W[A]`.
+Note that counit is pronounced "co-unit", not "cow-knit". It's also sometimes called `extract` because it allows you to get a value of type `A` _out of_ a `W[A]`. While with monads you can generally only put values in and not get them out, with comonads you can generally only get them out and not put them in.
 
-This also has to obey some laws. We'll get to those later on, but let's first look at some examples.
+And instead being able to `join` to levels of a monad into one, we can `duplicate` one level of a comonad into two.
+
+Kind of weird, right? This also has to obey some laws. We'll get to those later on, but let's first look at some actual comonads.
 
 ### The identity comonad
 
@@ -137,11 +141,11 @@ case class Id[A](a: A) {
 }
 ```
 
-This one is also the identity _monad_. `Id` doesn't have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting.
+This one is also the identity _monad_. `Id` doesn't have any functionality other than the proper morphisms of the (co)monad and is therefore not terribly interesting. We can get the value out with our `counit`, and we can vacuously `duplicate` by adding another layer.
 
 ### The reader comonad
 
-There's a comonad with the same capabilities as the reader monad, namely that it can ask for a value:
+There's a comonad with the same capabilities as the reader monad, namely that it allows us to ask for a value:
 
 ``` scala
 case class Coreader[R,A](extract: A, ask: R) {
@@ -166,7 +170,7 @@ Arguably, this is much more straightforward in Scala than the reader monad. In t
 
 So `Coreader` just wraps up some value of type `A` together with some additional context of type `R`. Why is it important that this is a _comonad_? What is the meaning of `duplicate` here?
 
-The meaning of `duplicate` is that it puts the whole `Coreader` in the value slot. So any subsequent `extract` or `map` operation will be able to observe both the value of type `A` and the context of type `R`. We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.
+To see the meaning of `duplicate`, notice that it puts the whole `Coreader` in the value slot (in the `extract` portion). So any subsequent `extract` or `map` operation will be able to observe both the value of type `A` and the context of type `R`. We can think of this as passing the context along to those subsequent operations, which is analogous to what the reader monad does.
 
 In fact, just like `map` followed by `join` is usually expressed as `flatMap`, by the same token `duplicate` followed by `map` is usually expressed as a single operation, `extend`:
 
@@ -180,9 +184,9 @@ case class Coreader[R,A](extract: A, ask: R) {
 
 Notice that the type signature of `extend` looks like `flatMap` with the direction of `f` reversed. And just like we can chain operations in a monad using `flatMap`, we can chain operations in a comonad using `extend`. In `Coreader`, `extend` is making sure that `f` can use the context of type `R` to produce its `B`. Chaining operations this way using `flatMap` or `extend` is sometimes called _Kleisli composition_.
 
-If `R` is a monoid, then `Coreader[R,?]` can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the `R`, and actions in the monad can add to it.
+If `R` is a monoid, then `Coreader[R,?]` can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the `R`, and actions in the monad can append to it.
 
-## The writer comonad
+### The writer comonad
 
 Just like the writer monad, the writer comonad can append to a log or running tally using a monoid. But instead of keeping the log always available to be appended to, it uses the same trick as the reader monad by building up an operation that gets executed once a log becomes available:
 
