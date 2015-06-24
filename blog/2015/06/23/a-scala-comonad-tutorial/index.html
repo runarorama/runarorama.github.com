@@ -330,7 +330,7 @@
 
 <p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that <code>f</code> can use the context of type <code>R</code> to produce its <code>B</code>. Chaining operations this way using <code>flatMap</code> or <code>extend</code> is sometimes called <em>Kleisli composition</em>.</p>
 
-<p>If <code>R</code> is a monoid, then <code>Coreader[R,?]</code> can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the <code>R</code>, and actions in the monad can add to it.</p>
+<p>If <code>R</code> is a monoid, then <code>Coreader[R,?]</code> can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the <code>R</code>, and actions in the monad can append to it.</p>
 
 <h3>The writer comonad</h3>
 
