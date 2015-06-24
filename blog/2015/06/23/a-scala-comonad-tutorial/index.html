@@ -128,7 +128,7 @@
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="nc">extends</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="nc">extends</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">M</span><span class="o">]</span> <span class="o">{</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">mma</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">M</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
 </span><span class='line'><span class="o">}</span>
@@ -159,7 +159,7 @@
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">](</span><span class="n">r</span><span class="k">:</span> <span class="kt">Reader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">Reader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]])</span> <span class="k">=</span>
-</span><span class='line'>  <span class="nc">Reader</span><span class="o">(</span><span class="n">c</span> <span class="k">=&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">c</span><span class="o">).</span><span class="n">run</span><span class="o">(</span><span class="n">c</span><span class="o">))</span>
+</span><span class='line'>  <span class="nc">Reader</span><span class="o">((</span><span class="n">c</span><span class="k">:</span><span class="kt">R</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="n">c</span><span class="o">).</span><span class="n">run</span><span class="o">(</span><span class="n">c</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
