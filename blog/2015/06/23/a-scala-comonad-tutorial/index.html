@@ -103,7 +103,7 @@
 
 <div class="entry-content"><p>In chapter 11 of <a href="http://manning.com/bjarnason">our book</a>, we talk about monads in Scala. This finally names a pattern that the reader has seen throughout the book and gives it a formal structure. We also give some intuition for what it <em>means</em> for something to be a monad. Once you have this concept, you start recognizing it everywhere in the daily business of programming.</p>
 
-<p>Today I want to talk about <em>comonads</em>, which are the dual of monads. The utility of comonads in everyday life is not quite as immediately obvious as that of monads, but they definitely come in handy sometimes.</p>
+<p>Today I want to talk about <em>comonads</em>, which are the dual of monads. The utility of comonads in everyday life is not quite as immediately obvious as that of monads, but they definitely come in handy sometimes. Particularly in applications like image processing and scientific computation.</p>
 
 <h2>A monad, upside-down</h2>
 
@@ -328,9 +328,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that <code>f</code> can use the context of type <code>R</code> to produce its <code>B</code>. Chaining operations this way using <code>flatMap</code> or <code>extend</code> is sometimes called <em>Kleisli composition</em>.</p>
+<p>Notice that the type signature of <code>extend</code> looks like <code>flatMap</code> with the direction of <code>f</code> reversed. And just like we can chain operations in a monad using <code>flatMap</code>, we can chain operations in a comonad using <code>extend</code>. In <code>Coreader</code>, <code>extend</code> is making sure that <code>f</code> can use the context of type <code>R</code> to produce its <code>B</code>.</p>
 
-<p>If <code>R</code> is a monoid, then <code>Coreader[R,?]</code> can be the writer monad and the reader comonad simultaneously. Then actions in the comonad can ask for the current value of the <code>R</code>, and actions in the monad can append to it.</p>
+<p>Chaining operations this way using <code>flatMap</code> in a monad is sometimes called <em>Kleisli composition</em>, and chaining operations using <code>extend</code> in a comonad is called <em>coKleisli</em> composition (or just Kleisli composition in a comonad).</p>
 
 <h3>The writer comonad</h3>
 
