@@ -203,8 +203,6 @@ case class Cowriter[W:Monoid,A](tell: W => A) {
 
 Note that `duplicate` returns a whole `Cowriter` from its constructed `run` function, so the meaning is that subsequent operations (composed via `map` or `extend`) have access to exactly one `tell` function, which appends to the existing log or tally.
 
-You may find that `Cowriter` is a better fit than `Writer` for your Scala programs. A common complaint with the writer monad is that it doesn't allow you to observe the log until the end. That is, it's _not sufficiently lazy_ as formulated above. But `Cowriter` lets you pass whatever logging function you want as the `tell`, and its implementation absolutely can observe each `W` as it gets passed in.
-
 ## Comonad laws
 
 The comonad laws are analogous to the monad laws:
