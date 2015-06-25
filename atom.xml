@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-25T06:01:46-04:00</updated>
+  <updated>2015-06-25T06:06:53-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -273,8 +273,6 @@
 
 
 <p>Note that <code>duplicate</code> returns a whole <code>Cowriter</code> from its constructed <code>run</code> function, so the meaning is that subsequent operations (composed via <code>map</code> or <code>extend</code>) have access to exactly one <code>tell</code> function, which appends to the existing log or tally.</p>
-
-<p>You may find that <code>Cowriter</code> is a better fit than <code>Writer</code> for your Scala programs. A common complaint with the writer monad is that it doesn&rsquo;t allow you to observe the log until the end. That is, it&rsquo;s <em>not sufficiently lazy</em> as formulated above. But <code>Cowriter</code> lets you pass whatever logging function you want as the <code>tell</code>, and its implementation absolutely can observe each <code>W</code> as it gets passed in.</p>
 
 <h2>Comonad laws</h2>
 
