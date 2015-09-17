@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://runarorama.github.com/blog/2015/07/22/a-scala-comonad-tutorial-part-2/</loc>
-    <lastmod>2015-07-22T19:08:18-04:00</lastmod>
-  </url>
-  <url>
     <loc>http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial/</loc>
     <lastmod>2015-06-23T01:15:47-04:00</lastmod>
   </url>
@@ -78,14 +74,14 @@
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/archives/</loc>
-    <lastmod>2015-09-17T11:10:17-04:00</lastmod>
+    <lastmod>2015-09-17T11:24:37-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/</loc>
-    <lastmod>2015-09-17T11:10:17-04:00</lastmod>
+    <lastmod>2015-09-17T11:24:37-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/about/</loc>
-    <lastmod>2015-09-17T11:10:17-04:00</lastmod>
+    <lastmod>2015-09-17T11:24:37-04:00</lastmod>
   </url>
 </urlset>
