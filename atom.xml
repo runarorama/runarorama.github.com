@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-06-25T06:06:53-04:00</updated>
+  <updated>2015-09-17T11:10:17-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -12,6 +12,60 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A Scala Comonad Tutorial, Part 2]]></title>
+    <link href="http://runarorama.github.com/blog/2015/07/22/a-scala-comonad-tutorial-part-2/"/>
+    <updated>2015-07-22T19:08:18-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/07/22/a-scala-comonad-tutorial-part-2</id>
+    <content type="html"><![CDATA[<p>In <a href="2015-06-23-a-scala-comonad-tutorial.html">part 1</a> of this tutorial, we looked at what comonads are and saw a few simple examples. Now we&rsquo;re going to see some more examples, and look into some of the deeper connections.</p>
+
+<h2>The relationship between Reader and Coreader</h2>
+
+<p>Consider a Kleisli arrow in the <code>Reader</code> monad:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">A</span> <span class="k">=&gt;</span> <span class="nc">Reader</span><span class="o">[</span><span class="kt">R</span>, <span class="kt">B</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we expand the type of <code>Reader</code>, it&rsquo;s really this type:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">A</span> <span class="k">=&gt;</span> <span class="n">R</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we uncurry that type, we get:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">A</span><span class="o">,</span><span class="n">R</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is now the same as a coKleisli arrow in the <code>Coreader</code> comonad!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So the relationship between Kleisli arrows in the <code>Reader</code> monad and coKleisli arrows in the <code>Coreader</code> comonad is that <em>they are isomorphic</em>.</p>
+
+<p>The <code>Writer</code> monad and the <code>Cowriter</code> comonad have the same relationship:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">Cowriter</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span><span class='line'><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">W</span> <span class="k">=&gt;</span> <span class="n">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span><span class='line'><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">A</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">W</span><span class="o">,</span> <span class="n">B</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A Scala Comonad Tutorial, Part 1]]></title>
@@ -279,7 +333,7 @@
 <p>The comonad laws are analogous to the monad laws:</p>
 
 <ol>
-<li>Left idenity: <code>wa.duplicate.extract == wa</code></li>
+<li>Left identity: <code>wa.duplicate.extract == wa</code></li>
 <li>Right identity: <code>wa.extend(extract) == wa</code></li>
 <li>Associativity: <code>wa.duplicate.duplicate == wa.extend(duplicate)</code></li>
 </ol>
@@ -291,7 +345,7 @@
 
 <h2>Next time&hellip;</h2>
 
-<p>In part 2 we&rsquo;ll look at some more examples of comonads and follow some of the deeper connections. Like what&rsquo;s the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They&rsquo;re not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?</p>
+<p>In <a href="2015-07-22-a-scala-comonad-tutorial-part-2.html">part 2</a> we&rsquo;ll look at some more examples of comonads and follow some of the deeper connections. Like what&rsquo;s the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They&rsquo;re not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?</p>
 ]]></content>
   </entry>
   

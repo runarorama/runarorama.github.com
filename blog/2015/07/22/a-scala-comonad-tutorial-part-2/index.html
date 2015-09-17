@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Pulling Out of Functional Programming in Java - Higher Order</title>
+  <title>A Scala Comonad Tutorial, Part 2 - Higher Order</title>
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="After giving it a lot of thought I have come to the conclusion that I won&rsquo;t be involved in “Functional Programming in Java”. There are many &hellip;">
+  <meta name="description" content="In part 1 of this tutorial, we looked at what comonads are and saw a few simple examples. Now we&rsquo;re going to see some more examples, and look &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/">
+  <link rel="canonical" href="http://runarorama.github.com/blog/2015/07/22/a-scala-comonad-tutorial-part-2/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
@@ -85,7 +85,7 @@
   
   <header>
     
-      <h1 class="entry-title">Pulling Out of Functional Programming in Java</h1>
+      <h1 class="entry-title">A Scala Comonad Tutorial, Part 2</h1>
     
     
       <p class="meta">
@@ -94,22 +94,59 @@
 
 
 
-<time class='entry-date' datetime='2015-06-16T11:37:34-04:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:37 am</span></time>
+<time class='entry-date' datetime='2015-07-22T19:08:18-04:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>7:08 pm</span></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>After giving it a lot of thought I have come to the conclusion that I won&rsquo;t be involved in <a href="http://manning.com/saumont">“Functional Programming in Java”</a>. There are many reasons, including that I just don’t think I can spend the time to make this a good book. Looking at all the things I have scheduled for the rest of the year, I can’t find the time to work on it.</p>
+<div class="entry-content"><p>In <a href="2015-06-23-a-scala-comonad-tutorial.html">part 1</a> of this tutorial, we looked at what comonads are and saw a few simple examples. Now we&rsquo;re going to see some more examples, and look into some of the deeper connections.</p>
 
-<p>More depressingly, the thought of spending a year or more writing another book makes me anxious. I know from experience that making a book (at least a good one) is really hard and takes up a lot of mental energy. Maybe one day there will be a book that I will want to forego a year of evenings and weekends for, but today is not that day.</p>
+<h2>The relationship between Reader and Coreader</h2>
 
-<p>Originally, the content of FPiJ was going to be based on &ldquo;Functional Programming in Scala&rdquo;, but after some discussion with the publisher I think we were all beginning to see that this book deserved its own original content specifically on an FP style in Java.</p>
+<p>Consider a Kleisli arrow in the <code>Reader</code> monad:</p>
 
-<p>I really do think such a thing deserves its own original book. Since Java is strictly less suitable for functional programming than Scala is, a book on FP in Java will have to lay a lot of groundwork that we didn&rsquo;t have to do with FPiS, and it will have to forego a lot of the more advanced topics.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">A</span> <span class="k">=&gt;</span> <span class="nc">Reader</span><span class="o">[</span><span class="kt">R</span>, <span class="kt">B</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>I wish the author of that book, and the publisher, all the best and I hope they do well. I&rsquo;m sorry to let you all down, but I&rsquo;m sure this is for the best.</p>
+
+<p>If we expand the type of <code>Reader</code>, it&rsquo;s really this type:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">A</span> <span class="k">=&gt;</span> <span class="n">R</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we uncurry that type, we get:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">A</span><span class="o">,</span><span class="n">R</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is now the same as a coKleisli arrow in the <code>Coreader</code> comonad!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">Coreader</span><span class="o">[</span><span class="kt">R</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So the relationship between Kleisli arrows in the <code>Reader</code> monad and coKleisli arrows in the <code>Coreader</code> comonad is that <em>they are isomorphic</em>.</p>
+
+<p>The <code>Writer</code> monad and the <code>Cowriter</code> comonad have the same relationship:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nc">Cowriter</span><span class="o">[</span><span class="kt">W</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span><span class='line'><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">W</span> <span class="k">=&gt;</span> <span class="n">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span><span class='line'><span class="nc">Monoid</span><span class="o">[</span><span class="kt">W</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">A</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">W</span><span class="o">,</span> <span class="n">B</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
 </div>
 
 
@@ -118,14 +155,14 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">Rúnar Bjarnason</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
 
       
 
 
 
 
-<time class='entry-date' datetime='2015-06-16T11:37:34-04:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:37 am</span></time>
+<time class='entry-date' datetime='2015-07-22T19:08:18-04:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>7:08 pm</span></time>
       
 
 
@@ -133,7 +170,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2015/07/22/a-scala-comonad-tutorial-part-2/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2015/07/22/a-scala-comonad-tutorial-part-2/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -146,10 +183,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/" title="Previous Post: A companion booklet to FPiS">&laquo; A companion booklet to FPiS</a>
+        <a class="basic-alignment left" href="/blog/2015/06/23/a-scala-comonad-tutorial/" title="Previous Post: A Scala Comonad Tutorial, Part 1">&laquo; A Scala Comonad Tutorial, Part 1</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2015/06/18/easy-performance-wins-with-scalaz/" title="Next Post: Easy performance wins with Scalaz">Easy performance wins with Scalaz &raquo;</a>
       
     </p>
   </footer>
@@ -158,7 +193,7 @@
   <div id="comments">
     <h2>Comments</h2>
     <div id="header">
-      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/16"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/19"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
     </div>
   </div>
 <script type="text/javascript">
@@ -166,8 +201,8 @@
     for (var i=0; i<data.length; i++) {
       var cuser = data[i].user.login;
       var cuserlink = "https://www.github.com/" + cuser;
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/16#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
-      var clink = "https://github.com/runarorama/runarorama.github.com/issues/16#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/19#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/19#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
       var cbody = data[i].body_html;
       var cavatarlink = data[i].user.avatar_url;
       var cdate = (new Date(Date.parse(data[i].created_at))).toString();
@@ -175,7 +210,7 @@
       $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
     }
   }
-  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/16/comments", {
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/19/comments", {
     headers: {Accept: "application/vnd.github.full+json"},
     dataType: "json",
     success: function(msg){
