@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-09-30T12:32:19-04:00</updated>
+  <updated>2015-09-30T12:55:46-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[The Adjunction That Induces the Reader Monad]]></title>
+    <title type="html"><![CDATA[An Adjunction That Induces the Reader Monad]]></title>
     <link href="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/"/>
     <updated>2015-09-30T07:48:13-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad</id>
