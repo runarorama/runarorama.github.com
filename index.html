@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="In chapter 11 of our book, we talk about monads in Scala. This finally names a pattern that the reader has seen throughout the book and gives it a &hellip;">
+  <meta name="description" content="In writing up part 2 of my Scala Comonad Tutorial, and coming up with my talk for Scala World, I idly pondered this question: If all monads are given &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +82,84 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">The Adjunction That Induces the Reader Monad</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-30T07:48:13-04:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In writing up part 2 of my <a href="2015-06-23-a-scala-comonad-tutorial.html">Scala Comonad Tutorial</a>, and coming up with my talk for <a href="http://scala.world">Scala World</a>, I idly pondered this question:</p>
+
+<blockquote><p>If all monads are given by composing adjoint pairs of functors, what adjoint pair of functors forms the `Reader` monad? And if we compose those functors the other way, which comonad do we get?</p></blockquote>
+
+
+<p>Following leads from Shachaf Ben-Kiki on IRC, I thought about whether there was a free-forgetful adjunction given by an isomorphism between Kleisli arrows in the Reader monad on one hand and its algebras on the other. But then what are <code>(R =&gt; ?)</code> algebras, other than values of type <code>R</code>?</p>
+
+<p>Searching around for an answer to <em>that</em>, I came across <a href="http://math.stackexchange.com/questions/1274989/what-is-the-eilenberg-moore-category-of-this-diagonal-like-monad">this Mathematics Stack Exchange question</a>, whose answer more or less directly addresses my first question above. The adjunction is a little more difficult to see than I expected, but I&rsquo;ve worked through it, and what follows is an outline of how I convinced myself that it works.</p>
+
+<h2>The adjoint pair</h2>
+
+<p>Let&rsquo;s consider the reader monad <code>R =&gt; ?</code>, which allows us to read a context of type <code>R</code>.</p>
+
+<p>The first category involved is <em>Set</em> (or <em>Hask</em>, or <em>Scala</em>). This is just the familiar category where the objects are types (<code>A</code>,<code>B</code>,<code>C</code>, etc.) and the arrows are functions.</p>
+
+<p>The other category is <em>Set/R</em>, which is the <a href="http://ncatlab.org/nlab/show/overcategory">slice category</a> of <em>Set</em> over the type <code>R</code>. This is a category whose objects are functions to <code>R</code>. So an object <code>x</code> in this category is given by a type <code>A</code> together with a function of type <code>A =&gt; R</code>. An arrow from <code>x: A =&gt; R</code> to <code>y: B =&gt; R</code> is given by a function <code>f: A =&gt; B</code> such that <code>y(f(a)) = x(a)</code> for all <code>a:A</code>.</p>
+
+<p>The left adjoint is <code>R*</code>, a functor from <em>Set</em> to <em>Set/R</em>. This functor sends each type <code>A</code> to the function <code>(p:(R,A)) =&gt; p._1</code>, having type <code>(R,A) =&gt; R</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">rStar</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">R</span> <span class="k">=</span> <span class="k">_</span><span class="o">.</span><span class="n">_1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The right adjoint is <code>Π_R</code>, a functor from <em>Set/R</em> to <em>Set</em>. This functor sends each object <code>q: A =&gt; R</code> in <em>Set/R</em> to a type <code>P_A</code> in <em>Set</em>. This type <code>P_A</code> is actually a dependent type inhabited by arrows <code>p: R =&gt; A</code> which satisfy the identity <code>q(p(a)) = a</code> for all <code>a:A</code>. That is, <code>q</code> has to be the inverse of <code>p</code>.</p>
+
+<h2>Constructing the monad</h2>
+
+<p>The monad is not exactly easy to see, but if everything has gone right, we should get the <code>R =&gt; ?</code> monad by composing <code>Π_R</code> with <code>R*</code>.</p>
+
+<p>We start with a type <code>A</code>. Then we do <code>R*</code>, which gives us the object <code>rStar[A]</code> in the slice category, which you will recall is just <code>_._1</code> of type <code>(R,A) =&gt; A</code>. Then we go back to types via <code>Π_R(rStar[A])</code> which gives us a dependent type <code>P_(R,A)</code> inhabited by functions <code>p: R =&gt; (R,A)</code>. Now, this looks a lot like a Kleisli arrow in the <code>State</code> monad. But it&rsquo;s not. These <code>p</code> must satisfy the property that <code>_1</code> is their inverse. Which means that the <code>R</code> they return must be exactly the <code>R</code> they were given. So it&rsquo;s like a <code>State</code> monad that is <em>read only</em>. We can therefore simplify this to the ordinary (non-dependent) type <code>R =&gt; A</code>. And now we have our <code>Reader</code> monad.</p>
+
+<h2>Constructing the comonad</h2>
+
+<p>But what about the other way around? What is the comonad constructed by composing <code>R*</code> with <code>Π_R</code>? Well, since we end up in the slice category, our comonad is actually in that category rather than in <em>Set</em>.</p>
+
+<p>We start with an object <code>q: A =&gt; R</code> in the slice category. Then we go to types by doing <code>Π_R(q)</code>. This gives us a dependent type <code>P_A</code> which is inhabited by all <code>p: R =&gt; A</code> such that <code>q</code> is their inverse. Then we take <code>rStar[Π_R(q)]</code> to go back to the slice category and we find ourselves at an object <code>f: (R, Π_R(q)) =&gt; R</code>. As an endofunctor in <em>Set/R</em>, <code>λq. rStar[Π_R(q)]</code> takes all <code>q: A =&gt; R</code> to <code>p: (R, R =&gt; A) =&gt; R = _._1</code> such that <code>p</code> is only defined on <code>R =&gt; A</code> arguments whose inverse is <code>q</code>.</p>
+
+<p>That is, the counit for this comonad on elements <code>y: A =&gt; R</code> must be a function <code>counit: (R, Π_R(y)) =&gt; A</code> such that for any <code>_1: (R, Π_R(y)) =&gt; R</code>, the property <code>y compose counit = _1</code> holds. Note that this means that the <code>R</code> returned by <code>_1</code> and the <code>R</code> returned by <code>y</code> must be the same. Recall that <code>_1</code> always returns the first element of its argument, and also recall that the functions in <code>Π_R(y)</code> must have <code>y</code> as their inverse, so they&rsquo;re only defined at the first element of the argument to <code>_1</code>. That is <code>p._2(x)</code> is only defined when <code>x = p._1</code>.</p>
+
+<p>If we try to encode that in Scala (ignoring all the &ldquo;such that&rdquo;), we get something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">p</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span> <span class="kt">R</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">))</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">p</span><span class="o">.</span><span class="n">_2</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by the dependent types, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1901,163 +1979,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/01/free-and-yoneda/">Free Monads and the Yoneda Lemma</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-11-01'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>12:00 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &ldquo;free monad&rdquo;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
-
-<h2>IO as an application of Free</h2>
-
-<p>The <code>Free</code> monad in Scalaz is given a bit like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
-</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">Return</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Suspend</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">s</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">Free</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">A</span><span class="o">]])</span> <span class="k">extends</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And throughout the methods on <code>Free</code>, it is required that <code>F</code> is a <em>functor</em> because in order to get at the recursive step inside a <code>Suspend</code>, we need to <code>map</code> over the <code>F</code> somehow.</p>
-
-<p>But the <code>IO</code> monad I gave in the talk looks more like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
-</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">Return</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
-</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Req</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">I</span>,<span class="kt">A</span><span class="o">](</span><span class="n">req</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">],</span> <span class="n">k</span><span class="k">:</span> <span class="kt">I</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And it could actually be stated as an application of <code>Free</code>:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">type</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[({</span><span class="k">type</span> <span class="kt">λ</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span> <span class="o">(</span><span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>, <span class="kt">I</span> <span class="k">=&gt;</span> <span class="kt">α</span><span class="o">)</span> <span class="k">forSome</span> <span class="o">{</span><span class="k">type</span> <span class="kt">I</span><span class="o">}})</span><span class="k">#</span><span class="kt">λ</span>, <span class="kt">A</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So in a very superficial sense, this is how the <code>IO</code> monad relates to <code>Free</code>. The monad <code>IO[F,_]</code> for a given <code>F</code> is the free monad generated by the functor <code>(F[I], I =&gt; _)</code> for some type <code>I</code>. And do note that <em>this is a functor no matter what <code>F</code> is</em>.</p>
-
-<h2>IO as equivalent to Free</h2>
-
-<p>There is a deeper sense in which <code>IO</code> and <code>Free</code> are actually equivalent (more precisely, isomorphic). That is, there exists a transformation from one to the other and back again. Since the only difference between <code>IO</code> and <code>Free</code> is in the functors <code>F[_]</code> vs <code>∃I. (F[I], I =&gt; _)</code>, we just have to show that these two are isomorphic for any <code>F</code>.</p>
-
-<h3>The Yoneda lemma</h3>
-
-<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&hellip;</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&hellip;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
-
-<p>The Yoneda lemma says that this goes the other way around as well. If you have a value of type <code>F[A]</code> for any functor <code>F</code> and any type <code>A</code>, then you certainly have a <code>map</code> function with the signature above.</p>
-
-<p>In scala terms, we can capture this in a type:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And the Yoneda lemma says that there is an isomorphism between <code>Yoneda[F,A]</code> and <code>F[A]</code>, for any functor <code>F</code> and any type <code>A</code>. Here is the proof:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">scalaz._</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">toYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">fa</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">].</span><span class="n">map</span><span class="o">(</span><span class="n">fa</span><span class="o">)(</span><span class="n">f</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="n">froYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">yo</span><span class="k">:</span> <span class="kt">Yoneda</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="n">yo</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">a</span> <span class="k">=&gt;</span> <span class="n">a</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>CoYoneda</h3>
-
-<p>Of course, this also means that if we have a type <code>B</code>, a function of type <code>(B =&gt; A)</code> for some type <code>A</code>, and a value of type <code>F[B]</code> for some functor <code>F</code>, then we certainly have a value of type <code>F[A]</code>. This is kind of obvious, since we can just pass the <code>B =&gt; A</code> and the <code>F[B]</code> to the <code>map</code> function for the functor and get our <code>F[A]</code>.</p>
-
-<p>But the opposite is also true, and that is the really interesting part. If we have a value of type <code>F[A]</code>, for any <code>F</code> and <code>A</code>, then we can always destructure it into a value of type <code>F[B]</code> and a function of type <code>B =&gt; A</code>, at least for <em>some</em> type <code>B</code>. And it turns out that we can do this even if <code>F</code> is not a functor.</p>
-
-<p>This is the permutation of the Yoneda lemma that we were using in <code>IO</code> above. That is, <code>IO[F, A]</code> is really <code>Free[({type λ[α] = CoYoneda[F,α]})#λ, A]</code>, given:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">CoYoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">type</span> <span class="kt">I</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">f</span><span class="k">:</span> <span class="kt">I</span> <span class="o">=&gt;</span> <span class="n">A</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">fi</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And the lemma says that <code>CoYoneda[F,A]</code> is isomorphic to <code>F[A]</code>. Here is the proof:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">toCoYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">fa</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">CoYoneda</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">type</span> <span class="kt">I</span> <span class="o">=</span> <span class="n">A</span>
-</span><span class='line'>  <span class="k">val</span> <span class="n">f</span> <span class="k">=</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">a</span>
-</span><span class='line'>  <span class="k">val</span> <span class="n">fi</span> <span class="k">=</span> <span class="n">fa</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="k">def</span> <span class="n">froCoYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">yo</span><span class="k">:</span> <span class="kt">CoYo</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">].</span><span class="n">map</span><span class="o">(</span><span class="n">yo</span><span class="o">.</span><span class="n">fi</span><span class="o">)(</span><span class="n">yo</span><span class="o">.</span><span class="n">f</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Of course, this destructuring into <code>CoYoneda</code> using the identity function is the simplest and most general, but there may be others for specific <code>F</code> and <code>A</code> depending on what we know about them.</p>
-
-<p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
-
-<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&rsquo;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&rsquo;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
-
-<p>I hope that sheds a little bit of light on the Yoneda lemma as well as the different embeddings of free monads.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -2077,6 +1998,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">The Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/06/23/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
       </li>
     
@@ -2090,10 +2015,6 @@
     
       <li class="post">
         <a href="/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/">A Companion Booklet to FPiS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/08/a-better-reading-list-with-mathematica/">A Better Reading List With Mathematica</a>
       </li>
     
   </ul>
