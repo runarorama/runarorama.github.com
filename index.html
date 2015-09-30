@@ -128,7 +128,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The right adjoint is <code>Π_R</code>, a functor from <em>Set/R</em> to <em>Set</em>. This functor sends each object <code>q: A =&gt; R</code> in <em>Set/R</em> to a type <code>P_A</code> in <em>Set</em>. This type <code>P_A</code> is actually a dependent type inhabited by arrows <code>p: R =&gt; A</code> which satisfy the identity <code>q(p(a)) = a</code> for all <code>a:A</code>. That is, <code>q</code> has to be the inverse of <code>p</code>.</p>
+<p>The right adjoint is <code>Π_R</code>, a functor from <em>Set/R</em> to <em>Set</em>. This functor sends each object <code>q: A =&gt; R</code> in <em>Set/R</em> to the set of functions <code>R =&gt; A</code> for which <code>q</code> is an inverse. This is actually a dependent type inhabited by functions <code>p: R =&gt; A</code> which satisfy the identity <code>q(p(a)) = a</code> for all <code>a:A</code>.</p>
 
 <h2>Constructing the monad</h2>
 
