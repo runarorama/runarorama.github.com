@@ -207,7 +207,7 @@ Note that `duplicate` returns a whole `Cowriter` from its constructed `run` func
 
 The comonad laws are analogous to the monad laws:
 
-  1. Left idenity: `wa.duplicate.extract == wa`
+  1. Left identity: `wa.duplicate.extract == wa`
   2. Right identity: `wa.extend(extract) == wa`
   3. Associativity: `wa.duplicate.duplicate == wa.extend(duplicate)`
 
@@ -217,5 +217,5 @@ Intuitively, both the monad and comonad laws mean that we should be able to writ
 
 ## Next time...
 
-In part 2 we'll look at some more examples of comonads and follow some of the deeper connections. Like what's the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They're not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?
+In [part 2](2015-07-22-a-scala-comonad-tutorial-part-2.html) we'll look at some more examples of comonads and follow some of the deeper connections. Like what's the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They're not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?
 
