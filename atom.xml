@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-09-30T10:51:17-04:00</updated>
+  <updated>2015-09-30T11:41:29-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -54,7 +54,7 @@
 
 <p>But what about the other way around? What is the comonad constructed by composing <code>R*</code> with <code>Π_R</code>? Well, since we end up in the slice category, our comonad is actually in that category rather than in <em>Set</em>.</p>
 
-<p>We start with an object <code>q: A =&gt; R</code> in the slice category. Then we go to types by doing <code>Π_R(q)</code>. This gives us a dependent type <code>P_A</code> which is inhabited by all <code>p: R =&gt; A</code> such that <code>q</code> is their inverse. Then we take <code>rStar[Π_R(q)]</code> to go back to the slice category and we find ourselves at an object <code>f: (R, Π_R(q)) =&gt; R</code>. As an endofunctor in <em>Set/R</em>, <code>λq. rStar[Π_R(q)]</code> takes all <code>q: A =&gt; R</code> to <code>p: (R, R =&gt; A) =&gt; R = _._1</code> such that <code>p</code> is only defined on <code>R =&gt; A</code> arguments whose inverse is <code>q</code>.</p>
+<p>We start with an object <code>q: A =&gt; R</code> in the slice category. Then we go to types by doing <code>Π_R(q)</code>. This gives us a dependent type <code>P_A</code> which is inhabited by all <code>p: R =&gt; A</code> such that <code>q</code> is their inverse. Then we take <code>rStar[Π_R(q)]</code> to go back to the slice category and we find ourselves at an object <code>f: (R, Π_R(q)) =&gt; R</code>, which you&rsquo;ll recall is implemented as <code>_1</code>. As an endofunctor in <em>Set/R</em>, <code>λq. rStar[Π_R(q)]</code> takes all <code>q: A =&gt; R</code> to <code>p: (R, R =&gt; A) =&gt; R = _._1</code> such that <code>p</code> is only defined on <code>R =&gt; A</code> arguments whose inverse is <code>q</code>.</p>
 
 <p>That is, the counit for this comonad on elements <code>y: A =&gt; R</code> must be a function <code>counit: (R, Π_R(y)) =&gt; A</code> such that for any <code>_1: (R, Π_R(y)) =&gt; R</code>, the property <code>y compose counit = _1</code> holds. Note that this means that the <code>R</code> returned by <code>_1</code> and the <code>R</code> returned by <code>y</code> must be the same. Recall that <code>_1</code> always returns the first element of its argument, and also recall that the functions in <code>Π_R(y)</code> must have <code>y</code> as their inverse, so they&rsquo;re only defined at the first element of the argument to <code>_1</code>. That is <code>p._2(x)</code> is only defined when <code>x = p._1</code>.</p>
 
@@ -67,7 +67,11 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by the dependent types, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
+<p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by our functors and by the slice category, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
+
+<h2>But how?</h2>
+
+<p>Now, finding the answer on StackExchange seems a litte bit of a <em>deus ex machina</em>. If you know of a way to calculate an adjoint pair given the monad that comprises them (or if you know that this can&rsquo;t be done in general), please comment below.</p>
 ]]></content>
   </entry>
   
