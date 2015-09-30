@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-09-30T11:50:07-04:00</updated>
+  <updated>2015-09-30T11:56:07-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -71,7 +71,7 @@
 
 <h2>But how?</h2>
 
-<p>Now, finding the answer on StackExchange seems a litte bit of a <em>deus ex machina</em>. If you know of a way to calculate an adjoint pair given the monad that comprises them (or if you know that this can&rsquo;t be done in general), please comment below.</p>
+<p>Now, finding the answer on StackExchange seems a litte bit of a <em>deus ex machina</em>. If you know of a way to factor a monad into an adjoint pair of functors (or if you know that this can&rsquo;t be done in general), please comment below.</p>
 ]]></content>
   </entry>
   
