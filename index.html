@@ -109,9 +109,9 @@
 <blockquote><p>If all monads are given by composing adjoint pairs of functors, what adjoint pair of functors forms the `Reader` monad? And if we compose those functors the other way, which comonad do we get?</p></blockquote>
 
 
-<p>Following leads from Shachaf Ben-Kiki on IRC, I thought about whether there was a free-forgetful adjunction given by an isomorphism between Kleisli arrows in the Reader monad on one hand and its algebras on the other. But then what are <code>(R =&gt; ?)</code> algebras, other than values of type <code>R</code>?</p>
+<p>Shachaf Ben-Kiki pointed out on IRC that there are at least two ways of doing this. One via the <a href="https://en.wikipedia.org/wiki/Kleisli_category#Kleisli_adjunction">Kleisli construction</a> and one via the <a href="http://ncatlab.org/nlab/show/Eilenberg-Moore+category">Eilenberg-Moore construction</a>. Dr Eugenia Cheng has a <a href="https://www.youtube.com/playlist?list=PL54B49729E5102248">fantastic set of videos explaining these constructions</a>. She talks about how for any monad <code>T</code> there is a whole category <code>Adj(T)</code> of adjunctions that give rise to <code>T</code>.</p>
 
-<p>Searching around for an answer to <em>that</em>, I came across <a href="http://math.stackexchange.com/questions/1274989/what-is-the-eilenberg-moore-category-of-this-diagonal-like-monad">this Mathematics Stack Exchange question</a>, whose answer more or less directly addresses my first question above. The adjunction is a little more difficult to see than I expected, but I&rsquo;ve worked through it, and what follows is an outline of how I convinced myself that it works.</p>
+<p>So then, searching around for an answer to what exactly the Eilenberg-Moore category for the <code>Reader[R,?]</code> monad looks like (I think it&rsquo;s just values of type <code>R</code> and functions between them), I came across <a href="http://math.stackexchange.com/questions/1274989/what-is-the-eilenberg-moore-category-of-this-diagonal-like-monad">this Mathematics Stack Exchange question</a>, whose answer more or less directly addresses my original question above. The adjunction is a little more difficult to see than the initial/terminal ones, but it&rsquo;s somewhat interesting, and what follows is an outline of how I convinced myself that it works.</p>
 
 <h2>The adjoint pair</h2>
 
@@ -154,10 +154,6 @@
 
 
 <p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by our functors and by the slice category, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
-
-<h2>But how?</h2>
-
-<p>Now, finding the answer on StackExchange seems a litte bit of a <em>deus ex machina</em>. If you know of a way to factor a monad into an adjoint pair of functors (or if you know that this can&rsquo;t be done in general), please comment below.</p>
 </div>
   
   
