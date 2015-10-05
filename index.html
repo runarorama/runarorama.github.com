@@ -169,7 +169,7 @@
 
 <p>Now, this obviously gives us a tree of trees, but what is the structure of that tree? It will be <em>a tree of all the subtrees</em>. The <code>tip</code> will be <code>this</code> tree, and the <code>tip</code> of each proper subtree under it will be the entire subtree at the corresponding point in the original tree.</p>
 
-<p>That is, when we say <code>t.duplicate.map(f)</code>, our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t.duplicate.map(f)</code> will be a tree with <code>f</code> applied to each subtree of <code>t</code> at the tip of each of its subtrees.</p>
+<p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree with each of its subtrees tipped by <code>f</code> applied to the subtree of <code>t</code> at that point.</p>
 
 <p>To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the <code>tip</code> and the size of each subdirectory underneath as tips of the subtrees, and so on.</p>
 
