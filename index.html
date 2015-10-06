@@ -171,7 +171,7 @@
 
 <p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree with each of its subtrees tipped by <code>f</code> applied to the subtree of <code>t</code> at that point.</p>
 
-<p>To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the <code>tip</code> and the size of each subdirectory underneath as tips of the subtrees, and so on.</p>
+<p>To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the <code>tip</code> and the size of each subdirectory underneath as tips of the subtrees, and so on. Then <code>d extend size</code> creates the tree of sizes of recursive subdirectories of <code>d</code>.</p>
 
 <h2>The cofree comonad</h2>
 
