@@ -186,6 +186,8 @@ Notice that the type signature of `extend` looks like `flatMap` with the directi
 
 Chaining operations this way using `flatMap` in a monad is sometimes called _Kleisli composition_, and chaining operations using `extend` in a comonad is called _coKleisli_ composition (or just Kleisli composition in a comonad).
 
+The name `extend` refers to the fact that it takes a "local" computation that operates on some structure and "extends" that to a "global" computation that operates on all substructures of the larger structure.
+
 ### The writer comonad
 
 Just like the writer monad, the writer comonad can append to a log or running tally using a monoid. But instead of keeping the log always available to be appended to, it uses the same trick as the reader monad by building up an operation that gets executed once a log becomes available:
@@ -201,7 +203,7 @@ case class Cowriter[W:Monoid,A](tell: W => A) {
 }
 ```
 
-Note that `duplicate` returns a whole `Cowriter` from its constructed `run` function, so the meaning is that subsequent operations (composed via `map` or `extend`) have access to exactly one `tell` function, which appends to the existing log or tally.
+Note that `duplicate` returns a whole `Cowriter` from its constructed `run` function, so the meaning is that subsequent operations (composed via `map` or `extend`) have access to exactly one `tell` function, which appends to the existing log or tally. For example, `foo.extend(_.tell("hi"))` will append `"hi"` to the log of `foo`. 
 
 ## Comonad laws
 
@@ -213,9 +215,9 @@ The comonad laws are analogous to the monad laws:
 
 It can be hard to get an intuition for what these laws _mean_, but in short they mean that (co)Kleisli composition in a comonad should be associative and that `extract` (a.k.a. `counit`) should be an identity for it.
 
-Intuitively, both the monad and comonad laws mean that we should be able to write our programs top-down or bottom-up, or any combination thereof, and have that mean the same thing regardless.
+Very informally, both the monad and comonad laws mean that we should be able to compose our programs top-down or bottom-up, or any combination thereof, and have that mean the same thing regardless.
 
 ## Next time...
 
-In [part 2](2015-07-22-a-scala-comonad-tutorial-part-2.html) we'll look at some more examples of comonads and follow some of the deeper connections. Like what's the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They're not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?
+In [part 2](http://blog.higher-order.com/blog/2015/10/04/scala-comonad-tutorial-part-2/) we'll look at some more examples of comonads and follow some of the deeper connections. Like what's the relationship between the reader monad and the reader comonad, or the writer monad and the writer comonad? They're not identical, but they seem to do all the same things. Are they equivalent? Isomorphic? Something else?
 
