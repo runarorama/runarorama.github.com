@@ -213,7 +213,7 @@
 <p>This comparison of <code>Free</code> and <code>Cofree</code> actually says something about monads and comonads in general:</p>
 
 <ul>
-<li>All monads are a kind of leafy tree structure, and all comonads are a kind of node-valued tree structure.</li>
+<li>All monads can model some kind of leafy tree structure, and all comonads can be modeled by some kind of node-valued tree structure.</li>
 <li>In a monad <code>M</code>, if <code>f: A =&gt; M[B]</code>, then <code>xs map f</code> allows us to take the values at the leaves (<code>a:A</code>) of a monadic structure <code>xs</code> and <em>substitute</em> an entire structure (<code>f(a)</code>) for each value. A subsequent <code>join</code> then renormalizes the structure, eliminating the &ldquo;seams&rdquo; around our newly added substructures. In a <em>comonad</em> <code>W</code>, <code>xs.duplicate</code> denormalizes, or exposes the substructure of <code>xs:W[A]</code> to yield <code>W[W[A]]</code>. Then we can map a function <code>f: W[A] =&gt; B</code> over that to get a <code>B</code> for each part of the substructure and <em>redecorate</em> the original structure with those values. (See Uustalu and Vene&rsquo;s excellent paper <a href="http://cs.ioc.ee/~tarmo/papers/sfp01-book.pdf">The Dual of Substitution is Redecoration</a> for more on this connection.)</li>
 <li>A monad defines a class of programs whose subexpressions are incrementally generated from the outputs of previous expressions. A comonad defines a class of programs that incrementally generate output from the substructure of previous expressions.</li>
 </ul>
