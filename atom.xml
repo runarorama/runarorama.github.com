@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-06T09:21:35-04:00</updated>
+  <updated>2015-10-06T09:23:47-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -605,7 +605,7 @@
 
 <p>It can be hard to get an intuition for what these laws <em>mean</em>, but in short they mean that (co)Kleisli composition in a comonad should be associative and that <code>extract</code> (a.k.a. <code>counit</code>) should be an identity for it.</p>
 
-<p>Intuitively, both the monad and comonad laws mean that we should be able to write our programs top-down or bottom-up, or any combination thereof, and have that mean the same thing regardless.</p>
+<p>Very informally, both the monad and comonad laws mean that we should be able to compose our programs top-down or bottom-up, or any combination thereof, and have that mean the same thing regardless.</p>
 
 <h2>Next time&hellip;</h2>
 
