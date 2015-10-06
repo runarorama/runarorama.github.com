@@ -224,7 +224,7 @@
 
 <p>If we look at a kleisli arrow in the <code>Reader[R,?]</code> comonad, it looks like <code>A =&gt; Reader[R,B]</code>, or expanded out: <code>A =&gt; R =&gt; B</code>. If we uncurry that, we get <code>(A, R) =&gt; B</code>, and we can go back to the original by currying again. But notice that a value of type <code>(A, R) =&gt; B</code> is a coKleisli arrow in the <code>Coreader</code> comonad! Remember that <code>Coreader[R,A]</code> is really a pair <code>(A, R)</code>.</p>
 
-<p>So the answer to the question of how <code>Reader</code> and <code>Coreader</code> are related is that there is a one-to-one correspondence between a Kleisli arrow in the <code>Reader</code> monad and a coKleisli arrow in the <code>Coreader</code> comonad. More precisely, the Kleisli category for <code>Reader[R,?]</code> is isomorphic to the coKleisli category for <code>Coreader[R,?]</code> This isomorphism is witnessed by currying and uncurrying.</p>
+<p>So the answer to the question of how <code>Reader</code> and <code>Coreader</code> are related is that there is a one-to-one correspondence between a Kleisli arrow in the <code>Reader</code> monad and a coKleisli arrow in the <code>Coreader</code> comonad. More precisely, the Kleisli category for <code>Reader[R,?]</code> is isomorphic to the coKleisli category for <code>Coreader[R,?]</code>. This isomorphism is witnessed by currying and uncurrying.</p>
 
 <p>In general, if we have an isomorphism between arrows like this, we have what&rsquo;s called an <em>adjunction</em>:</p>
 
