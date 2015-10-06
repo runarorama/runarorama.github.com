@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-06T07:15:46-04:00</updated>
+  <updated>2015-10-06T07:25:47-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -177,6 +177,8 @@
 <p>The additional <code>tupled</code> and <code>untupled</code> come from the unfortunate fact that I&rsquo;ve chosen Scala notation here and Scala differentiates between functions of two arguments and functions of one argument that happens to be a pair.</p>
 
 <p>So a more succinct description of this relationship is that <code>Coreader</code> is left adjoint to <code>Reader</code>.</p>
+
+<p>Generally the left adjoint functor <em>adds</em> structure, or is some kind of &ldquo;producer&rdquo;, while the right adjoint functor <em>removes</em> (or &ldquo;forgets&rdquo;) structure, or is some kind of &ldquo;consumer&rdquo;.</p>
 
 <h2>Composing adjoint functors</h2>
 

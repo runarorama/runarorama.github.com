@@ -264,6 +264,8 @@
 
 <p>So a more succinct description of this relationship is that <code>Coreader</code> is left adjoint to <code>Reader</code>.</p>
 
+<p>Generally the left adjoint functor <em>adds</em> structure, or is some kind of &ldquo;producer&rdquo;, while the right adjoint functor <em>removes</em> (or &ldquo;forgets&rdquo;) structure, or is some kind of &ldquo;consumer&rdquo;.</p>
+
 <h2>Composing adjoint functors</h2>
 
 <p>An interesting thing about adjunctions is that if you have an adjoint pair of functors <code>F ⊣ G</code>, then <code>F[G[?]]</code> always forms a comonad, and <code>G[F[?]]</code> always forms a monad, in a completely canonical and amazing way:</p>
