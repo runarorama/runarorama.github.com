@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-05T20:16:59-04:00</updated>
+  <updated>2015-10-05T20:21:25-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -123,7 +123,7 @@
 
 <ul>
 <li><code>Free[F,A]</code> is a type of &ldquo;leafy tree&rdquo; that branches according to <code>F</code>, with values of type <code>A</code> at the leaves, while <code>Cofree[F,A]</code> is a type of &ldquo;node-valued tree&rdquo; that branches according to <code>F</code> with values of type <code>A</code> at the nodes.</li>
-<li>If <code>Exp</code> defines the structure of some expression language, then <code>Free[Exp,A]</code> is the type of abstract syntax trees for that language, with free variables of type <code>A</code>, and monadic <code>bind</code> literally binds expressions to those variables. Dually, <code>Cofree[Exp,A]</code> is the type of <em>closed</em> exresspions whose subexpressions are annotated with values of type <code>A</code>, and comonadic <code>extend</code> <em>reannotates</em> the tree. For example, you might want to annotate each expression with its type.</li>
+<li>If <code>Exp</code> defines the structure of some expression language, then <code>Free[Exp,A]</code> is the type of abstract syntax trees for that language, with free variables of type <code>A</code>, and monadic <code>bind</code> literally binds expressions to those variables. Dually, <code>Cofree[Exp,A]</code> is the type of <em>closed</em> exresspions whose subexpressions are annotated with values of type <code>A</code>, and comonadic <code>extend</code> <em>reannotates</em> the tree. For example, if you have a type inferencer <code>infer</code>, then <code>e extend infer</code> will annotate each subexpression of <code>e</code> with its inferred type.</li>
 </ul>
 
 
