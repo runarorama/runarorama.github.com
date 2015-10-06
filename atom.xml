@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-06T14:10:19-04:00</updated>
+  <updated>2015-10-06T14:12:44-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -14,68 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[An Adjunction That Induces the Reader Monad]]></title>
-    <link href="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/"/>
-    <updated>2015-09-30T07:48:13-04:00</updated>
-    <id>http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad</id>
-    <content type="html"><![CDATA[<p>In writing up part 2 of my <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">Scala Comonad Tutorial</a>, and coming up with my talk for <a href="http://scala.world">Scala World</a>, I idly pondered this question:</p>
-
-<blockquote><p>If all monads are given by composing adjoint pairs of functors, what adjoint pair of functors forms the `Reader` monad? And if we compose those functors the other way, which comonad do we get?</p></blockquote>
-
-
-<p>Shachaf Ben-Kiki pointed out on IRC that there are at least two ways of doing this. One is via the <a href="https://en.wikipedia.org/wiki/Kleisli_category#Kleisli_adjunction">Kleisli construction</a> and the other is via the <a href="http://ncatlab.org/nlab/show/Eilenberg-Moore+category">Eilenberg-Moore construction</a>. Dr Eugenia Cheng has a <a href="https://www.youtube.com/playlist?list=PL54B49729E5102248">fantastic set of videos explaining these constructions</a>. She talks about how for any monad <code>T</code> there is a whole category <code>Adj(T)</code> of adjunctions that give rise to <code>T</code> (with categories as objects and adjoint pairs of functors as the arrows), and the Kleisli category is the initial object in this category while the Eilenberg-Moore category is the terminal object.</p>
-
-<p>So then, searching around for an answer to what exactly the Eilenberg-Moore category for the <code>R =&gt; ?</code> monad looks like (I think it&rsquo;s just values of type <code>R</code> and functions between them), I came across <a href="http://math.stackexchange.com/questions/1274989/what-is-the-eilenberg-moore-category-of-this-diagonal-like-monad">this Mathematics Stack Exchange question</a>, whose answer more or less directly addresses my original question above. The adjunction is a little more difficult to see than the initial/terminal ones, but it&rsquo;s somewhat interesting, and what follows is an outline of how I convinced myself that it works.</p>
-
-<h2>The adjoint pair</h2>
-
-<p>Let&rsquo;s consider the reader monad <code>R =&gt; ?</code>, which allows us to read a context of type <code>R</code>.</p>
-
-<p>The first category involved is <em>Set</em> (or <em>Hask</em>, or <em>Scala</em>). This is just the familiar category where the objects are types (<code>A</code>,<code>B</code>,<code>C</code>, etc.) and the arrows are functions.</p>
-
-<p>The other category is <em>Set/R</em>, which is the <a href="http://ncatlab.org/nlab/show/overcategory">slice category</a> of <em>Set</em> over the type <code>R</code>. This is a category whose objects are functions to <code>R</code>. So an object <code>x</code> in this category is given by a type <code>A</code> together with a function of type <code>A =&gt; R</code>. An arrow from <code>x: A =&gt; R</code> to <code>y: B =&gt; R</code> is given by a function <code>f: A =&gt; B</code> such that <code>y(f(a)) = x(a)</code> for all <code>a:A</code>.</p>
-
-<p>The left adjoint is <code>R*</code>, a functor from <em>Set</em> to <em>Set/R</em>. This functor sends each type <code>A</code> to the function <code>(p:(R,A)) =&gt; p._1</code>, having type <code>(R,A) =&gt; R</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">rStar</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">R</span> <span class="k">=</span> <span class="k">_</span><span class="o">.</span><span class="n">_1</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The right adjoint is <code>Π_R</code>, a functor from <em>Set/R</em> to <em>Set</em>. This functor sends each object <code>q: A =&gt; R</code> in <em>Set/R</em> to the set of functions <code>R =&gt; A</code> for which <code>q</code> is an inverse. This is actually a dependent type inhabited by functions <code>p: R =&gt; A</code> which satisfy the identity <code>q(p(a)) = a</code> for all <code>a:A</code>.</p>
-
-<h2>Constructing the monad</h2>
-
-<p>The monad is not exactly easy to see, but if everything has gone right, we should get the <code>R =&gt; ?</code> reader monad by composing <code>Π_R</code> with <code>R*</code>.</p>
-
-<p>We start with a type <code>A</code>. Then we do <code>R*</code>, which gives us the object <code>rStar[A]</code> in the slice category, which you will recall is just <code>_._1</code> of type <code>(R,A) =&gt; R</code>. Then we go back to types via <code>Π_R(rStar[A])</code> which gives us a dependent type <code>P</code> inhabited by functions <code>p: R =&gt; (R,A)</code>. Now, this looks a lot like an action in the <code>State</code> monad. But it&rsquo;s not. These <code>p</code> must satisfy the property that <code>_1</code> is their inverse. Which means that the <code>R</code> they return must be exactly the <code>R</code> they were given. So it&rsquo;s like a <code>State</code> action that is <em>read only</em>. We can therefore simplify this to the ordinary (non-dependent) type <code>R =&gt; A</code>. And now we have our <code>Reader</code> monad.</p>
-
-<h2>Constructing the comonad</h2>
-
-<p>But what about the other way around? What is the comonad constructed by composing <code>R*</code> with <code>Π_R</code>? Well, since we end up in the slice category, our comonad is actually in that category rather than in <em>Set</em>.</p>
-
-<p>We start with an object <code>q: A =&gt; R</code> in the slice category. Then we go to types by doing <code>Π_R(q)</code>. This gives us a dependent type <code>P_A</code> which is inhabited by all <code>p: R =&gt; A</code> such that <code>q</code> is their inverse. Then we take <code>rStar[Π_R(q)]</code> to go back to the slice category and we find ourselves at an object <code>f: (R, Π_R(q)) =&gt; R</code>, which you&rsquo;ll recall is implemented as <code>_._1</code>. As an endofunctor in <em>Set/R</em>, <code>λq. rStar[Π_R(q)]</code> takes all <code>q: A =&gt; R</code> to <code>p: (R, R =&gt; A) =&gt; R = _._1</code> such that <code>p</code> is only defined on <code>R =&gt; A</code> arguments whose inverse is <code>q</code>.</p>
-
-<p>That is, the counit for this comonad on elements <code>y: A =&gt; R</code> must be a function <code>counit: (R, Π_R(y)) =&gt; A</code> such that for <code>_._1: (R, Π_R(y)) =&gt; R</code>, the property <code>y compose counit = _._1</code> holds. Note that this means that the <code>R</code> returned by <code>_._1</code> and the <code>R</code> returned by <code>y</code> must be the same. Recall that <code>_._1</code> always returns the first element of its argument, and also recall that the functions in <code>Π_R(y)</code> must have <code>y</code> as their inverse, so they&rsquo;re only defined at the first element of the argument to <code>_._1</code>. That is <code>p._2(x)</code> is only defined when <code>x = p._1</code>.</p>
-
-<p>If we try to encode that in Scala (ignoring all the &ldquo;such that&rdquo;), we get something like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">p</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span> <span class="kt">R</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">))</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span>
-</span><span class='line'>  <span class="n">p</span><span class="o">.</span><span class="n">_2</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by our functors and by the slice category, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
-]]></content>
-  </entry>
-  
-  <entry>
     <title type="html"><![CDATA[Scala Comonad Tutorial Part 2]]></title>
-    <link href="http://runarorama.github.com/blog/2015/09/25/scala-comonad-tutorial-part-2/"/>
-    <updated>2015-09-25T00:00:00-04:00</updated>
-    <id>http://runarorama.github.com/blog/2015/09/25/scala-comonad-tutorial-part-2</id>
+    <link href="http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/"/>
+    <updated>2015-10-04T00:00:00-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2</id>
     <content type="html"><![CDATA[<p>&ndash;
 layout: post
 title: &ldquo;Scala Comonad Tutorial, Part 2&rdquo;
@@ -340,6 +282,64 @@ categories:</p>
 <p>This models a &ldquo;store&rdquo; of values of type <code>A</code> indexed by the type <code>S</code>. We have the ability to directly access the <code>A</code> value under a given <code>S</code> using <code>peek</code>, and there is a distinguished <code>cursor</code> or current position. The comonadic <code>extract</code> just reads the value under the <code>cursor</code>, and <code>duplicate</code> gives us a whole store full of stores such that if we <code>peek</code> at any one of them, we get a <code>Store</code> whose <code>cursor</code> is set to the given <code>s</code>. We&rsquo;re defining a <code>seek(s)</code> operation that moves the <code>cursor</code> to a given position <code>s</code> by taking advantage of <code>duplicate</code>.</p>
 
 <p>The type <code>A =&gt; Store[S,B]</code> is also one possible representation of a <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.package%24%24Lens%24">Lens</a>. In the next installment of this tutorial, we&rsquo;re going to talk about lenses and <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.Zipper">zippers</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[An Adjunction That Induces the Reader Monad]]></title>
+    <link href="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/"/>
+    <updated>2015-09-30T07:48:13-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad</id>
+    <content type="html"><![CDATA[<p>In writing up part 2 of my <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">Scala Comonad Tutorial</a>, and coming up with my talk for <a href="http://scala.world">Scala World</a>, I idly pondered this question:</p>
+
+<blockquote><p>If all monads are given by composing adjoint pairs of functors, what adjoint pair of functors forms the `Reader` monad? And if we compose those functors the other way, which comonad do we get?</p></blockquote>
+
+
+<p>Shachaf Ben-Kiki pointed out on IRC that there are at least two ways of doing this. One is via the <a href="https://en.wikipedia.org/wiki/Kleisli_category#Kleisli_adjunction">Kleisli construction</a> and the other is via the <a href="http://ncatlab.org/nlab/show/Eilenberg-Moore+category">Eilenberg-Moore construction</a>. Dr Eugenia Cheng has a <a href="https://www.youtube.com/playlist?list=PL54B49729E5102248">fantastic set of videos explaining these constructions</a>. She talks about how for any monad <code>T</code> there is a whole category <code>Adj(T)</code> of adjunctions that give rise to <code>T</code> (with categories as objects and adjoint pairs of functors as the arrows), and the Kleisli category is the initial object in this category while the Eilenberg-Moore category is the terminal object.</p>
+
+<p>So then, searching around for an answer to what exactly the Eilenberg-Moore category for the <code>R =&gt; ?</code> monad looks like (I think it&rsquo;s just values of type <code>R</code> and functions between them), I came across <a href="http://math.stackexchange.com/questions/1274989/what-is-the-eilenberg-moore-category-of-this-diagonal-like-monad">this Mathematics Stack Exchange question</a>, whose answer more or less directly addresses my original question above. The adjunction is a little more difficult to see than the initial/terminal ones, but it&rsquo;s somewhat interesting, and what follows is an outline of how I convinced myself that it works.</p>
+
+<h2>The adjoint pair</h2>
+
+<p>Let&rsquo;s consider the reader monad <code>R =&gt; ?</code>, which allows us to read a context of type <code>R</code>.</p>
+
+<p>The first category involved is <em>Set</em> (or <em>Hask</em>, or <em>Scala</em>). This is just the familiar category where the objects are types (<code>A</code>,<code>B</code>,<code>C</code>, etc.) and the arrows are functions.</p>
+
+<p>The other category is <em>Set/R</em>, which is the <a href="http://ncatlab.org/nlab/show/overcategory">slice category</a> of <em>Set</em> over the type <code>R</code>. This is a category whose objects are functions to <code>R</code>. So an object <code>x</code> in this category is given by a type <code>A</code> together with a function of type <code>A =&gt; R</code>. An arrow from <code>x: A =&gt; R</code> to <code>y: B =&gt; R</code> is given by a function <code>f: A =&gt; B</code> such that <code>y(f(a)) = x(a)</code> for all <code>a:A</code>.</p>
+
+<p>The left adjoint is <code>R*</code>, a functor from <em>Set</em> to <em>Set/R</em>. This functor sends each type <code>A</code> to the function <code>(p:(R,A)) =&gt; p._1</code>, having type <code>(R,A) =&gt; R</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">rStar</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">R</span> <span class="k">=</span> <span class="k">_</span><span class="o">.</span><span class="n">_1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The right adjoint is <code>Π_R</code>, a functor from <em>Set/R</em> to <em>Set</em>. This functor sends each object <code>q: A =&gt; R</code> in <em>Set/R</em> to the set of functions <code>R =&gt; A</code> for which <code>q</code> is an inverse. This is actually a dependent type inhabited by functions <code>p: R =&gt; A</code> which satisfy the identity <code>q(p(a)) = a</code> for all <code>a:A</code>.</p>
+
+<h2>Constructing the monad</h2>
+
+<p>The monad is not exactly easy to see, but if everything has gone right, we should get the <code>R =&gt; ?</code> reader monad by composing <code>Π_R</code> with <code>R*</code>.</p>
+
+<p>We start with a type <code>A</code>. Then we do <code>R*</code>, which gives us the object <code>rStar[A]</code> in the slice category, which you will recall is just <code>_._1</code> of type <code>(R,A) =&gt; R</code>. Then we go back to types via <code>Π_R(rStar[A])</code> which gives us a dependent type <code>P</code> inhabited by functions <code>p: R =&gt; (R,A)</code>. Now, this looks a lot like an action in the <code>State</code> monad. But it&rsquo;s not. These <code>p</code> must satisfy the property that <code>_1</code> is their inverse. Which means that the <code>R</code> they return must be exactly the <code>R</code> they were given. So it&rsquo;s like a <code>State</code> action that is <em>read only</em>. We can therefore simplify this to the ordinary (non-dependent) type <code>R =&gt; A</code>. And now we have our <code>Reader</code> monad.</p>
+
+<h2>Constructing the comonad</h2>
+
+<p>But what about the other way around? What is the comonad constructed by composing <code>R*</code> with <code>Π_R</code>? Well, since we end up in the slice category, our comonad is actually in that category rather than in <em>Set</em>.</p>
+
+<p>We start with an object <code>q: A =&gt; R</code> in the slice category. Then we go to types by doing <code>Π_R(q)</code>. This gives us a dependent type <code>P_A</code> which is inhabited by all <code>p: R =&gt; A</code> such that <code>q</code> is their inverse. Then we take <code>rStar[Π_R(q)]</code> to go back to the slice category and we find ourselves at an object <code>f: (R, Π_R(q)) =&gt; R</code>, which you&rsquo;ll recall is implemented as <code>_._1</code>. As an endofunctor in <em>Set/R</em>, <code>λq. rStar[Π_R(q)]</code> takes all <code>q: A =&gt; R</code> to <code>p: (R, R =&gt; A) =&gt; R = _._1</code> such that <code>p</code> is only defined on <code>R =&gt; A</code> arguments whose inverse is <code>q</code>.</p>
+
+<p>That is, the counit for this comonad on elements <code>y: A =&gt; R</code> must be a function <code>counit: (R, Π_R(y)) =&gt; A</code> such that for <code>_._1: (R, Π_R(y)) =&gt; R</code>, the property <code>y compose counit = _._1</code> holds. Note that this means that the <code>R</code> returned by <code>_._1</code> and the <code>R</code> returned by <code>y</code> must be the same. Recall that <code>_._1</code> always returns the first element of its argument, and also recall that the functions in <code>Π_R(y)</code> must have <code>y</code> as their inverse, so they&rsquo;re only defined at the first element of the argument to <code>_._1</code>. That is <code>p._2(x)</code> is only defined when <code>x = p._1</code>.</p>
+
+<p>If we try to encode that in Scala (ignoring all the &ldquo;such that&rdquo;), we get something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">p</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span> <span class="kt">R</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">))</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">p</span><span class="o">.</span><span class="n">_2</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by our functors and by the slice category, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
 ]]></content>
   </entry>
   
