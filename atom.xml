@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-06T14:12:44-04:00</updated>
+  <updated>2015-10-06T14:13:43-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -14,21 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Scala Comonad Tutorial Part 2]]></title>
+    <title type="html"><![CDATA[Scala Comonad Tutorial, Part 2]]></title>
     <link href="http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/"/>
-    <updated>2015-10-04T00:00:00-04:00</updated>
+    <updated>2015-10-04T17:36:31-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2</id>
-    <content type="html"><![CDATA[<p>&ndash;
-layout: post
-title: &ldquo;Scala Comonad Tutorial, Part 2&rdquo;
-date: 2015-10-4 22:36:31 +0100
-comments: true
-author: Rúnar
-categories:</p>
-
-<h2>commentIssueId: 20</h2>
-
-<p>In the <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">previous post</a>, we looked at the Reader/Writer monads and comonads, and discussed in general what comonads are and how they relate to monads. This time around, we&rsquo;re going to look at some more comonads, delve briefly into adjunctions, and try to get some further insight into what it all means.</p>
+    <content type="html"><![CDATA[<p>In the <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">previous post</a>, we looked at the Reader/Writer monads and comonads, and discussed in general what comonads are and how they relate to monads. This time around, we&rsquo;re going to look at some more comonads, delve briefly into adjunctions, and try to get some further insight into what it all means.</p>
 
 <h2>Nonempty structures</h2>
 
