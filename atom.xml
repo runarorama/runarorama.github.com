@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-06T08:40:16-04:00</updated>
+  <updated>2015-10-06T09:19:21-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -590,7 +590,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Note that <code>duplicate</code> returns a whole <code>Cowriter</code> from its constructed <code>run</code> function, so the meaning is that subsequent operations (composed via <code>map</code> or <code>extend</code>) have access to exactly one <code>tell</code> function, which appends to the existing log or tally.</p>
+<p>Note that <code>duplicate</code> returns a whole <code>Cowriter</code> from its constructed <code>run</code> function, so the meaning is that subsequent operations (composed via <code>map</code> or <code>extend</code>) have access to exactly one <code>tell</code> function, which appends to the existing log or tally. So <code>foo.extend(_.tell("hi"))</code> will append <code>"hi"</code> to the log of <code>foo</code>.</p>
 
 <h2>Comonad laws</h2>
 
