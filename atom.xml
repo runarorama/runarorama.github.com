@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-06T06:57:37-04:00</updated>
+  <updated>2015-10-06T06:59:53-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -70,7 +70,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>A tree of this sort has a value of type <code>A</code> at the tip, and a (possibly empty) list of subtrees underneath. One obvious use case is for something like a directory structure, where each <code>tip</code> is a directory and the corresponding <code>sub</code> is its subdirectories.</p>
+<p>A tree of this sort has a value of type <code>A</code> at the tip, and a (possibly empty) list of subtrees underneath. One obvious use case is something like a directory structure, where each <code>tip</code> is a directory and the corresponding <code>sub</code> is its subdirectories.</p>
 
 <p>This is also a comonad. The <code>counit</code> is obvious, we just get the <code>tip</code>. And here&rsquo;s a <code>duplicate</code> for this structure:</p>
 
