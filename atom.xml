@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-05T21:02:24-04:00</updated>
+  <updated>2015-10-06T06:57:37-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -44,7 +44,7 @@
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">head</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">tail</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span> <span class="o">{</span>
 </span><span class='line'>  <span class="o">...</span>
 </span><span class='line'>  <span class="k">def</span> <span class="n">tails</span><span class="k">:</span> <span class="kt">NEL</span><span class="o">[</span><span class="kt">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
-</span><span class='line'>    <span class="nc">NEL</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">duplicate</span><span class="o">))</span>
+</span><span class='line'>    <span class="nc">NEL</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">tails</span><span class="o">))</span>
 </span><span class='line'>  <span class="o">...</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
