@@ -355,7 +355,7 @@
 
 <p>This models a &ldquo;store&rdquo; of values of type <code>A</code> indexed by the type <code>S</code>. We have the ability to directly access the <code>A</code> value under a given <code>S</code> using <code>peek</code>, and there is a distinguished <code>cursor</code> or current position. The comonadic <code>extract</code> just reads the value under the <code>cursor</code>, and <code>duplicate</code> gives us a whole store full of stores such that if we <code>peek</code> at any one of them, we get a <code>Store</code> whose <code>cursor</code> is set to the given <code>s</code>. We&rsquo;re defining a <code>seek(s)</code> operation that moves the <code>cursor</code> to a given position <code>s</code> by taking advantage of <code>duplicate</code>.</p>
 
-<p>The type <code>A =&gt; Store[S,A]</code> is one possible representation of a <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.package%24%24Lens%24">Lens</a>. In the next installment of this tutorial, we&rsquo;re going to talk about lenses and <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.Zipper">zippers</a>.</p>
+<p>The type <code>A =&gt; Store[S,B]</code> is also one possible representation of a <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.package%24%24Lens%24">Lens</a>. In the next installment of this tutorial, we&rsquo;re going to talk about lenses and <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.Zipper">zippers</a>.</p>
 </div>
   
   
