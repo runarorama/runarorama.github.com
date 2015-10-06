@@ -332,6 +332,8 @@
 
 <p>Chaining operations this way using <code>flatMap</code> in a monad is sometimes called <em>Kleisli composition</em>, and chaining operations using <code>extend</code> in a comonad is called <em>coKleisli</em> composition (or just Kleisli composition in a comonad).</p>
 
+<p>The name <code>extend</code> refers to the fact that it takes a &ldquo;local&rdquo; computation that operates on some structure and &ldquo;extends&rdquo; that to a &ldquo;global&rdquo; computation that operates on all substructures of the larger structure.</p>
+
 <h3>The writer comonad</h3>
 
 <p>Just like the writer monad, the writer comonad can append to a log or running tally using a monoid. But instead of keeping the log always available to be appended to, it uses the same trick as the reader monad by building up an operation that gets executed once a log becomes available:</p>
@@ -414,7 +416,7 @@
         <a class="basic-alignment left" href="/blog/2015/06/18/easy-performance-wins-with-scalaz/" title="Previous Post: Easy performance wins with Scalaz">&laquo; Easy performance wins with Scalaz</a>
       
       
-        <a class="basic-alignment right" href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/" title="Next Post: An adjunction that induces the reader monad">An adjunction that induces the reader monad &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2015/09/25/scala-comonad-tutorial-part-2/" title="Next Post: Scala Comonad Tutorial Part 2">Scala Comonad Tutorial Part 2 &raquo;</a>
       
     </p>
   </footer>
@@ -463,11 +465,11 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+        <a href="/blog/2015/09/25/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial Part 2</a>
       </li>
     
       <li class="post">
