@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-12T23:37:35-04:00</updated>
+  <updated>2015-10-13T01:17:48-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -73,7 +73,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of <code>List</code>, other than the <code>unit</code>, are the parts that make it a monoid. And our comonad here is already in a category full of monoids.</p>
+<p>The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of <code>List</code>, other than the <code>unit</code>, are the parts that make it a monoid. And that structure is already baked into the category in which we find this comonad.</p>
 
 <h2>Forget ⊣ Cofree</h2>
 
@@ -3407,8 +3407,8 @@ The type of such a function looks like this (Scala notation):</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">String</span> <span class="n">y</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">y</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -3447,7 +3447,7 @@ The type of such a function looks like this (Scala notation):</p>
 </span><span class='line'>  <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
 </span><span class='line'><span class="o">}</span>
 </span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="n">Foo</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">Foo</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Foo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
 </span><span class='line'><span class="kt">boolean</span> <span class="n">a</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">);</span> <span class="c1">// true</span>
 </span><span class='line'><span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="na">v</span> <span class="o">&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="na">v</span><span class="o">;</span> <span class="c1">// ???</span>
 </span></code></pre></td></tr></table></div></figure>
