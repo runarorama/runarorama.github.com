@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-12T23:19:13-04:00</updated>
+  <updated>2015-10-12T23:21:50-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -105,6 +105,147 @@
 
 
 <p>Note that not only is the endofunctor <code>Cofree[F,?]</code> a comonad for any functor <code>F</code>, the <code>Cofree</code> data type itself is a comonad in the endofunctor category. It&rsquo;s this latter comonad that is induced by the <code>Forget |- Cofree</code> adjunction. That is, we start at an endofunctor <code>F</code>, then go to comonads via <code>Cofree[F,?]</code>, then back to endofunctors via <code>Forget</code>.</p>
+
+<p>Oddly enough, the <code>counit</code> for this comonad takes the heads of all the branches of the given <code>F</code>-branching stream.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">c</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">head</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>unit</code> for this adjunction is considerably more interesting. It is a comonad homomorphism. Remember, this is the <code>unit</code> for a monad in the category <em>Com</em> of comonads:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Comonad</span>,<span class="kt">A</span><span class="o">](</span><span class="n">x</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="nc">Cofree</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">counit</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">extend</span><span class="o">(</span><span class="n">unit</span><span class="o">(</span><span class="k">_</span><span class="o">)))</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will start with a value of type <code>F[A]</code> in the comonad <code>F</code>, and then <em>unfold</em> an <code>F</code>-branching stream from it. Note that the first level of this will have the same structure as <code>x</code>, which makes <code>counit</code> the inverse of <code>unit</code>.</p>
+
+<p>If we take <code>unit</code> across to the <em>End(Set)</em> category, we get the <code>duplicate</code> for our comonad:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">duplicate</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">?</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">unit</span><span class="o">(</span><span class="n">c</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that this is <em>not</em> the <code>duplicate</code> for the <code>Cofree[F,?]</code> comonad. It&rsquo;s the duplicate for <code>Cofree</code> itself which is a comonad in an endofunctor category.</p>
+
+<p>And composed the other way, it&rsquo;s a monad in the category of comonads:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Comonad</span>,<span class="kt">A</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">?</span><span class="o">]</span>,<span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">counit</span><span class="o">(</span><span class="n">c</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Freedom and Forgetfulness]]></title>
+    <link href="http://runarorama.github.com/blog/2015/10/12/ffreedom-and-forgetfulness/"/>
+    <updated>2015-10-12T23:13:54-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/10/12/ffreedom-and-forgetfulness</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve been having fun exploring adjunctions lately. A kind of adjunction that comes up a lot is that between a free functor and a forgetful functor. I suppose all adjunctions could be regarded as being of this kind, but I&rsquo;m particularly interested in left and right adjoints of forgetful functors that come up in programming.</p>
+
+<h2>The monad for monoids</h2>
+
+<p>Let&rsquo;s take an example. There is a category of monoids <em>Mon</em> with monoids as objects and monoid homomorphisms as arrows between them. Then there is a functor from <em>Set</em> to <em>Mon</em> that takes any ordinary type <code>A</code> to the <em>free monoid</em> generated by <code>A</code>. This is just the <code>List[A]</code> type together with concatenation as the multiplication and the empty list as the identity element.</p>
+
+<p>This free functor has a right adjoint that takes any monoid <code>M</code> in <em>Mon</em> to its <em>underlying set</em> <code>M</code>. That is, this right adjoint &ldquo;forgets&rdquo; that <code>M</code> is a monoid, leaving us with just an ordinary type.</p>
+
+<p>If we compose these two functors, we get a monad. If we start with a type <code>A</code>, get its free monoid (the <code>List[A]</code> monoid), and then go from there to the underlying type of the free monoid, we end up with the type <code>List[A]</code>. Note that there is a natural transformation from the identity functor to the <code>List</code> monad, witnessed by the <code>unit</code> of our adjunction:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Structure ⊣ Interpretation</h3>
+
+<p>But then what is the <code>counit</code>? Remember that for any adjunction, we can compose the functors one way to get a monad, and compose them the other way to get a comonad.</p>
+
+<p>In that case we have to start with a monoid <code>M</code>, then &ldquo;forget&rdquo;, giving us the plain type <code>M</code>. Then we take the free monoid of that to end up with the <code>List[M]</code> monoid.</p>
+
+<p>But notice that we are now in the monoid category. In that category, <code>List</code> is a comonad. And since we&rsquo;re in the category of monoids, the <code>counit</code> has to be a <em>monoid homomorphism</em>. It goes from the free monoid <code>List[A]</code> to the monoid <code>A</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A:Monoid</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">as</span><span class="o">.</span><span class="n">foldRight</span><span class="o">(</span><span class="nc">Monoid</span><span class="o">[</span><span class="kt">A</span><span class="o">].</span><span class="n">zero</span><span class="o">)(</span><span class="nc">Monoid</span><span class="o">[</span><span class="kt">A</span><span class="o">].</span><span class="n">append</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we send the <code>counit</code> for this comonad over to the <em>Set</em> category, we get the <code>join</code> for our monad:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="n">counit</span><span class="o">(</span><span class="n">as</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And to get the <code>duplicate</code> or <code>extend</code> operation in the comonad, we just turn the crank on the adjunction:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">duplicate</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">as</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">unit</span><span class="o">(</span><span class="k">_</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>duplicate</code> just puts each element into its own sublist. With regard to <code>extend</code>, this just means that given any catamorphism on <code>List</code>, we can turn that into a homomorphism on free monoids.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">as</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">unit</span><span class="o">(</span><span class="n">x</span><span class="o">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of <code>List</code>, other than the <code>unit</code>, are the parts that make it a monoid. And our comonad here is already in a category full of monoids.</p>
+
+<h2>Forget ⊣ Cofree</h2>
+
+<p>Let&rsquo;s now consider another category, call it <em>End(Set)</em>, which is the <em>category of endofunctors</em> in <em>Set</em>.</p>
+
+<p>The arrows in this category are natural transformations:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">~&gt;</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">apply</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">x</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s another category, <em>Com</em>, which is the <em>category of comonads</em> on <em>Set</em>. The arrows here are <em>comonad homomorphisms</em>. A comonad homomorphism from <code>F</code> to <code>G</code> is a natural transformation <code>f: F ~&gt; G</code> satisfying the homomorphism law:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="n">duplicate</span> <span class="o">==</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">duplicate</span><span class="o">)</span> <span class="n">map</span> <span class="n">f</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There is a forgetful functor <code>Forget: Com -&gt; End(Set)</code> that takes a comonad to its underlying endofunctor (forgetting that it&rsquo;s a comonad). And this functor has a <em>right</em> adjoint <code>Cofree: End(Set) -&gt; Com</code> which generates a cofree comonad on a given endofunctor <code>F</code>. This is the following data type:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cofree</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">head</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">tail</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that not only is the endofunctor <code>Cofree[F,?]</code> a comonad for any functor <code>F</code>, the <code>Cofree</code> data type itself is a comonad in the endofunctor category. It&rsquo;s this latter comonad that is induced by the <code>Forget ⊣ Cofree</code> adjunction. That is, we start at an endofunctor <code>F</code>, then go to comonads via <code>Cofree[F,?]</code>, then back to endofunctors via <code>Forget</code>.</p>
 
 <p>Oddly enough, the <code>counit</code> for this comonad takes the heads of all the branches of the given <code>F</code>-branching stream.</p>
 
@@ -3353,188 +3494,6 @@ The type of such a function looks like this (Scala notation):</p>
 <p>With some slightly clever use of generics and a little help from our friends Church and Curry, we can indeed emulate structural pattern matching over algebraic data types in Java, to the point where it&rsquo;s almost as nice as a built-in language feature.</p>
 
 <p>So throw away your Visitors and set fire to your GoF book.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Critique of Impure Reason]]></title>
-    <link href="http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason/"/>
-    <updated>2009-04-27T00:00:00-04:00</updated>
-    <id>http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason</id>
-    <content type="html"><![CDATA[<p>Much has been made of the difference between &ldquo;object-oriented&rdquo; and &ldquo;functional&rdquo; programming. As much as I&rsquo;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&rsquo;t think it&rsquo;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
-
-<p>Looking at pure (referentially transparent, purely functional) programming from a perspective of having accepted the premise of impurity, it&rsquo;s easy to be intimidated, and to see it as something foreign. Dijkstra once said that some programmers are &ldquo;mentally mutilated beyond hope of regeneration&rdquo;. I think that on one account, he was right, and that he was talking about this mental barrier of making the leap, from thinking about programming in terms of data mutation and effects, to the &ldquo;pure&rdquo; perspective. But I believe he was wrong on the other account. There is hope.</p>
-
-<p>Contrary to what the last post indicated, this will not be a post about problems in &ldquo;object-oriented&rdquo; programming in particular, but about problems in impure programming in general. I will illustrate the issue of data mutation by way of two difficulties with it:</p>
-
-<ul>
-<li>It blurs the distinction between values and variables, such that a term can be both a value and a variable.</li>
-<li>It introduces an artificial distinction between equality and identity.</li>
-</ul>
-
-
-<p>I will talk briefly about what the implications of each are, and what the alternative view is. But first I will discuss what I think motivates the impure perspective: an aversion to abstraction.</p>
-
-<h2>The Primacy of the Machine</h2>
-
-<p>In the early days of programming, there were no computers. The first programs were written, and executed, on paper. It wasn&rsquo;t until later that machines were first built that could execute programs automatically.</p>
-
-<p>During the ascent of computers, an industry of professional computer programmers emerged. Perhaps because early computers were awkward and difficult to use, the focus of these professionals became less thinking about programs and more manipulating the machine.</p>
-
-<p>Indeed, if you read the Wikipedia entry on &ldquo;Computer Program&rdquo;, it tells you that computer programs are &ldquo;instructions for a computer&rdquo;, and that &ldquo;a computer requires programs to function&rdquo;. This is a curious position, since it&rsquo;s completely backwards. It implies that programming is done in order to make computers do things, as a primary. I&rsquo;ll warrant that the article was probably written by a professional programmer.</p>
-
-<p>But why does a computer need to function? Why does a computer even exist? The reality is that computers exist solely for the purpose of executing programs. The machine is not a metaphysical primary. Reality has primacy, a program is a description, an abstraction, a proof of some hypothesis about an aspect of reality, and the computer exists to deduce the implications of that fact for the pursuit of human values.</p>
-
-<p>To say that a computer &ldquo;requires programs to function&rdquo; is not at all like saying that an automobile requires fuel. It&rsquo;s like saying that it needs a driver. While that&rsquo;s true, the driver doesn&rsquo;t exist for the sake of the car. The driver has somewhere to go and the car exists to serve that purpose.</p>
-
-<h2>Shaping Programs in the Machine&rsquo;s Image</h2>
-
-<p>There&rsquo;s a certain kind of programming that lends itself well to manipulating a computer at a low level. You must think in terms of copying data between registers and memory, and executing instructions based on the machine&rsquo;s current state. In this kind of activity, the programmer serves as the interpreter between the abstract algorithm and the physical machine. But this in itself is a mechanical task. We can instead write a program, once and for all, that performs the interpretation for us, and direct that program using a general-purpose programming language.</p>
-
-<p>But what kind of structure will that language have? Ideally, we would be able to express programs in a natural and concise notation without regard to the machine. Such was the motivation behind LISP. It was designed as an implementation of the lambda calculus, a minimal formal system for expressing algorithms.</p>
-
-<p>This is not what has happened with languages like Java, C++, and some other of today&rsquo;s most popular languages. The abstractions in those languages largely simulate the machine. You have mutable records, or objects, into which you copy data and execute instructions based on their current state. The identity of objects is based on their location in the computer&rsquo;s memory. You have constructs like &ldquo;factories&rdquo;, &ldquo;builders&rdquo;, &ldquo;generators&rdquo;&hellip; <em>machines</em>!</p>
-
-<p>What we have is a generation of programmers accustomed to writing programs as if they were constructing a machine. We hear about &ldquo;engineering&rdquo; and &ldquo;architecture&rdquo; when talking about software. Indeed, as users, we interact with software using pictures of buttons, knobs, and switches. More machinery.</p>
-
-<h2>Equality and Identity</h2>
-
-<p>Programmers are generally used to thinking of equality and identity as distinct. For example, in Java, <code>(x == y)</code> means that the variable <code>x</code> holds a pointer to the same memory address as the variable <code>y</code>, i.e. that the variable <code>x</code> is identical with <code>y</code>. However, by convention, <code>x.equals(y)</code> means that the object at the memory address pointed to by <code>x</code> is equivalent in some sense to the object at the memory address pointed to by <code>y</code>, but <code>x</code> and <code>y</code> are not necessarily identical.</p>
-
-<p>Note that the difference between the two can only be explained in terms of the underlying machine. We have to invoke the notion of memory addresses to understand what&rsquo;s going on, or else resort to an appeal to intuition with terms like &ldquo;same object&rdquo;, &ldquo;same instance&rdquo;, etc.</p>
-
-<p>In a pure program, side-effects are disallowed. So a function is not allowed to mutate arguments or make calls to functions that have side-effects. So the result of every function is purely determined by the value of its arguments, and a function does nothing except compute a result. Think about the implications of that for a moment. Given that constraint, is there any reason to maintain a distinction between equality and identity? Consider this example:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">String</span> <span class="n">y</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If the values referenced by <code>x</code> and <code>y</code> are forever immutable, what could it possibly mean for them to not be identical? In what meaningful sense are they not the &ldquo;same object&rdquo;?</p>
-
-<p>Note that there&rsquo;s a philosophical connection here. The notion that every object carries an extradimensional identity that is orthogonal to its attributes is a very Platonic idea. The idea that an object has, in addition to its measurable attributes, a distinguished, eternal, noumenal identity. Contrast this with the Aristotelian view, in which an object&rsquo;s identity is precisely the sum of its attributes.</p>
-
-<h2>Variables and Pseudovariables</h2>
-
-<p>So we find that, given the mutability premise, a term in the language may be not be equal to itself even as it remains identical with itself. In a sense, this is because it&rsquo;s not entirely clear whether we are comparing values or variables when we compare a term. If that sounds a bit strange, consider the following snippet:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="n">v</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="nf">Foo</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">v</span> <span class="o">=</span> <span class="n">i</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="kd">public</span> <span class="n">Foo</span> <span class="nf">f</span><span class="o">(</span><span class="n">Foo</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="na">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">v</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="n">Foo</span> <span class="n">x</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
-</span><span class='line'><span class="kt">boolean</span> <span class="n">a</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">);</span> <span class="c1">// true</span>
-</span><span class='line'><span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="na">v</span> <span class="o">&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="o">).</span><span class="na">v</span><span class="o">;</span> <span class="c1">// ???</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Even that short and ostensibly simple code snippet is difficult to comprehend properly, because the <code>f</code> method mutates its argument. It seems that since the first boolean is true, the same object appears on either side of the <code>==</code> operator, so <code>f(x)</code> is identical with <code>f(x)</code>. They&rsquo;re the &ldquo;same object&rdquo;. Even so, it is not clear that this &ldquo;same object&rdquo; is equal to itself. To figure out the value of <code>b</code>, you have to know some things about how the machine executes the program, not just what the program actually says. You can argue about pass-by-reference and pass-by-value, but these are terms that describe the machine, not the program.</p>
-
-<p>You will note that the <code>Foo</code> type above is mutable in the sense that it has accessible components that can be assigned new values. But what does that mean? Is an object of type <code>Foo</code> a value or a variable? It seems to <em>have</em> a kind of pseudo-variable <code>v</code>. To clarify this, we can imagine that a variable holding a value of type <code>Foo</code> also holds a further value of type <code>int</code>. Assignment to a variable <code>x</code> of type <code>Foo</code> also assigns the variable <code>x.v</code> of type <code>int</code>, but the variable <code>x.v</code> can be assigned independently of <code>x</code>.</p>
-
-<p>So data mutation is, ultimately, variable assignment. Above, <code>Foo</code> is mutated by assigning a value to the pseudo-variable <code>v</code>.</p>
-
-<p>Now, I say pseudo-variable, because it&rsquo;s not obvious whether this is a value or a variable. A function that receives a value of type <code>Foo</code>, also receives the variable <code>Foo.v</code>, to which it can assign new values. So the variable is passed as if it were a value. Stated in terms of the machine, a pointer to a pointer is being passed, and the memory at that address can be mutated by writing another pointer to it. In terms of the program, the called function is able to <em>rebind a variable in the scope of the caller</em>.</p>
-
-<p>This is why you have bugs, why programs are hard to debug, and software is difficult to extend. It&rsquo;s because programs are difficult to comprehend to the extent that they are impure. And the reason for that is that they are not sufficiently abstract. A writer of impure code is not operating on the level of abstraction of programming. He&rsquo;s operating at the level of abstraction of the machine.</p>
-
-<h2>Thinking Pure Thoughts</h2>
-
-<p>In a pure program, there are no side-effects at all. Every function is just that, a function from its arguments to its result. Values are immutable and eternal. A is A, and will always remain A. The only way to get from A to B is for there to be a function that takes A and returns B.</p>
-
-<p>To a lot of programmers used to thinking in terms of mutable state, this perspective is completely baffling. And yet, most of them use immutable values all the time, without finding them particularly profound. For example:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In that example, 1 is an immutable value. The + operator doesn&rsquo;t modify the value of 1, nor of x, nor of y. It doesn&rsquo;t take the value 1 and turn it into a 2. Every integer is equal to and identical with itself, always and forever.</p>
-
-<p>But what&rsquo;s special about integers? When adding a value to a list, a Java programmer will ordinarily do something like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">one</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This modifies the list in place, so that any variable referencing it will change values. But why shouldn&rsquo;t lists be as immutable as integers? I&rsquo;m sure some readers just mumbled something about primitives and passing by reference versus passing by value. But why the distinction? If everything were immutable, you would never know if it were passed by value or reference under the covers. Nor would you care what&rsquo;s primitive and what isn&rsquo;t. For an immutable list, for example, the add function would not be able to modify the list in place, and so would return a new one:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">list</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">one</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>From this perspective, you can write programs that perform arithmetic with complex values as if they were primitive. But why stop with lists? When functions are pure, we can understand programs themselves as objects that are subject to calculation just like numbers in arithmetic, using simple and composable operators.</p>
-
-<h2>Assignment in a Pure World</h2>
-
-<p>Let&rsquo;s take a simple example of just such an operator. We&rsquo;ve talked about how mutation is really assignment. Now let&rsquo;s take the leap fully into the pure perspective, in which assignment is really just closure (pure functions with free variables). To illustrate, here is an example that all Java and C programmers are familiar with:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
-</span><span class='line'><span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
-</span><span class='line'><span class="n">t</span><span class="o">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The familiar semicolon represents a combinator called &ldquo;bind&rdquo;. In Haskell, this operator is denoted <code>(&gt;&gt;=)</code>. In Scala, it&rsquo;s called <code>flatMap</code>. To better see how this works, here&rsquo;s a rough transliteration into Haskell:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">f</span> <span class="mi">1</span>
-</span><span class='line'>  <span class="kr">where</span>
-</span><span class='line'>    <span class="n">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">return</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span>
-</span><span class='line'>    <span class="n">g</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">return</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">t</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Of course, this isn&rsquo;t at all the kind of code you would normally write, but it serves to demonstrate the idea that assignment can be understood as binding the argument to a function. The Haskell code above roughly means:</p>
-
-<p><em>Pass <code>1</code> to <code>f</code>, where <code>f</code> passes its argument to unchanged to <code>g</code>. And <code>g</code> adds <code>1</code> to its argument and passes the result to a function that adds <code>y</code> to its argument and passes that to <code>t</code>.</em></p>
-
-<p>So in the Java version, we can understand everything after the first semicolon to be a <em>function</em> that takes an argument <code>x</code> and we happen to be passing it <code>1</code>. Everything after the second semicolon is a function that takes an argument <code>y</code> and we happen to be passing it <code>x</code> (which has the value <code>1</code>). And everything after the third semicolon is a function that takes an argument called <code>x</code> (shadowing the first <code>x</code>) and passes <code>x + y</code> to some function <code>t</code>.</p>
-
-<p>Haskell is a purely functional language, and purity is enforced by its type system. If you haven&rsquo;t taken it for a spin, I challenge you to do so. For more on the benefits of purely functional programming, see &ldquo;Why Haskell Matters&rdquo;.</p>
-
-<p>Of course, purity is not purely the prerogative of Haskell. Sure, Haskell enforces purity, but you can write pure code in any language. That Java code above is pure, you know. If this is all new to you, I challenge you to give purity a shot. In your favourite language, be it Java or something else, start using immutable datastructure in preference to mutable ones. Try thinking in terms of functions from arguments to results rather than in terms of mutation and effects. For Java, you might consider using the immutable datastructures provided by Functional Java or Google Collections. Scala also has immutable datastructures as part of its standard libraries.</p>
-
-<p>It&rsquo;s time that we graduate from punching buttons and pulling levers — manipulating the machines. Here&rsquo;s to programming as it could be and ought to be.</p>
 ]]></content>
   </entry>
   
