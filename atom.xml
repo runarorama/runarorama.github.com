@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-12T23:17:45-04:00</updated>
+  <updated>2015-10-12T23:18:53-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Freedom and Forgetfulness]]></title>
-    <link href="http://runarorama.github.com/blog/2015/10/12/ffreedom-and-forgetfulness/"/>
+    <link href="http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness/"/>
     <updated>2015-10-12T23:13:54-04:00</updated>
-    <id>http://runarorama.github.com/blog/2015/10/12/ffreedom-and-forgetfulness</id>
+    <id>http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve been having fun exploring adjunctions lately. A kind of adjunction that comes up a lot is that between a free functor and a forgetful functor. I suppose all adjunctions could be regarded as being of this kind, but I&rsquo;m particularly interested in left and right adjoints of forgetful functors that come up in programming.</p>
 
 <h2>The monad for monoids</h2>
