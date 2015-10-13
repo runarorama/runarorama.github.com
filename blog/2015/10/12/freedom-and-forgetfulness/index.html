@@ -109,7 +109,7 @@
 
 <p>This free functor has a right adjoint that takes any monoid <code>M</code> in <em>Mon</em> to its <em>underlying set</em> <code>M</code>. That is, this right adjoint &ldquo;forgets&rdquo; that <code>M</code> is a monoid, leaving us with just an ordinary type.</p>
 
-<p>If we compose these two functors, we get a monad. If we start with a type <code>A</code>, get its free monoid (the <code>List[A]</code> monoid), and then go from there to the underlying type of the free monoid, we end up with the type <code>List[A]</code>. Note that there is a natural transformation from the identity functor to the <code>List</code> monad, witnessed by the <code>unit</code> of our adjunction:</p>
+<p>If we compose these two functors, we get a monad. If we start with a type <code>A</code>, get its free monoid (the <code>List[A]</code> monoid), and then go from there to the underlying type of the free monoid, we end up with the type <code>List[A]</code>. The <code>unit</code> of our adjunction is then a function from any given type <code>A</code> to the type <code>List[A]</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
@@ -156,7 +156,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of <code>List</code>, other than the <code>unit</code>, are the parts that make it a monoid. And that structure is already baked into the category in which we find this comonad.</p>
+<p>The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of <code>List</code>, other than the <code>unit</code>, are the parts that make it a monoid. And our comonad here is already in a category full of monoids.</p>
 
 <h2>Forget ⊣ Cofree</h2>
 
