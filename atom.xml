@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-13T10:48:20-04:00</updated>
+  <updated>2015-10-13T10:53:27-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -104,7 +104,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Note that not only is the endofunctor <code>Cofree[F,?]</code> a comonad for any functor <code>F</code>, but the higher-order type constructor <code>Cofree</code> is itself is a comonad in the endofunctor category. It&rsquo;s this latter comonad that is induced by the <code>Forget ⊣ Cofree</code> adjunction. That is, we start at an endofunctor <code>F</code>, then go to comonads via <code>Cofree[F,?]</code>, then back to endofunctors via <code>Forget</code>.</p>
+<p>Note that not only is the endofunctor <code>Cofree[F,?]</code> a comonad (in <em>Set</em>) for any functor <code>F</code>, but the higher-order type constructor <code>Cofree</code> is itself is a comonad in the endofunctor category. It&rsquo;s this latter comonad that is induced by the <code>Forget ⊣ Cofree</code> adjunction. That is, we start at an endofunctor <code>F</code>, then go to comonads via <code>Cofree[F,?]</code>, then back to endofunctors via <code>Forget</code>.</p>
 
 <p>Oddly enough, the <code>counit</code> for this comonad takes the heads of all the branches of the given <code>F</code>-branching stream.</p>
 
