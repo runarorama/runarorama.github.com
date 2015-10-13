@@ -192,18 +192,7 @@
 
 <p>Note that not only is the endofunctor <code>Cofree[F,?]</code> a comonad (in <em>Set</em>) for any functor <code>F</code>, but the higher-order type constructor <code>Cofree</code> is itself is a comonad in the endofunctor category. It&rsquo;s this latter comonad that is induced by the <code>Forget ⊣ Cofree</code> adjunction. That is, we start at an endofunctor <code>F</code>, then go to comonads via <code>Cofree[F,?]</code>, then back to endofunctors via <code>Forget</code>.</p>
 
-<p>Oddly enough, the <code>counit</code> for this comonad takes the heads of all the branches of the given <code>F</code>-branching stream.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
-</span><span class='line'>  <span class="n">c</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">head</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>unit</code> for this adjunction is considerably more interesting. It is a comonad homomorphism. Remember, this is the <code>unit</code> for a monad in the category <em>Com</em> of comonads:</p>
+<p>The <code>unit</code> for this adjunction is then a comonad homomorphism. Remember, this is the <code>unit</code> for a monad in the category <em>Com</em> of comonads:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -214,7 +203,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This will start with a value of type <code>F[A]</code> in the comonad <code>F</code>, and then <em>unfold</em> an <code>F</code>-branching stream from it. Note that the first level of this will have the same structure as <code>x</code>, which makes <code>counit</code> the inverse of <code>unit</code>.</p>
+<p>This will start with a value of type <code>F[A]</code> in the comonad <code>F</code>, and then <em>unfold</em> an <code>F</code>-branching stream from it. Note that the first level of this will have the same structure as <code>x</code>.</p>
 
 <p>If we take <code>unit</code> across to the <em>End(Set)</em> category, we get the <code>duplicate</code> for our comonad:</p>
 
@@ -227,7 +216,18 @@
 
 <p>Note that this is <em>not</em> the <code>duplicate</code> for the <code>Cofree[F,?]</code> comonad. It&rsquo;s the duplicate for <code>Cofree</code> itself which is a comonad in an endofunctor category.</p>
 
-<p>And composed the other way, it&rsquo;s a monad in the category of comonads:</p>
+<p>Turning the crank on the adjunction, the <code>counit</code> for this comonad now has to be the inverse of our <code>unit</code>. It takes the heads of all the branches of the given <code>F</code>-branching stream.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">c</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">c</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">head</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sending that over to the comonad category, we get the <code>join</code> for our monad:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
