@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-13T13:14:48-04:00</updated>
+  <updated>2015-10-13T13:15:11-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -18,7 +18,7 @@
     <link href="http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness/"/>
     <updated>2015-10-12T23:13:54-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness</id>
-    <content type="html"><![CDATA[<p>I&rsquo;ve been having fun exploring adjunctions lately and thinking about how we can take a monad apart and compose it the other way to get a comonad, and vice versa. Often I&rsquo;ll find that the corresponding comonad for a given monad gives an interesting perspective on that monad, and ditto for the monad cousin to a given comonad.</p>
+    <content type="html"><![CDATA[<p>I&rsquo;ve been having fun exploring adjunctions lately and thinking about how we can take a monad apart and compose it the other way to get a comonad, and vice versa. Often I&rsquo;ll find that the comonad counterpart of a given monad gives an interesting perspective on that monad, and ditto for the monad cousin to a given comonad.</p>
 
 <h2>The monad for monoids</h2>
 
