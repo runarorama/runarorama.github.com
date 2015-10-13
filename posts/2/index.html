@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="Today I want to talk about relationships between monoids. These can be useful to think about when we&rsquo;re developing libraries involving monoids &hellip;">
+  <meta name="description" content="In early September 2014, we published Functional Programming in Scala. It is now available from all major booksellers, and from the publisher at &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +82,49 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/18/at-long-last/">At Long Last</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-18T13:09:00-04:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:09 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&rsquo;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
+
+<p>I just want to share my personal story of how this book came to exist. A much shorter version of this story became the preface for the finished book, but here is the long version.</p>
+
+<p>Around 2006 I was working in Austin and coming up on my 8th anniversary as an enterprise Java programmer. I had started to notice that I was making a lot of the same mistakes over and over again. I had a copy of the Gang of Four’s Design Patterns on my desk that I referred to frequently, and I built what I thought were elegant object-oriented designs. Every new project started out well enough, but became a big ball of mud after a while. My once-elegant class hierarchies gathered bugs, technical debt, and unimplemented features. Making changes started to feel like trudging through a swamp. I was never confident that I wasn’t introducing defects as I went. My code was difficult to test or reuse, and impossible to reason about. My productivity plummeted, and a complete rewrite became inevitable. It was a vicious cycle.</p>
+
+<p>In looking for a more disciplined approach, I came across Haskell and functional programming. Here was a community of people with a sound methodology for reasoning about their programs. In other words, they actually knew what they were doing. I found a lot of good ideas and proceeded to import them to Java. A little later I met Tony Morris, who had been doing the same, on IRC. He told me about this new JVM language, Scala. Tony had a library called Scalaz (scala-zed) that made FP in Scala more pleasant, and I started contributing to that library. One of the other people contributing to Scalaz was Paul Chiusano, who was working for a company in Boston. In 2008 he invited me to come work with him, doing Scala full time. I sold my house and everything in it, and moved to Boston.</p>
+
+<p>Paul co-organized the Boston Area Scala Enthusiasts, a group that met monthly at Google’s office in Cambridge. It was a popular group, mainly among Java programmers who were looking for something better. But there was a clear gap between those who had come to Scala from an FP perspective and those who saw Scala as just a better way to write Java. In April 2010 another of the co-organizers, Nermin Serifovic, said he thought there was “tremendous demand” for a book that would bridge that gap, on the topic of functional programming in Scala. He suggested that Paul and I write that book. We had a very clear idea of the kind of book we wanted to write, and we thought it would be quick and easy. More than four years later, I think we have made a good book.</p>
+
+<p>Paul and I hope to convey in this book some of the excitement that we felt when we were first discovering FP. It’s encouraging and empowering to finally feel like we’re writing comprehensible software that we can reuse and confidently build upon. We want to invite you to the world of programming as it could be and ought to be.</p>
+
+<p>– Rúnar Óli Bjarnason</p>
+
+<p>Boston, August 2014</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2150,79 +2193,9 @@ The type of such a function looks like this (Scala notation):</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2008/12/04/no-such-thing/">Objects, Identity, and Concept-formation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2008-12-04'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2008</span></span> <span class='time'>12:00 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Coming from a background in Pascal and C, during the 1990s, like most others, I became infatuated with Object-Oriented programming. I thought they were really on to something. It seemed intuitive. I read and re-read the <a href="http://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional/dp/0201633612">GoF book</a>. I became fluent in UML. I read Chris Alexander. I wrote factories and metafactories, and more class hierarchies than I&rsquo;ll ever count. I embraced Java eagerly, and XML moreso. But with experience came the realisation that I was solving the same problems over and over again. There was <a href="http://en.wikipedia.org/wiki/Combinatory_logic">some governing principle</a> that I was missing but knew I had to grasp if I were to progress in my chosen profession. I went back to the fundamentals. I learned about LISP, lamdba calculi, type theory, relational programming, <a href="http://en.wikipedia.org/wiki/Category_theory">category theory</a>, and <a href="http://en.wikipedia.org/wiki/Introduction_to_Objectivist_Epistemology">epistemology</a>. And I&rsquo;m still learning. But in integrating all of that into my existing knowledge, I discovered something that I found liberating:</p>
-
-<p><em>There is no such thing as Object-Oriented programming.</em></p>
-
-<p>I realise that I might risk starting a religious war here, but I don&rsquo;t intend to. If you think I&rsquo;m attacking you personally in some way, please stop reading and come back later with fresh eyes. Note that <strong>I&rsquo;m not saying that OO is a bad thing</strong>. I&rsquo;m saying that there isn&rsquo;t any special kind of programming that is object-oriented as against programming that isn&rsquo;t. It is a useless distinction, in exactly the same way that <a href="http://freedomkeys.com/ar-racism.htm">&ldquo;race&rdquo;</a> is a useless distinction. And holding on to a useless concept isn&rsquo;t good for anybody. The term &ldquo;object-oriented&rdquo; is at least honest in that it says what it implies, which is a frame of mind, an orientation of the programmer. However, the practical effect of this orientation is anti-conceptual, in that it displaces actual concepts like algebra, calculus, closure, function, identity, type, value, variable, etc. It fosters an aversion to abstraction. So you could say that there are object-orientated programmers.</p>
-
-<h2>&ldquo;Object-Oriented&rdquo; as a non-concept</h2>
-
-<p>Remember, you cannot be called upon to prove a negative. The burden of proof falls on whomever is claiming that there is such a thing as OO. But try as you might, <a href="http://www.paulgraham.com/reesoo.html">there&rsquo;s no objective definition of what &ldquo;object-oriented&rdquo; refers to</a>. It means anything you want, which is to say that it&rsquo;s rather meaningless. Peddlers of &ldquo;object methodology&rdquo; readily admit that &ldquo;object-oriented&rdquo; means different things to different people. To quote Aristotle: &ldquo;Not to have one meaning is to have no meaning, and if words have no meaning, our reasoning with one another, and indeed with ourselves, has been annihilated.&rdquo;</p>
-
-<p>When I say that there&rsquo;s no such thing as OO, I mean, more precisely, that there exists some abstraction (or several) that is referred to as &ldquo;object-oriented&rdquo;, but that this abstraction has no actual referent in reality. It is an abstraction that is made in error. It is not necessary, and serves no cognitive purpose. It is &ldquo;not even false&rdquo;.</p>
-
-<p>This is to say that it&rsquo;s not like the concept of Santa Claus, which is a fiction, a falsehood. OO is not a fiction, but a misintegration. It is a term that sounds like a concept, but denotes nothing more than a vague collection of disparate elements, any of which can be omitted, and none of which are essential.</p>
-
-<h2>A Proper Method of Concept-Formation</h2>
-
-<p>How is Object-Oriented a non-concept? Let&rsquo;s demonstrate that very cursorily. First, we have to explicitly identify what it means for a concept to be valid.</p>
-
-<p><em>Valid concepts are arrived at by induction. </em>Induction is the process of integrating facts of reality by observing similarities and omitting particulars. Or, if you will, the process of applying logic to experience. Our induction must adhere to the corollary laws of <a href="http://en.wikipedia.org/wiki/Law_of_identity">identity</a>, <a href="http://en.wikipedia.org/wiki/Law_of_noncontradiction">noncontradiction</a>, and <a href="http://en.wikipedia.org/wiki/Law_of_excluded_middle">the excluded middle</a>, and it must observe <a href="http://aynrandlexicon.com/lexicon/causality.html">causality</a>.</p>
-
-<p>Note that a correct concept of concepts is the vehicle and not the cargo of this post. In brief, a valid concept or theory must meet the following criteria (hat tip: <a href="http://www.theobjectivestandard.com/issues/2007-spring/induction-experimental-method.asp">David Harriman</a>):</p>
-
-<ol>
-<li>It must be derived from observations by a valid method (by logical induction from experience or experiment as described above). A valid concept can have no arbitrary elements and no relations that are unsupported by the facts being integrated.</li>
-<li>It must form an integrated whole in which every part supports every other. It cannot be a conglomeration of independent parts that are freely adjusted to fit a given situation.</li>
-<li>It must be no more and no less general than required to meet criteria 1 and 2.</li>
-</ol>
-
-
-<p><strong>OO doesn&rsquo;t meet criterion #1</strong>. There&rsquo;s nothing about the nature of programming that gives rise to a concept of object-orientation. Rather, the notion is sparked by the desire to make an analogy between manipulating physical objects in the real world and manipulating abstract entities in the computer. The motivation is understandable, to help people think about programs in the same way that they are used to reasoning about physical objects. But the analogy isn&rsquo;t warranted by the facts, and therefore it is arbitrary. The concepts simply don&rsquo;t transfer, because they are abstractions over entities of a different kind. The mistake is to use the concepts anyway, choosing the illusion that software is like physical systems rather than understanding the actual nature of programs.</p>
-
-<p><strong>OO doesn&rsquo;t meet criterion #2</strong>: There&rsquo;s no consistent definition of object-orientation. It&rsquo;s a loose grab-bag in which nothing is essential. Even if you start removing things, it&rsquo;s not at all clear at what point your programming stops being object-oriented. One would think that it&rsquo;s at the point where you stop programming with objects, but that&rsquo;s merely begging the question since it&rsquo;s not clear what kind of entity is an object and what kind of entity isn&rsquo;t. We are to rely on intuition alone in discovering that. What&rsquo;s more, some of the contents of the &ldquo;object-oriented&rdquo; bag contradict one another (both inheritance and mutation contradict encapsulation, for example).</p>
-
-<h2>Repairing the Disorientation</h2>
-
-<p>Of course, it does no good to tear down the cognitive package-deal that is &ldquo;object-oriented&rdquo; if you don&rsquo;t replace it with something. If you entered a village of <a href="http://www.smurf.com/">little blue creatures</a> and convinced them that the term &ldquo;smurf&rdquo; had no cognitive utility, you would have to teach them a whole host of concepts to use in its stead. There are two main ideas that the anti-concept &ldquo;object-oriented&rdquo; annihilates:</p>
-
-<ol>
-<li>It introduces the false dichotomy of identity as apart from equivalence.</li>
-<li>It blurs the distinction between values and variables.</li>
-</ol>
-
-
-<p>I will elaborate on each of these points in two follow-up posts. Stay tuned.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/posts/3">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -2241,6 +2214,10 @@ The type of such a function looks like this (Scala notation):</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/10/12/ffreedom-and-forgetfulness/">FFreedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
       </li>
     
@@ -2254,10 +2231,6 @@ The type of such a function looks like this (Scala notation):</p>
     
       <li class="post">
         <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/16/pulling-out-of-functional-programming-in-java/">Pulling Out of Functional Programming in Java</a>
       </li>
     
   </ul>
