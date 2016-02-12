@@ -1,0 +1,839 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Better Reading List With Mathematica - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">A Better Reading List With Mathematica</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-02-08T11:04:00-08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:04 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read in my lifetime, this list has become quite long.</p>
+
+<p>In the olden days of brick-and-mortar bookstores and libraries, I would discover books to read by browsing shelves and picking up what looked interesting at the time. I might even find something that I knew was on my list. &ldquo;Oh, I&rsquo;ve been meaning to read that!&rdquo;</p>
+
+<p>The Internet changes this dynamic dramatically. It makes it much easier for me to discover books that interest me, and also to access any book that I might want to read, instantly, anywhere. At any given time, I have a couple of books that I&rsquo;m &ldquo;currently reading&rdquo;, and when I finish one I can start another immediately. I use Goodreads to manage my to-read list, and it&rsquo;s easy for me to scroll through the list and pick out my next book.</p>
+
+<p>But again, this list is very long. So I wanted a good way to filter out books I will really never read, and sort it such that the most &ldquo;important&rdquo; books in some sense show up first. Then every time I need a new book I could take the first one from the list and make a binary decision: either &ldquo;I will read this right now&rdquo;, or &ldquo;I am never reading this&rdquo;. In the latter case, if a book interests me enough at a later time, I&rsquo;m sure it will find its way back onto my list.</p>
+
+<p>The problem then is to find a good metric by which to rank books. Goodreads lets users rank books with a star-rating from 1 to 5, and presents you with an average rating by which you can sort the list. The problem is that a lot of books that interest me have only one rating and it&rsquo;s 5 stars, giving the book an &ldquo;average&rdquo; of 5.0. So if I go with that method I will be perpetually reading obscure books that one other person has read and loved. This is not necessarily a bad thing, but I do want to branch out a bit.</p>
+
+<p>Another possibility is to use the number of ratings to calculate a <a href="http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval">confidence interval</a> for the average rating. For example, using the <a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html">Wilson score</a> I could find an upper and lower bound <code>s1</code> and <code>s2</code> (higher and lower than the average rating, respectively) that will let me say &ldquo;I am 95% sure that any random sample of readers of an equal size would give an average rating between <code>s1</code> and <code>s2</code>.&rdquo; I could then sort the list by the lower bound <code>s1</code>.</p>
+
+<p>But this method is dissatisfactory for a number of reasons. First, it&rsquo;s not clear how to fit star ratings to such a measure. If we do the naive thing and count a 1-star rating as 1/5 and a 5 star rating as 5/5, that counts a 1-star rating as a &ldquo;partial success&rdquo; in some sense. We could discard 1-stars as 0, and count 2, 3, 4, and 5 stars as 25%, 50%, 75%, and 100%, respectively.</p>
+
+<p>But even if we did make it fit somehow, it turns out that if you take <em>any moderately popular book</em> on Goodreads at random, it will have an average rating somewhere close to 4. I could <a href="http://stephsun.com/silverizing.html">manufacture a prior</a> based on this knowledge and use that instead of the normal distribution or the Jeffreys prior in the confidence interval, but that would still not be a very good ranking because <a href="http://stephsun.com/metascores.html">reader review metascores are meaningless</a>.</p>
+
+<p>In the article <a href="http://stephsun.com/metascores.html">&ldquo;Reader review metascores are meaningless&rdquo;</a>, Stephanie Shun suggests using the <em>percentage of 5-star ratings</em> as the relevant metric rather than the average rating. This is a good suggestion, since even a single 5-star rating carries a lot of actionable information whereas an average rating close to 4.0 carries very little.</p>
+
+<p>I can then use the Wilson score directly, counting a 5-star rating as a successful trial and any other rating as a failed one. I can then just use the normal distribution instead of working with an artisanally curated prior.</p>
+
+<p>Mathematica makes it easy to generate the Wilson score. Here, <code>pos</code> is the number of positive trials (number of 5-star ratings), <code>n</code> is the number of total ratings, and <code>confidence</code> is the desired confidence percentage. I&rsquo;m taking the lower bound of the confidence interval to get my score.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Wilson</span><span class="p">[</span><span class="nv">pos_</span><span class="p">,</span><span class="w"> </span><span class="nv">n_</span><span class="p">,</span><span class="w"> </span><span class="nv">confidence_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">If</span><span class="p">[</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="err">&lt;</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Quantile</span><span class="p">[</span><span class="n">NormalDistribution</span><span class="p">[],</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">confidence</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span>
+</span><span class='line'><span class="w">      </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pos</span><span class="o">/</span><span class="n">n</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">},</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="w"> </span><span class="n">Sqrt</span><span class="p">[(</span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="o">/</span><span class="n">n</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">(</span><span class="n">z</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I just need to get the book data from Goodreads. Fortunately, <a href="https://www.goodreads.com/api">it has a pretty rich API</a>. I just need a developer key, which anyone can get for free.</p>
+
+<p>For example, to get the ratings for a given book <code>id</code>, we can use their XML api for books and pattern match on the result to get the ratings by score:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Ratings</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cases</span><span class="p">[</span><span class="n">Import</span><span class="p">[</span><span class="n">ToString</span><span class="p">[</span><span class="n">StringForm</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">        </span><span class="s">&quot;http://www.goodreads.com/book/show.xml?key=``&amp;id=``&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">]]],</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;rating_dist&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">d_</span><span class="p">}]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">Infinity</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">},</span><span class="w"> </span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="w"></span>
+</span><span class='line'><span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringSplit</span><span class="p">[</span><span class="nv">#</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">StringSplit</span><span class="p">[</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="n">Block</span><span class="p">[{},</span><span class="w"> </span><span class="n">Pause</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">FromDigits</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">Association</span><span class="p">[</span><span class="n">Rule</span><span class="w"> </span><span class="o">@@@</span><span class="w"> </span><span class="n">First</span><span class="p">[</span><span class="n">data</span><span class="p">]]]]];</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, <code>key</code> is my Goodreads developer API key, defined elsewhere. I put a <code>Pause[1]</code> in the call since Goodreads throttles API calls so you can&rsquo;t make more than one call per second to each API endpoint. I&rsquo;m also memoizing the result, by assigning to <code>Ratings[id]</code> in the global environment.</p>
+
+<p><code>Ratings</code> will give us an association list with the number of ratings for each score from 1 to 5, together with the total. For example, for the first book in their catalogue, <em>Harry Potter and the Half-Blood Prince</em>, here are the scores:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="err">&lt;</span><span class="o">|</span><span class="s">&quot;5&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="mi">782740</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;4&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="mi">352725</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;3&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="mi">111068</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;2&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">   </span><span class="mi">17693</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;1&quot;</span><span class="w">     </span><span class="o">-&gt;</span><span class="w">    </span><span class="mi">5289</span><span class="p">,</span><span class="w"></span>
+</span><span class='line'><span class="w">          </span><span class="s">&quot;total&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">1269515</span><span class="o">|</span><span class="err">&gt;</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sweet. Let&rsquo;s see how Harry Potter #6 would score with our rating:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">:=</span><span class="w"> </span><span class="n">Wilson</span><span class="p">[</span><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.95</span><span class="p">]</span><span class="w"></span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="w"> </span><span class="mf">0.61572</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So Wilson is 95% confident that in any random sample of about 1.2 million Harry Potter readers, at least 61.572% of them would give <em>The Half-Blood Prince</em> a 5-star rating. That turns out to be a pretty high score, so if this book were on my list (which it isn&rsquo;t), it would feature pretty close to the very top.</p>
+
+<p>But now the score for a relatively obscure title is too low. For example, the lower bound of the 95% confidence interval for a single-rating 5-star book will be 0.206549, which will be towards the bottom of any list. This means I would never get to any of the obscure books on my reading list, since they would be edged out by moderately popular books with an average rating close to 4.0.</p>
+
+<p>See, if I&rsquo;ve picked a book that <em>I want to read</em>, I&rsquo;d consider five ratings that are all five stars a much stronger signal than the fact that people who like Harry Potter enough to read 5 previous books loved the 6th one. Currently the 5*5 book will score 57%, a bit weaker than the Potter book&rsquo;s 62%.</p>
+
+<p>I can fix this by lowering the confidence level. Because honestly, I don&rsquo;t need a high confidence in the ranking. I&rsquo;d rather err on the side of picking up a deservedly obscure book than to miss out on a rare gem. Experimenting with this a bit, I find that a confidence around 80% raises the obscure books enough to give me an interesting mix. For example, a 5*5 book gets a 75% rank, while the Harry Potter one stays at 62%.</p>
+
+<p>I&rsquo;m going to call that the <em>Rúnar rank</em> of a given book. The Rúnar rank is defined as the lower bound of the <em>1-1/q</em> Wilson confidence interval for scoring in the <em>q</em>th <em>q</em>-quantile. In the special case of Goodreads ratings, it&rsquo;s the 80% confidence for a 5-star rating.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">RunarRank</span><span class="p">[</span><span class="nv">id_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">With</span><span class="p">[{</span><span class="n">ratings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ratings</span><span class="p">[</span><span class="n">id</span><span class="p">]},</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">Wilson</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;5&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">ratings</span><span class="p">[</span><span class="s">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">.8</span><span class="p">]]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unfortunately, there&rsquo;s no way to get the rank of all the books in my reading list in one call to the Goodreads API. And when I asked them about it they basically said &ldquo;you can&rsquo;t do that&rdquo;, so I&rsquo;m assuming that feature will not be added any time soon. So I&rsquo;ll have to get the reading list first, then call <code>RunarRank</code> for each book&rsquo;s <code>id</code>. In Goodreads, books are managed by &ldquo;shelves&rdquo;, and the API allows getting the contents of a given shelf, 200 books at a time:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">GetShelf</span><span class="p">[</span><span class="nv">user_</span><span class="p">,</span><span class="w"> </span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w">  </span><span class="n">With</span><span class="p">[{</span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="n">Cases</span><span class="p">[</span><span class="n">Import</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="n">ToString</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">       </span><span class="n">StringForm</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">        </span><span class="err">&quot;</span><span class="n">http</span><span class="err">:</span><span class="o">//</span><span class="n">www</span><span class="err">.</span><span class="n">goodreads</span><span class="err">.</span><span class="n">com</span><span class="o">/</span><span class="n">review</span><span class="o">/</span><span class="n">list</span><span class="err">.</span><span class="n">xml</span><span class="o">?</span><span class="n">v</span><span class="o">=</span><span class="mi">2</span><span class="o">&amp;</span><span class="n">key</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="n">id</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="err">\</span><span class="w"></span>
+</span><span class='line'><span class="n">shelf</span><span class="o">=</span><span class="err">``</span><span class="o">&amp;</span><span class="n">sort</span><span class="o">=</span><span class="nv">avg_rating</span><span class="o">&amp;</span><span class="n">order</span><span class="o">=</span><span class="n">d</span><span class="o">&amp;</span><span class="nv">per_page</span><span class="o">=</span><span class="mi">200</span><span class="err">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">shelf</span><span class="p">]]],</span><span class="w"> </span>
+</span><span class='line'><span class="w">     </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">       </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">___</span><span class="p">,</span><span class="w"> </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">id_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">title_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="s">&quot;average_rating&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">avg_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">         </span><span class="s">&quot;authors&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">           </span><span class="s">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">___</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">            </span><span class="n">XMLElement</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">             </span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">author_</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}],</span><span class="w"> </span><span class="nv">___</span><span class="p">}]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span>
+</span><span class='line'><span class="w">        </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;author&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">author</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;avg&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">avg</span><span class="p">},</span><span class="w"> </span>
+</span><span class='line'><span class="w">     </span><span class="n">Infinity</span><span class="p">]},</span><span class="w"> </span><span class="n">Association</span><span class="w"> </span><span class="o">/@</span><span class="w"> </span><span class="n">raw</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m doing a bunch of XML pattern matching here to get the <code>id</code>, <code>title</code>, <code>average_rating</code>, and first <code>author</code> of each book. Then I put that in an association list. I&rsquo;m getting only the top-200 books on the list by average rating (which currently is about half my list).</p>
+
+<p>With that in hand, I can get the contents of my &ldquo;to-read&rdquo; shelf with <code>GetShelf[runar, "to-read"]</code>, where <code>runar</code> is my Goodreads user id. And given that, I can call <code>RunarRank</code> on each book on the shelf, then sort the result by that rank:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">RunarSort</span><span class="p">[</span><span class="nv">shelf_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"></span>
+</span><span class='line'><span class="w"> </span><span class="n">Sort</span><span class="p">[</span><span class="n">Map</span><span class="p">[</span><span class="n">Function</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">Append</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rank&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">RunarRank</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]]],</span><span class="w"> </span>
+</span><span class='line'><span class="w">   </span><span class="n">shelf</span><span class="p">],</span><span class="w"> </span><span class="nv">#1</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="nv">#2</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To get the ranked reading list of any user:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">ReadingList</span><span class="p">[</span><span class="nv">user_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">RunarSort</span><span class="p">[</span><span class="n">GetShelf</span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;to-read&quot;</span><span class="p">]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And to print it out nicely:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="nv">books_</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>
+</span><span class='line'><span class="w"> </span><span class="n">Grid</span><span class="p">[</span><span class="n">Flatten</span><span class="p">[</span><span class="w"></span>
+</span><span class='line'><span class="w">   </span><span class="n">Cases</span><span class="p">[</span><span class="n">books</span><span class="p">,</span><span class="w"> </span>
+</span><span class='line'><span class="w">    </span><span class="nv">b_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">{</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">UnitConvert</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s">&quot;rank&quot;</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;Percent&quot;</span><span class="p">]},</span><span class="w"></span>
+</span><span class='line'><span class="w">      </span><span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;author&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="s">&quot;avg&quot;</span><span class="p">]},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">}</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"></span>
+</span><span class='line'><span class="w">   </span><span class="n">Alignment</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Left</span><span class="p">]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I can get, say, the first 10 books on my improved reading list:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mathematica'><span class='line'><span class="n">Gridify</span><span class="p">[</span><span class="n">ReadingList</span><span class="p">[</span><span class="n">runar</span><span class="p">][[</span><span class="mi">1</span><span class="w"> </span><span class="o">;;</span><span class="w"> </span><span class="mi">10</span><span class="p">]]]</span><span class="w"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;"> </th>
+<th style="text-align:left;"> </th>
+<th style="text-align:right;"> </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"> 9934419 </td>
+<td style="text-align:left;"> Kvæðasafn </td>
+<td style="text-align:right;"> 75.2743% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Snorri Hjartarson </td>
+<td style="text-align:right;"> 5.00 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 17278 </td>
+<td style="text-align:left;"> The Feynman Lectures on Physics Vol 1 </td>
+<td style="text-align:right;"> 67.2231% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Richard P. Feynman </td>
+<td style="text-align:right;"> 4.58 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 640909 </td>
+<td style="text-align:left;"> The Knowing Animal: A Philosophical Inquiry Into Knowledge and Truth </td>
+<td style="text-align:right;"> 64.6221% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Raymond Tallis </td>
+<td style="text-align:right;"> 5.00 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 640913 </td>
+<td style="text-align:left;"> The Hand: A Philosophical Inquiry Into Human Being </td>
+<td style="text-align:right;"> 64.6221% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Raymond Tallis </td>
+<td style="text-align:right;"> 5.00 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 4050770 </td>
+<td style="text-align:left;"> Volition As Cognitive Self Regulation </td>
+<td style="text-align:right;"> 62.231% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Harry Binswanger </td>
+<td style="text-align:right;"> 4.86 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 8664353 </td>
+<td style="text-align:left;"> Unbroken: A World War II Story of Survival, Resilience, and Redemption </td>
+<td style="text-align:right;"> 60.9849% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Laura Hillenbrand </td>
+<td style="text-align:right;"> 4.45 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 13413455 </td>
+<td style="text-align:left;"> Software Foundations </td>
+<td style="text-align:right;"> 60.1596% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Benjamin C. Pierce </td>
+<td style="text-align:right;"> 4.80 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 77523 </td>
+<td style="text-align:left;"> Harry Potter and the Sorcerer&rsquo;s Stone (Harry Potter #1) </td>
+<td style="text-align:right;"> 59.1459% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> J.K. Rowling </td>
+<td style="text-align:right;"> 4.39 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 13539024 </td>
+<td style="text-align:left;"> Free Market Revolution: How Ayn Rand&rsquo;s Ideas Can End Big Government </td>
+<td style="text-align:right;"> 59.1102% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Yaron Brook </td>
+<td style="text-align:right;"> 4.48 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;"> 1609224 </td>
+<td style="text-align:left;"> The Law </td>
+<td style="text-align:right;"> 58.767% </td>
+</tr>
+<tr>
+<td style="text-align:left;">  </td>
+<td style="text-align:left;"> Frédéric Bastiat </td>
+<td style="text-align:right;"> 4.40 </td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>I&rsquo;m quite happy with that. Some very popular and well-loved books interspersed with obscure ones with exclusively (or almost exclusively) positive reviews. The most satisfying thing is that the rating carries a real meaning. It&rsquo;s basically the relative likelihood that I will enjoy the book enough to rate it five stars.</p>
+
+<p>I can test this ranking against books I&rsquo;ve already read. Here&rsquo;s the top of my &ldquo;read&rdquo; shelf, according to their Rúnar Rank:</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">    </th>
+<th style="text-align:left;">    </th>
+<th style="text-align:right;">    </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">17930467</td>
+<td style="text-align:left;">The Fourth Phase of Water</td>
+<td style="text-align:right;">68.0406%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Gerald H. Pollack</td>
+<td style="text-align:right;">4.85</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">7687279</td>
+<td style="text-align:left;">Nothing Less Than Victory: Decisive Wars and the Lessons of History</td>
+<td style="text-align:right;">64.9297%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">John David Lewis</td>
+<td style="text-align:right;">4.67</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">43713</td>
+<td style="text-align:left;">Structure and Interpretation of Computer Programs</td>
+<td style="text-align:right;">62.0211%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Harold Abelson</td>
+<td style="text-align:right;">4.47</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">7543507</td>
+<td style="text-align:left;">Capitalism Unbound: The Incontestable Moral Case for Individual Rights</td>
+<td style="text-align:right;">57.6085%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Andrew Bernstein</td>
+<td style="text-align:right;">4.67</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">13542387</td>
+<td style="text-align:left;">The DIM Hypothesis: Why the Lights of the West Are Going Out</td>
+<td style="text-align:right;">55.3296%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Leonard Peikoff</td>
+<td style="text-align:right;">4.37</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">5932</td>
+<td style="text-align:left;">Twenty Love Poems and a Song of Despair</td>
+<td style="text-align:right;">54.7205%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Pablo Neruda</td>
+<td style="text-align:right;">4.36</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">18007564</td>
+<td style="text-align:left;">The Martian</td>
+<td style="text-align:right;">53.9136%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Andy Weir</td>
+<td style="text-align:right;">4.36</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">24113</td>
+<td style="text-align:left;">Gödel, Escher, Bach: An Eternal Golden Braid</td>
+<td style="text-align:right;">53.5588%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Douglas R. Hofstadter</td>
+<td style="text-align:right;">4.29</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">19312</td>
+<td style="text-align:left;">The Brothers Lionheart</td>
+<td style="text-align:right;">53.0952%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Astrid Lindgren</td>
+<td style="text-align:right;">4.33</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left;">13541678</td>
+<td style="text-align:left;">Functional Programming in Scala</td>
+<td style="text-align:right;">52.6902%</td>
+</tr>
+<tr>
+<td style="text-align:left;"></td>
+<td style="text-align:left;">Rúnar Bjarnason</td>
+<td style="text-align:right;">4.54</td>
+</tr>
+<tr>
+<td style="text-align:left;">&nbsp;</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>That&rsquo;s perfect. Those are definitely books I thouroughly enjoyed and would heartily recommend. Especially that last one.</p>
+
+<p>I&rsquo;ve published this function as a Wolfram Cloud API, and you can call it at <a href="https://www.wolframcloud.com/app/objects/4f4a7b3c-38a5-4bf3-81b6-7ca8e05ea100">https://www.wolframcloud.com/app/objects/4f4a7b3c-38a5-4bf3-81b6-7ca8e05ea100</a>. It takes two URL query parameters, <code>key</code> and <code>user</code>, which are your Goodreads API key and the Goodreads user ID whose reading list you want to generate, respectively. Enjoy!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-02-08T11:04:00-08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:04 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/12/21/maximally-powerful/" title="Previous Post: Maximally Powerful, Minimally Useful">&laquo; Maximally Powerful, Minimally Useful</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/" title="Next Post: A companion booklet to FPiS">A companion booklet to FPiS &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/13"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/13#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/13#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/13/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Free Monads and the Yoneda Lemma - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="Last week I gave a talk on Purely Functional I/O at Scala.io in Paris. The slides for the talk are available here. In it I presented a data type for &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Free Monads and the Yoneda Lemma</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-11-01'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>12:00 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &ldquo;free monad&rdquo;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
+
+<h2>IO as an application of Free</h2>
+
+<p>The <code>Free</code> monad in Scalaz is given a bit like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">Return</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Suspend</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">s</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">Free</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">A</span><span class="o">]])</span> <span class="k">extends</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And throughout the methods on <code>Free</code>, it is required that <code>F</code> is a <em>functor</em> because in order to get at the recursive step inside a <code>Suspend</code>, we need to <code>map</code> over the <code>F</code> somehow.</p>
+
+<p>But the <code>IO</code> monad I gave in the talk looks more like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">Return</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Req</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">I</span>,<span class="kt">A</span><span class="o">](</span><span class="n">req</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">],</span> <span class="n">k</span><span class="k">:</span> <span class="kt">I</span> <span class="o">=&gt;</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">IO</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And it could actually be stated as an application of <code>Free</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">type</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[({</span><span class="k">type</span> <span class="kt">λ</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span> <span class="o">(</span><span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>, <span class="kt">I</span> <span class="k">=&gt;</span> <span class="kt">α</span><span class="o">)</span> <span class="k">forSome</span> <span class="o">{</span><span class="k">type</span> <span class="kt">I</span><span class="o">}})</span><span class="k">#</span><span class="kt">λ</span>, <span class="kt">A</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So in a very superficial sense, this is how the <code>IO</code> monad relates to <code>Free</code>. The monad <code>IO[F,_]</code> for a given <code>F</code> is the free monad generated by the functor <code>(F[I], I =&gt; _)</code> for some type <code>I</code>. And do note that <em>this is a functor no matter what <code>F</code> is</em>.</p>
+
+<h2>IO as equivalent to Free</h2>
+
+<p>There is a deeper sense in which <code>IO</code> and <code>Free</code> are actually equivalent (more precisely, isomorphic). That is, there exists a transformation from one to the other and back again. Since the only difference between <code>IO</code> and <code>Free</code> is in the functors <code>F[_]</code> vs <code>∃I. (F[I], I =&gt; _)</code>, we just have to show that these two are isomorphic for any <code>F</code>.</p>
+
+<h3>The Yoneda lemma</h3>
+
+<p>There is an important result in category theory known as the <em>Yoneda lemma</em>. What it says is that if you have a function defined like this&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&hellip;then you certainly have a value of type <code>F[A]</code>. All you need is to pass the identity function to <code>map</code> in order to get the value of type <code>F[A]</code> out of this function. In fact, a function like this is in practice probably defined as a method on a value of type <code>F[A]</code> anyway. This also means that <code>F</code> is definitely a functor.</p>
+
+<p>The Yoneda lemma says that this goes the other way around as well. If you have a value of type <code>F[A]</code> for any functor <code>F</code> and any type <code>A</code>, then you certainly have a <code>map</code> function with the signature above.</p>
+
+<p>In scala terms, we can capture this in a type:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the Yoneda lemma says that there is an isomorphism between <code>Yoneda[F,A]</code> and <code>F[A]</code>, for any functor <code>F</code> and any type <code>A</code>. Here is the proof:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">scalaz._</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">toYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">fa</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Yoneda</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">].</span><span class="n">map</span><span class="o">(</span><span class="n">fa</span><span class="o">)(</span><span class="n">f</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">froYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">yo</span><span class="k">:</span> <span class="kt">Yoneda</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="n">yo</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">a</span> <span class="k">=&gt;</span> <span class="n">a</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>CoYoneda</h3>
+
+<p>Of course, this also means that if we have a type <code>B</code>, a function of type <code>(B =&gt; A)</code> for some type <code>A</code>, and a value of type <code>F[B]</code> for some functor <code>F</code>, then we certainly have a value of type <code>F[A]</code>. This is kind of obvious, since we can just pass the <code>B =&gt; A</code> and the <code>F[B]</code> to the <code>map</code> function for the functor and get our <code>F[A]</code>.</p>
+
+<p>But the opposite is also true, and that is the really interesting part. If we have a value of type <code>F[A]</code>, for any <code>F</code> and <code>A</code>, then we can always destructure it into a value of type <code>F[B]</code> and a function of type <code>B =&gt; A</code>, at least for <em>some</em> type <code>B</code>. And it turns out that we can do this even if <code>F</code> is not a functor.</p>
+
+<p>This is the permutation of the Yoneda lemma that we were using in <code>IO</code> above. That is, <code>IO[F, A]</code> is really <code>Free[({type λ[α] = CoYoneda[F,α]})#λ, A]</code>, given:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">CoYoneda</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">type</span> <span class="kt">I</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">f</span><span class="k">:</span> <span class="kt">I</span> <span class="o">=&gt;</span> <span class="n">A</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">fi</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">I</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the lemma says that <code>CoYoneda[F,A]</code> is isomorphic to <code>F[A]</code>. Here is the proof:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">toCoYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">fa</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">CoYoneda</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">type</span> <span class="kt">I</span> <span class="o">=</span> <span class="n">A</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">f</span> <span class="k">=</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">a</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">fi</span> <span class="k">=</span> <span class="n">fa</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="k">def</span> <span class="n">froCoYo</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span><span class="kt">:Functor</span>,<span class="kt">A</span><span class="o">](</span><span class="n">yo</span><span class="k">:</span> <span class="kt">CoYo</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">].</span><span class="n">map</span><span class="o">(</span><span class="n">yo</span><span class="o">.</span><span class="n">fi</span><span class="o">)(</span><span class="n">yo</span><span class="o">.</span><span class="n">f</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Of course, this destructuring into <code>CoYoneda</code> using the identity function is the simplest and most general, but there may be others for specific <code>F</code> and <code>A</code> depending on what we know about them.</p>
+
+<p>So there you have it. The <code>scalaz.Free</code> monad with its <code>Suspend(F[Free[F,A]])</code> constructor and the <code>IO</code> monad with its <code>Req(F[I], I =&gt; IO[F,A])</code> constructor are actually equivalent. The latter is simply making use of <code>CoYoneda</code> to say the same thing.</p>
+
+<p>Why bother? The useful part is that <code>CoYoneda[F,_]</code> is a functor for any <code>F</code>, so it&rsquo;s handy to use in a free monad since we can then drop the requirement that <code>F</code> is a functor. What&rsquo;s more, it gives us <em>map fusion</em> for free, since <code>map</code> over <code>CoYoneda</code> is literally just function composition on its <code>f</code> component. Although this latter is, in the absence of tail call elimination, not as useful as it could be in Scala.</p>
+
+<p>I hope that sheds a little bit of light on the Yoneda lemma as well as the different embeddings of free monads.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-11-01'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>12:00 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/08/20/free-monads-and-free-monoids/" title="Previous Post: Free monoids and free monads">&laquo; Free monoids and free monads</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/19/monoid-morphisms-products-coproducts/" title="Next Post: Monoid morphisms, products, and coproducts">Monoid morphisms, products, and coproducts &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/7"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/7#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/7#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/7/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Companion Booklet to FPiS - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="Our book, Functional Programming in Scala, relies heavily on exercises. Hints and answers for those exercises are not actually in the book, but are &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">A Companion Booklet to FPiS</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-06T12:17:35-08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:17 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Our book, <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>, relies heavily on exercises. Hints and answers for those exercises are not actually in the book, but are <a href="http://github.com/fpinscala/fpinscala">freely available on GitHub</a> under a permissive MIT license. Likewise, we have written chapter notes that we reference throughout the book and made them <a href="http://github.com/fpinscala/fpinscala/wiki">available as a community-editable wiki</a>.</p>
+
+<p>Naturally, readers get the most out of this book by downloading the source code from GitHub and doing the exercises as they read. But a number of readers have made the comment that they wish they could have the hints and answers with them when they read the book on the train to and from work, on a long flight, or wherever there is no internet connection or it&rsquo;s not convenient to use a computer.</p>
+
+<p>It is of course entirely possible to print out the chapter notes, hints, and exercises, and take them with you either as a hardcopy or as a PDF to use on a phone or tablet. Well, I&rsquo;ve taken the liberty of doing that work for you. I wrote a little script to concatenate all the chapter notes, errata, hints, and answers into Markdown files and then just printed them all to a single document, tweaking a few things here and there. I&rsquo;m calling this <em>A companion booklet to &ldquo;Functional Programming in Scala&rdquo;</em>. It is released under the same <a href="https://github.com/fpinscala/fpinscala/blob/master/LICENSE">MIT license</a> as the content it aggregates. This means you&rsquo;re free to copy it, distribute or sell it, or basically do whatever you want with it. The Markdown source of the manuscript is <a href="https://github.com/runarorama/fpiscompanion">available on my GitHub</a>.</p>
+
+<p>I have made <a href="https://leanpub.com/fpinscalacompanion">an electronic version of this booklet available on Leanpub</a> as as a PDF, ePub, and Kindle file on a pay-what-you-want basis (minimum of $0.99). It has full color syntax highlighting throughout and a few little tweaks to make it format nicely. The paper size is standard US Letter which makes it easy to print on most color printers. If you choose to buy the booklet from Leanpub, they get a small fee, a small portion of the proceeds goes to support <a href="http://www.libertyinnorthkorea.org/">Liberty in North Korea</a>, and the rest goes to yours truly. You&rsquo;ll also get updates when those inevitably happen.</p>
+
+<p>If you don&rsquo;t care about any of that, <a href="/assets/fpiscompanion.pdf">you can grab the PDF from here with my compliments</a>.</p>
+
+<p>The booklet is also <a href="https://www.createspace.com/5325404">available from CreateSpace</a> or <a href="http://www.amazon.com/companion-booklet-Functional-Programming-Scala/dp/1508537569">Amazon</a> as a full color printed paperback. This comes in a nicely bound glossy cover for just a little more than the price of printing (they print it on demand for you). I&rsquo;ve ordered one and I&rsquo;m really happy with the quality of this print:</p>
+
+<p><img src="/images/bookletcover.jpg">
+<img src="/images/chapternotes.jpg">
+<img src="/images/exercises.jpg"></p>
+
+<p>The print version is of course under the same permissive license, so you can make copies of it, make derivative works, or do whatever you want. It&rsquo;s important to note that with this booklet I&rsquo;ve not done anything other than design a little cover and then <em>literally print out this freely available content</em> and upload it to Amazon, which anybody could have done (and you still can if you want).</p>
+
+<p>I hope this makes <em>Functional Programming in Scala</em> more useful and more enjoyable for more people.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar Bjarnason</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-03-06T12:17:35-08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:17 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/02/08/a-better-reading-list-with-mathematica/" title="Previous Post: A better reading list with Mathematica">&laquo; A better reading list with Mathematica</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/06/16/pulling-out-of-functional-programming-in-java/" title="Next Post: Pulling out of Functional Programming in Java">Pulling out of Functional Programming in Java &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/15"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/15#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/15#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/15/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

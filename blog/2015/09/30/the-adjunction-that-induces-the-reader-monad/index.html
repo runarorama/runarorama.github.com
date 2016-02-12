@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>An Adjunction That Induces the Reader Monad - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="In writing up part 2 of my Scala Comonad Tutorial, and coming up with my talk for Scala World, I idly pondered this question: If all monads are given &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">An Adjunction That Induces the Reader Monad</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-30T04:48:13-07:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In writing up part 2 of my <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">Scala Comonad Tutorial</a>, and coming up with my talk for <a href="http://scala.world">Scala World</a>, I idly pondered this question:</p>
+
+<blockquote><p>If all monads are given by composing adjoint pairs of functors, what adjoint pair of functors forms the `Reader` monad? And if we compose those functors the other way, which comonad do we get?</p></blockquote>
+
+
+<p>Shachaf Ben-Kiki pointed out on IRC that there are at least two ways of doing this. One is via the <a href="https://en.wikipedia.org/wiki/Kleisli_category#Kleisli_adjunction">Kleisli construction</a> and the other is via the <a href="http://ncatlab.org/nlab/show/Eilenberg-Moore+category">Eilenberg-Moore construction</a>. Dr Eugenia Cheng has a <a href="https://www.youtube.com/playlist?list=PL54B49729E5102248">fantastic set of videos explaining these constructions</a>. She talks about how for any monad <code>T</code> there is a whole category <code>Adj(T)</code> of adjunctions that give rise to <code>T</code> (with categories as objects and adjoint pairs of functors as the arrows), and the Kleisli category is the initial object in this category while the Eilenberg-Moore category is the terminal object.</p>
+
+<p>So then, searching around for an answer to what exactly the Eilenberg-Moore category for the <code>R =&gt; ?</code> monad looks like (I think it&rsquo;s just values of type <code>R</code> and functions between them), I came across <a href="http://math.stackexchange.com/questions/1274989/what-is-the-eilenberg-moore-category-of-this-diagonal-like-monad">this Mathematics Stack Exchange question</a>, whose answer more or less directly addresses my original question above. The adjunction is a little more difficult to see than the initial/terminal ones, but it&rsquo;s somewhat interesting, and what follows is an outline of how I convinced myself that it works.</p>
+
+<h2>The adjoint pair</h2>
+
+<p>Let&rsquo;s consider the reader monad <code>R =&gt; ?</code>, which allows us to read a context of type <code>R</code>.</p>
+
+<p>The first category involved is <em>Set</em> (or <em>Hask</em>, or <em>Scala</em>). This is just the familiar category where the objects are types (<code>A</code>,<code>B</code>,<code>C</code>, etc.) and the arrows are functions.</p>
+
+<p>The other category is <em>Set/R</em>, which is the <a href="http://ncatlab.org/nlab/show/overcategory">slice category</a> of <em>Set</em> over the type <code>R</code>. This is a category whose objects are functions to <code>R</code>. So an object <code>x</code> in this category is given by a type <code>A</code> together with a function of type <code>A =&gt; R</code>. An arrow from <code>x: A =&gt; R</code> to <code>y: B =&gt; R</code> is given by a function <code>f: A =&gt; B</code> such that <code>y(f(a)) = x(a)</code> for all <code>a:A</code>.</p>
+
+<p>The left adjoint is <code>R*</code>, a functor from <em>Set</em> to <em>Set/R</em>. This functor sends each type <code>A</code> to the function <code>(p:(R,A)) =&gt; p._1</code>, having type <code>(R,A) =&gt; R</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">rStar</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span><span class="kt">A</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">R</span> <span class="k">=</span> <span class="k">_</span><span class="o">.</span><span class="n">_1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The right adjoint is <code>Π_R</code>, a functor from <em>Set/R</em> to <em>Set</em>. This functor sends each object <code>q: A =&gt; R</code> in <em>Set/R</em> to the set of functions <code>R =&gt; A</code> for which <code>q</code> is an inverse. This is actually a dependent type inhabited by functions <code>p: R =&gt; A</code> which satisfy the identity <code>q(p(a)) = a</code> for all <code>a:A</code>.</p>
+
+<h2>Constructing the monad</h2>
+
+<p>The monad is not exactly easy to see, but if everything has gone right, we should get the <code>R =&gt; ?</code> reader monad by composing <code>Π_R</code> with <code>R*</code>.</p>
+
+<p>We start with a type <code>A</code>. Then we do <code>R*</code>, which gives us the object <code>rStar[A]</code> in the slice category, which you will recall is just <code>_._1</code> of type <code>(R,A) =&gt; R</code>. Then we go back to types via <code>Π_R(rStar[A])</code> which gives us a dependent type <code>P</code> inhabited by functions <code>p: R =&gt; (R,A)</code>. Now, this looks a lot like an action in the <code>State</code> monad. But it&rsquo;s not. These <code>p</code> must satisfy the property that <code>_1</code> is their inverse. Which means that the <code>R</code> they return must be exactly the <code>R</code> they were given. So it&rsquo;s like a <code>State</code> action that is <em>read only</em>. We can therefore simplify this to the ordinary (non-dependent) type <code>R =&gt; A</code>. And now we have our <code>Reader</code> monad.</p>
+
+<h2>Constructing the comonad</h2>
+
+<p>But what about the other way around? What is the comonad constructed by composing <code>R*</code> with <code>Π_R</code>? Well, since we end up in the slice category, our comonad is actually in that category rather than in <em>Set</em>.</p>
+
+<p>We start with an object <code>q: A =&gt; R</code> in the slice category. Then we go to types by doing <code>Π_R(q)</code>. This gives us a dependent type <code>P_A</code> which is inhabited by all <code>p: R =&gt; A</code> such that <code>q</code> is their inverse. Then we take <code>rStar[Π_R(q)]</code> to go back to the slice category and we find ourselves at an object <code>f: (R, Π_R(q)) =&gt; R</code>, which you&rsquo;ll recall is implemented as <code>_._1</code>. As an endofunctor in <em>Set/R</em>, <code>λq. rStar[Π_R(q)]</code> takes all <code>q: A =&gt; R</code> to <code>p: (R, R =&gt; A) =&gt; R = _._1</code> such that <code>p</code> is only defined on <code>R =&gt; A</code> arguments whose inverse is <code>q</code>.</p>
+
+<p>That is, the counit for this comonad on elements <code>y: A =&gt; R</code> must be a function <code>counit: (R, Π_R(y)) =&gt; A</code> such that for <code>_._1: (R, Π_R(y)) =&gt; R</code>, the property <code>y compose counit = _._1</code> holds. Note that this means that the <code>R</code> returned by <code>_._1</code> and the <code>R</code> returned by <code>y</code> must be the same. Recall that <code>_._1</code> always returns the first element of its argument, and also recall that the functions in <code>Π_R(y)</code> must have <code>y</code> as their inverse, so they&rsquo;re only defined at the first element of the argument to <code>_._1</code>. That is <code>p._2(x)</code> is only defined when <code>x = p._1</code>.</p>
+
+<p>If we try to encode that in Scala (ignoring all the &ldquo;such that&rdquo;), we get something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">p</span><span class="k">:</span> <span class="o">(</span><span class="kt">R</span><span class="o">,</span> <span class="kt">R</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">))</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">p</span><span class="o">.</span><span class="n">_2</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This looks a lot like a <code>counit</code> for the <code>Store</code> comonad! Except what we constructed is not that. Because of the additional requirements imposed by our functors and by the slice category, the second element of <code>p</code> can only take an argument that is exactly the first element of <code>p</code>. So we can simplify that to <code>(R, () =&gt; A)</code> or just <code>(R, A)</code>. And we now have the familiar <code>Coreader</code> comonad.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-09-30T04:48:13-07:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:48 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/06/22/a-scala-comonad-tutorial/" title="Previous Post: A Scala Comonad Tutorial, Part 1">&laquo; A Scala Comonad Tutorial, Part 1</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/10/04/scala-comonad-tutorial-part-2/" title="Next Post: Scala Comonad Tutorial, Part 2">Scala Comonad Tutorial, Part 2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/19"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/19#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/19#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/19/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

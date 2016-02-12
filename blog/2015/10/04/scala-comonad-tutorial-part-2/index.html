@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Scala Comonad Tutorial, Part 2 - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="In the previous post, we looked at the Reader/Writer monads and comonads, and discussed in general what comonads are and how they relate to monads. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Scala Comonad Tutorial, Part 2</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-10-04T14:36:31-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:36 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In the <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">previous post</a>, we looked at the Reader/Writer monads and comonads, and discussed in general what comonads are and how they relate to monads. This time around, we&rsquo;re going to look at some more comonads, delve briefly into adjunctions, and try to get some further insight into what it all means.</p>
+
+<h2>Nonempty structures</h2>
+
+<p>Since a comonad has to have a <code>counit</code>, it must be &ldquo;pointed&rdquo; or nonempty in some sense. That is, given a value of type <code>W[A]</code> for some comonad <code>W</code>, we must be able to get a value of type <code>A</code> out.</p>
+
+<p>The identity comonad is a simple example of this. We can always get a value of type <code>A</code> out of <code>Id[A]</code>. A slightly more interesting example is that of non-empty lists:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">head</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">tail</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So a nonempty list is a value of type <code>A</code> together with either another list or <code>None</code> to mark that the list has terminated. Unlike the traditional <code>List</code> data structure, we can always safely get the <code>head</code>.</p>
+
+<p>But what is the comonadic <code>duplicate</code> operation here? That should allow us to go from <code>NEL[A]</code> to <code>NEL[NEL[A]]</code> in such a way that the comonad laws hold. For nonempty lists, an implementation that satisfies those laws turns out to be:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">head</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">tail</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">tails</span><span class="k">:</span> <span class="kt">NEL</span><span class="o">[</span><span class="kt">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">NEL</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">tails</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>tails</code> operation returns a list of all the suffixes of the given list. This list of lists is always nonempty, because the first suffix is the list itself. For example, if we have the nonempty list <code>[1,2,3]</code> (to use a more succinct notation), the <code>tails</code> of that will be <code>[[1,2,3], [2,3], [3]]</code></p>
+
+<p>To get an idea of what this <em>means</em> in the context of a comonadic program, think of this in terms of coKleisli composition, or <code>extend</code> in the comonad:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">NEL</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">NEL</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">tails</span> <span class="n">map</span> <span class="n">f</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When we <code>map</code> over <code>tails</code>, the function <code>f</code> is going to receive each suffix of the list in turn. We apply <code>f</code> to each of those suffixes and collect the results in a (nonempty) list. So <code>[1,2,3].extend(f)</code> will be <code>[f([1,2,3]), f([2,3]), f([3])]</code>.</p>
+
+<p>The name <code>extend</code> refers to the fact that it takes a &ldquo;local&rdquo; computation (here a computation that operates on a list) and extends that to a &ldquo;global&rdquo; computation (here over all suffixes of the list).</p>
+
+<p>Or consider this class of nonempty trees (often called Rose Trees):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Tree</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">tip</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">sub</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Tree</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A tree of this sort has a value of type <code>A</code> at the tip, and a (possibly empty) list of subtrees underneath. One obvious use case is something like a directory structure, where each <code>tip</code> is a directory and the corresponding <code>sub</code> is its subdirectories.</p>
+
+<p>This is also a comonad. The <code>counit</code> is obvious, we just get the <code>tip</code>. And here&rsquo;s a <code>duplicate</code> for this structure:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Tree</span><span class="o">[</span><span class="kt">Tree</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Tree</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">sub</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">duplicate</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, this obviously gives us a tree of trees, but what is the structure of that tree? It will be <em>a tree of all the subtrees</em>. The <code>tip</code> will be <code>this</code> tree, and the <code>tip</code> of each proper subtree under it will be the entire subtree at the corresponding point in the original tree.</p>
+
+<p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree of trees mirroring the structure of <code>t</code>, except each node will contain <code>f</code> applied to the corresponding subtree of <code>t</code>.</p>
+
+<p>To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the <code>tip</code> and the size of each subdirectory underneath as tips of the subtrees, and so on. Then <code>d extend size</code> creates the tree of sizes of recursive subdirectories of <code>d</code>.</p>
+
+<h2>The cofree comonad</h2>
+
+<p>You may have noticed that the implementations of <code>duplicate</code> for rose trees and <code>tails</code> for nonempty lists were basically identical. The only difference is that one is mapping over a <code>List</code> and the other is mapping over an <code>Option</code>. We can actually abstract that out and get a comonad for any functor <code>F</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Cofree</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">counit</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">sub</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]])</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="o">(</span><span class="k">implicit</span> <span class="n">F</span><span class="k">:</span> <span class="kt">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">])</span><span class="k">:</span> <span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">Cofree</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Cofree</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">F</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">sub</span><span class="o">)(</span><span class="k">_</span><span class="o">.</span><span class="n">duplicate</span><span class="o">))</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A really common kind of structure is something like the type <code>Cofree[Map[K,?],A]</code> of trees where the <code>counit</code> is some kind of summary and each key of type <code>K</code> in the <code>Map</code> of subtrees corresponds to some drilldown for more detail. This kind of thing appears in portfolio management applications, for example.</p>
+
+<p>Compare this structure with the <em>free monad</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="nc">case</span> <span class="k">class</span> <span class="nc">Return</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Suspend</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">A</span><span class="o">](</span><span class="n">s</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]])</span> <span class="k">extends</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">A</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While the free monad is <em>either</em> an <code>A</code> or a recursive step suspended in an <code>F</code>, the cofree comonad is <em>both</em> an <code>A</code> <em>and</em> a recursive step suspended in an <code>F</code>. They really are duals of each other in the sense that the monad is a coproduct and the comonad is a product.</p>
+
+<h2>Comparing comonads to monads (again)</h2>
+
+<p>Given this difference, we can make some statements about what it means:</p>
+
+<ul>
+<li><code>Free[F,A]</code> is a type of &ldquo;leafy tree&rdquo; that branches according to <code>F</code>, with values of type <code>A</code> at the leaves, while <code>Cofree[F,A]</code> is a type of &ldquo;node-valued tree&rdquo; that branches according to <code>F</code> with values of type <code>A</code> at the nodes.</li>
+<li>If <code>Exp</code> defines the structure of some expression language, then <code>Free[Exp,A]</code> is the type of abstract syntax trees for that language, with free variables of type <code>A</code>, and monadic <code>bind</code> literally binds expressions to those variables. Dually, <code>Cofree[Exp,A]</code> is the type of <em>closed</em> exresspions whose subexpressions are annotated with values of type <code>A</code>, and comonadic <code>extend</code> <em>reannotates</em> the tree. For example, if you have a type inferencer <code>infer</code>, then <code>e extend infer</code> will annotate each subexpression of <code>e</code> with its inferred type.</li>
+</ul>
+
+
+<p>This comparison of <code>Free</code> and <code>Cofree</code> actually says something about monads and comonads in general:</p>
+
+<ul>
+<li>All monads can model some kind of leafy tree structure, and all comonads can be modeled by some kind of node-valued tree structure.</li>
+<li>In a monad <code>M</code>, if <code>f: A =&gt; M[B]</code>, then <code>xs map f</code> allows us to take the values at the leaves (<code>a:A</code>) of a monadic structure <code>xs</code> and <em>substitute</em> an entire structure (<code>f(a)</code>) for each value. A subsequent <code>join</code> then renormalizes the structure, eliminating the &ldquo;seams&rdquo; around our newly added substructures. In a <em>comonad</em> <code>W</code>, <code>xs.duplicate</code> denormalizes, or exposes the substructure of <code>xs:W[A]</code> to yield <code>W[W[A]]</code>. Then we can map a function <code>f: W[A] =&gt; B</code> over that to get a <code>B</code> for each part of the substructure and <em>redecorate</em> the original structure with those values. (See Uustalu and Vene&rsquo;s excellent paper <a href="http://cs.ioc.ee/~tarmo/papers/sfp01-book.pdf">The Dual of Substitution is Redecoration</a> for more on this connection.)</li>
+<li>A monad defines a class of programs whose subexpressions are incrementally generated from the outputs of previous expressions. A comonad defines a class of programs that incrementally generate output from the substructure of previous expressions.</li>
+<li>A monad adds structure by consuming values. A comonad adds values by consuming structure.</li>
+</ul>
+
+
+<h2>The relationship between Reader and Coreader</h2>
+
+<p>If we look at a Kleisli arrow in the <code>Reader[R,?]</code> comonad, it looks like <code>A =&gt; Reader[R,B]</code>, or expanded out: <code>A =&gt; R =&gt; B</code>. If we uncurry that, we get <code>(A, R) =&gt; B</code>, and we can go back to the original by currying again. But notice that a value of type <code>(A, R) =&gt; B</code> is a coKleisli arrow in the <code>Coreader</code> comonad! Remember that <code>Coreader[R,A]</code> is really a pair <code>(A, R)</code>.</p>
+
+<p>So the answer to the question of how <code>Reader</code> and <code>Coreader</code> are related is that there is a one-to-one correspondence between a Kleisli arrow in the <code>Reader</code> monad and a coKleisli arrow in the <code>Coreader</code> comonad. More precisely, the Kleisli category for <code>Reader[R,?]</code> is isomorphic to the coKleisli category for <code>Coreader[R,?]</code>. This isomorphism is witnessed by currying and uncurrying.</p>
+
+<p>In general, if we have an isomorphism between arrows like this, we have what&rsquo;s called an <em>adjunction</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Adjunction</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">left</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">G</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">right</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">G</span><span class="o">[</span><span class="kt">B</span><span class="o">])</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In an <code>Adjunction[F,G]</code>, we say that <code>F</code> is <em>left adjoint</em> to <code>G</code>, often expressed with the notation <code>F ⊣ G</code>.</p>
+
+<p>We can clearly make an <code>Adjunction</code> for <code>Coreader[R,?]</code> and <code>Reader[R,?]</code> by using <code>curry</code> and <code>uncurry</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">homSetAdj</span><span class="o">[</span><span class="kt">R</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Adjunction</span><span class="o">[(</span><span class="kt">?</span>, <span class="kt">R</span><span class="o">)</span>, <span class="kt">R</span> <span class="k">=&gt;</span> <span class="kt">?</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">left</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="o">((</span><span class="kt">A</span><span class="o">,</span> <span class="kt">R</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">R</span> <span class="k">=&gt;</span> <span class="n">B</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Function</span><span class="o">.</span><span class="n">untupled</span><span class="o">(</span><span class="n">f</span><span class="o">).</span><span class="n">curried</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">right</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">R</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="o">((</span><span class="kt">A</span><span class="o">,</span> <span class="kt">R</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">B</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Function</span><span class="o">.</span><span class="n">uncurried</span><span class="o">(</span><span class="n">f</span><span class="o">).</span><span class="n">tupled</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The additional <code>tupled</code> and <code>untupled</code> come from the unfortunate fact that I&rsquo;ve chosen Scala notation here and Scala differentiates between functions of two arguments and functions of one argument that happens to be a pair.</p>
+
+<p>So a more succinct description of this relationship is that <code>Coreader</code> is left adjoint to <code>Reader</code>.</p>
+
+<p>Generally the left adjoint functor <em>adds</em> structure, or is some kind of &ldquo;producer&rdquo;, while the right adjoint functor <em>removes</em> (or &ldquo;forgets&rdquo;) structure, or is some kind of &ldquo;consumer&rdquo;.</p>
+
+<h2>Composing adjoint functors</h2>
+
+<p>An interesting thing about adjunctions is that if you have an adjoint pair of functors <code>F ⊣ G</code>, then <code>F[G[?]]</code> always forms a comonad, and <code>G[F[?]]</code> always forms a monad, in a completely canonical and amazing way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">monad</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]](</span><span class="n">A</span><span class="k">:</span> <span class="kt">Adjunction</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">G</span><span class="o">])(</span><span class="k">implicit</span> <span class="n">G</span><span class="k">:</span> <span class="kt">Functor</span><span class="o">[</span><span class="kt">G</span><span class="o">])</span> <span class="k">=</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">λ</span><span class="o">[</span><span class="kt">α</span> <span class="k">=&gt;</span> <span class="kt">G</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="kt">α</span><span class="o">]]]]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">unit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>      <span class="n">A</span><span class="o">.</span><span class="n">left</span><span class="o">(</span><span class="n">identity</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]])(</span><span class="n">a</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">bind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="kt">A</span><span class="o">]])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">G</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]])</span><span class="k">:</span> <span class="kt">G</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="kt">B</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>      <span class="n">G</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">a</span><span class="o">)(</span><span class="n">A</span><span class="o">.</span><span class="n">right</span><span class="o">(</span><span class="n">f</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="n">comonad</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>,<span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]](</span><span class="n">A</span><span class="k">:</span> <span class="kt">Adjunction</span><span class="o">[</span><span class="kt">F</span>,<span class="kt">G</span><span class="o">])(</span><span class="k">implicit</span> <span class="n">F</span><span class="k">:</span> <span class="kt">Functor</span><span class="o">[</span><span class="kt">F</span><span class="o">])</span> <span class="k">=</span>
+</span><span class='line'>  <span class="k">new</span> <span class="nc">Comonad</span><span class="o">[</span><span class="kt">λ</span><span class="o">[</span><span class="kt">α</span> <span class="k">=&gt;</span> <span class="kt">F</span><span class="o">[</span><span class="kt">G</span><span class="o">[</span><span class="kt">α</span><span class="o">]]]]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span>
+</span><span class='line'>      <span class="n">A</span><span class="o">.</span><span class="n">right</span><span class="o">(</span><span class="n">identity</span><span class="o">[</span><span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]])(</span><span class="n">a</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">G</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">F</span><span class="o">[</span><span class="kt">G</span><span class="o">[</span><span class="kt">B</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>      <span class="n">F</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">a</span><span class="o">)(</span><span class="n">A</span><span class="o">.</span><span class="n">left</span><span class="o">(</span><span class="n">f</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that this says something about monads and comonads. Since the left adjoint <code>F</code> is a producer and the right adjoint <code>G</code> is a consumer, a monad always consumes and then produces, while a comonad always produces and then consumes.</p>
+
+<p>Now, if we compose <code>Reader</code> and <code>Coreader</code>, which monad do we get?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">def</span> <span class="n">M</span><span class="o">[</span><span class="kt">S</span><span class="o">]</span> <span class="k">=</span> <span class="n">monad</span><span class="o">(</span><span class="n">homSetAdj</span><span class="o">[</span><span class="kt">S</span><span class="o">])</span>
+</span><span class='line'><span class="n">M</span><span class="k">:</span> <span class="err">[</span><span class="kt">S</span><span class="err">]</span><span class="o">=&gt;</span> <span class="n">scalaz</span><span class="o">.</span><span class="nc">Monad</span><span class="o">[[</span><span class="kt">α</span><span class="o">]</span><span class="kt">S</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="kt">α</span>, <span class="kt">S</span><span class="o">)]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s the <code>State[S,?]</code> monad!</p>
+
+<p>Now if we compose it the other way, we should get a comonad:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">def</span> <span class="n">W</span><span class="o">[</span><span class="kt">S</span><span class="o">]</span> <span class="k">=</span> <span class="n">comonad</span><span class="o">(</span><span class="n">homSetAdj</span><span class="o">[</span><span class="kt">S</span><span class="o">])</span>
+</span><span class='line'><span class="n">W</span><span class="k">:</span> <span class="err">[</span><span class="kt">S</span><span class="err">]</span><span class="o">=&gt;</span> <span class="n">scalaz</span><span class="o">.</span><span class="nc">Monad</span><span class="o">[[</span><span class="kt">α</span><span class="o">](</span><span class="kt">S</span> <span class="k">=&gt;</span> <span class="kt">α</span>, <span class="kt">S</span><span class="o">)]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What is that? It&rsquo;s the <code>Store[S,?]</code> comonad:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Store</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">](</span><span class="n">peek</span><span class="k">:</span> <span class="kt">S</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">,</span> <span class="n">cursor</span><span class="k">:</span> <span class="kt">S</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">extract</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="n">peek</span><span class="o">(</span><span class="n">cursor</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">extend</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">Store</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Store</span><span class="o">[</span><span class="kt">S</span>, <span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="nc">Store</span><span class="o">(</span><span class="n">s</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="nc">Store</span><span class="o">(</span><span class="n">peek</span><span class="o">,</span> <span class="n">s</span><span class="o">)),</span> <span class="n">cursor</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">duplicate</span><span class="k">:</span> <span class="kt">Store</span><span class="o">[</span><span class="kt">S</span>, <span class="kt">Store</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">A</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">extend</span><span class="o">(</span><span class="n">identity</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">map</span><span class="o">[</span><span class="kt">B</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">Store</span><span class="o">[</span><span class="kt">S</span>,<span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">extend</span><span class="o">(</span><span class="n">s</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">extract</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="n">seek</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">S</span><span class="o">)</span> <span class="k">=</span> <span class="n">duplicate</span><span class="o">.</span><span class="n">peek</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This models a &ldquo;store&rdquo; of values of type <code>A</code> indexed by the type <code>S</code>. We have the ability to directly access the <code>A</code> value under a given <code>S</code> using <code>peek</code>, and there is a distinguished <code>cursor</code> or current position. The comonadic <code>extract</code> just reads the value under the <code>cursor</code>, and <code>duplicate</code> gives us a whole store full of stores such that if we <code>peek</code> at any one of them, we get a <code>Store</code> whose <code>cursor</code> is set to the given <code>s</code>. We&rsquo;re defining a <code>seek(s)</code> operation that moves the <code>cursor</code> to a given position <code>s</code> by taking advantage of <code>duplicate</code>.</p>
+
+<p>A use case for this kind of structure might be something like image processing or cellular automata, where <code>S</code> might be coordinates into some kind of space (like a two-dimensional image). Then <code>extend</code> takes a local computation at the <code>cursor</code> and extends it to every point in the space. For example, if we have an operation <code>average</code> that peeks at the <code>cursor</code>&rsquo;s immediate neighbors and averages them, then we can apply a low-pass filter to the whole image with <code>image.extend(average)</code>.</p>
+
+<p>The type <code>A =&gt; Store[S,B]</code> is also one possible representation of a <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.package%24%24Lens%24">Lens</a>. I might talk about lenses and <a href="http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.Zipper">zippers</a> in a future post.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-10-04T14:36:31-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:36 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/" title="Previous Post: An adjunction that induces the reader monad">&laquo; An adjunction that induces the reader monad</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/10/12/freedom-and-forgetfulness/" title="Next Post: Freedom and Forgetfulness">Freedom and Forgetfulness &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/20"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/20#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/20#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/20/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

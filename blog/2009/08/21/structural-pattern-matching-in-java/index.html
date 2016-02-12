@@ -1,0 +1,693 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Structural Pattern Matching in Java - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="(updated for Java 8) One of the great features of modern programming languages is structural pattern matching on algebraic data types. Once you&rsquo &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2009/08/21/structural-pattern-matching-in-java/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Structural Pattern Matching in Java</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2009-08-21'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2009</span></span> <span class='time'>12:00 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>(updated for Java 8)</p>
+
+<p>One of the great features of modern programming languages is structural pattern matching on algebraic data types. Once you&rsquo;ve used this feature, you don&rsquo;t ever want to program without it. You will find this in languages like Haskell and Scala.</p>
+
+<p>In Scala, algebraic types are provided by case classes. For example:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Tree</span>
+</span><span class='line'><span class="k">case</span> <span class="k">object</span> <span class="nc">Empty</span> <span class="k">extends</span> <span class="nc">Tree</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Leaf</span><span class="o">(</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Tree</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Node</span><span class="o">(</span><span class="n">l</span><span class="k">:</span> <span class="kt">Tree</span><span class="o">,</span> <span class="n">r</span><span class="k">:</span> <span class="kt">Tree</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Tree</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To define operations over this algebraic data type, we use pattern matching on its structure:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">depth</span><span class="o">(</span><span class="n">t</span><span class="k">:</span> <span class="kt">Tree</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">t</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Leaf</span><span class="o">(</span><span class="n">n</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">Node</span><span class="o">(</span><span class="n">l</span><span class="o">,</span> <span class="n">r</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">max</span><span class="o">(</span><span class="n">depth</span><span class="o">(</span><span class="n">l</span><span class="o">),</span> <span class="n">depth</span><span class="o">(</span><span class="n">r</span><span class="o">))</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When I go back to a programming language like, say, Java, I find myself wanting this feature. Unfortunately, algebraic data types aren&rsquo;t provided in Java. However, a great many hacks have been invented over the years to emulate it, knowingly or not.</p>
+
+<h3>The Ugly: Interpreter and Visitor</h3>
+
+<p>What I have used most throughout my career to emulate pattern matching in languages that lack it are a couple of hoary old hacks. These venerable and well respected practises are a pair of design patterns from the GoF book: Interpreter and Visitor.</p>
+
+<p>The Interpreter pattern really does describe an algebraic structure, and it provides a method of reducing (interpreting) the structure. However, there are a couple of problems with it. The interpretation is coupled to the structure, with a &ldquo;context&rdquo; passed from term to term, and each term must know how to mutate the context appropriately. That&rsquo;s minus one point for tight coupling, and minus one for relying on mutation.</p>
+
+<p>The Visitor pattern addresses the former of these concerns. Given an algebraic structure, we can define an interface with one &ldquo;visit&rdquo; method per type of term, and have each term accept a visitor object that implements this interface, passing it along to the subterms. This decouples the interpretation from the structure, but still relies on mutation. Minus one point for mutation, and minus one for the fact that Visitor is incredibly crufty. For example, to get the depth of our tree structure above, we have to implement a TreeDepthVisitor. A good IDE that generates boilerplate for you is definitely recommended if you take this approach.</p>
+
+<p>On the plus side, both of these patterns provide some enforcement of the exhaustiveness of the pattern match. For example, if you add a new term type, the Interpreter pattern will enforce that you implement the interpretation method. For Visitor, as long as you remember to add a visitation method for the new term type to the visitor interface, you will be forced to update your implementations accordingly.</p>
+
+<h3>The Bad: Instanceof</h3>
+
+<p>An obvious approach that&rsquo;s often sneered at is runtime type discovery. A quick and dirty way to match on types is to simply check for the type at runtime and cast:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">depth</span><span class="o">(</span><span class="n">Tree</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="k">instanceof</span> <span class="n">Empty</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="k">instanceof</span> <span class="n">Leaf</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="k">instanceof</span> <span class="n">Node</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">max</span><span class="o">(</span><span class="n">depth</span><span class="o">(((</span><span class="n">Node</span><span class="o">)</span> <span class="n">t</span><span class="o">).</span><span class="na">left</span><span class="o">),</span> <span class="n">depth</span><span class="o">(((</span><span class="n">Node</span><span class="o">)</span> <span class="n">t</span><span class="o">).</span><span class="na">right</span><span class="o">));</span>
+</span><span class='line'>  <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Inexhaustive pattern match on Tree.&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are some obvious problems with this approach. For one thing, it bypasses the type system, so you lose any static guarantees that it&rsquo;s correct. And there&rsquo;s no enforcement of the exhaustiveness of the matching. But on the plus side, it&rsquo;s both fast and terse.</p>
+
+<h3>The Good: Functional Style</h3>
+
+<p>There are at least two approaches that we can take to approximate pattern matching in Java more closely than the above methods. Both involve utilising parametric polymorphism and functional style. Let&rsquo;s consider them in order of increasing preference, i.e. less preferred method first.</p>
+
+<h4>Safe and Terse - Disjoint Union Types</h4>
+
+<p>The first approach is based on the insight that algebraic data types represent a disjoint union of types. Now, if you&rsquo;ve done any amount of programming in Java with generics, you will have come across (or invented) the simple pair type, which is a conjunction of two types:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">P2</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">A</span> <span class="nf">_1</span><span class="o">();</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">B</span> <span class="nf">_2</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A value of this type can only be created if you have both a value of type <code>A</code> and a value of type <code>B</code>. So (conceptually, at least) it has a single constructor that takes two values. The disjunction of two types is a similar idea, except that a value of type <code>Either&lt;A, B&gt;</code> can be constructed with either a value of type <code>A</code> or a value of type <code>B</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Either</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="nf">left</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="nf">right</span><span class="o">(</span><span class="n">B</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Encoded as a disjoint union type, then, our <code>Tree</code> data type above is: <code>Either&lt;Empty, Either&lt;Leaf, Node&gt;&gt;</code></p>
+
+<p>Let&rsquo;s see that in context. Here&rsquo;s the code.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Tree</span> <span class="o">{</span>
+</span><span class='line'>  <span class="c1">// Constructor private so the type is sealed.</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="nf">Tree</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;&gt;</span> <span class="nf">toEither</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Empty</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">toEither</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nf">left</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">Empty</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Leaf</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">n</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;&gt;</span> <span class="nf">toEither</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nf">right</span><span class="o">(</span><span class="n">Either</span><span class="o">.&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;</span><span class="n">left</span><span class="o">(</span><span class="k">this</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">Leaf</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Node</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="n">Tree</span> <span class="n">left</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="n">Tree</span> <span class="n">right</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;&gt;</span> <span class="nf">toEither</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nf">right</span><span class="o">(</span><span class="n">Either</span><span class="o">.&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;</span><span class="n">right</span><span class="o">(</span><span class="k">this</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">Node</span><span class="o">(</span><span class="n">Tree</span> <span class="n">left</span><span class="o">,</span> <span class="n">Tree</span> <span class="n">right</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">left</span> <span class="o">=</span> <span class="n">left</span><span class="o">;</span> <span class="k">this</span><span class="o">.</span><span class="na">right</span> <span class="o">=</span> <span class="n">right</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The neat thing is that <code>Either&lt;A, B&gt;</code> can be made to return both <code>Iterable&lt;A&gt;</code> and <code>Iterable&lt;B&gt;</code> in methods <code>right()</code> and <code>left()</code>, respectively. One of them will be empty and the other will have exactly one element. So our pattern matching function will look like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">int</span> <span class="nf">depth</span><span class="o">(</span><span class="n">Tree</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">Either</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">Either</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;&gt;</span> <span class="n">eln</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="na">toEither</span><span class="o">();</span>
+</span><span class='line'>  <span class="k">for</span> <span class="o">(</span><span class="n">Empty</span> <span class="nl">e:</span> <span class="n">eln</span><span class="o">.</span><span class="na">left</span><span class="o">())</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">for</span> <span class="o">(</span><span class="n">Either</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">Node</span><span class="o">&gt;</span> <span class="nl">ln:</span> <span class="n">eln</span><span class="o">.</span><span class="na">right</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="nl">leaf:</span> <span class="n">ln</span><span class="o">.</span><span class="na">left</span><span class="o">())</span>
+</span><span class='line'>      <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="nl">node:</span> <span class="n">ln</span><span class="o">.</span><span class="na">right</span><span class="o">())</span>
+</span><span class='line'>      <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">max</span><span class="o">(</span><span class="n">depth</span><span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">left</span><span class="o">),</span> <span class="n">depth</span><span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">right</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Inexhaustive pattern match on Tree.&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s terse and readable, as well as type-safe. The only issue with this is that the exhaustiveness of the patterns is not enforced, so we&rsquo;re still only discovering that error at runtime. So it&rsquo;s not all that much of an improvement over the instanceof approach.</p>
+
+<h4>Safe and Exhaustive: Church Encoding</h4>
+
+<p>Alonzo Church was a pretty cool guy. Having invented the lambda calculus, he discovered that you could encode data in it. We&rsquo;ve all heard that every data type can be defined in terms of the kinds of operations that it supports. Well, what Church discovered is much more profound than that. A data type IS a function. In other words, an algebraic data type is not just a structure together with an algebra that collapses the structure. The algebra IS the structure.</p>
+
+<p>Consider the boolean type. It is a disjoint union of True and False. What kinds of operations does this support? Well, you might want to do one thing if it&rsquo;s True, and another if it&rsquo;s False. Just like with our Tree, where we wanted to do one thing if it&rsquo;s a Leaf, and another thing if it&rsquo;s a Node, etc.</p>
+
+<p>But it turns out that the boolean type IS the condition function. Consider the Church encoding of booleans:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>true  = λa.λb.a
+</span><span class='line'>false = λa.λb.b</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So a boolean is actually a binary function. Given two terms, a boolean will yield the former term if it&rsquo;s true, and the latter term if it&rsquo;s false. What does this mean for our <code>Tree</code> type? It too is a function:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>empty = λa.λb.λc.a
+</span><span class='line'>leaf  = λa.λb.λc.λx.b x
+</span><span class='line'>node  = λa.λb.λc.λl.λr.c l r</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can see that this gives you pattern matching for free. The <code>Tree</code> type is a function that takes three arguments:</p>
+
+<p>A value to yield if the tree is empty.
+A unary function to apply to an integer if it&rsquo;s a leaf.
+A binary function to apply to the left and right subtrees if it&rsquo;s a node.
+The type of such a function looks like this (Scala notation):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">T</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="nc">Int</span> <span class="k">=&gt;</span> <span class="n">T</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="nc">Tree</span> <span class="k">=&gt;</span> <span class="nc">Tree</span> <span class="k">=&gt;</span> <span class="n">T</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">T</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or equivalently:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="nc">Empty</span> <span class="k">=&gt;</span> <span class="n">T</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="nc">Leaf</span> <span class="k">=&gt;</span> <span class="n">T</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="nc">Node</span> <span class="k">=&gt;</span> <span class="n">T</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">T</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Translated to Java, we need this method on Tree:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                            <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                            <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>Function</code> interface is in the <code>java.util</code> package in Java 8, but you can definitely make it yourself in previous versions:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Function</span><span class="o">&lt;</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="o">{</span> <span class="kd">public</span> <span class="n">B</span> <span class="nf">apply</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">);</span> <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now our Tree code looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Tree</span> <span class="o">{</span>
+</span><span class='line'>  <span class="c1">// Constructor private so the type is sealed.</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="nf">Tree</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Empty</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Funciton</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">Empty</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Leaf</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">n</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">Leaf</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Node</span> <span class="kd">extends</span> <span class="n">Tree</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="n">Tree</span> <span class="n">left</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="n">Tree</span> <span class="n">right</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">match</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Empty</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Leaf</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">b</span><span class="o">,</span>
+</span><span class='line'>                       <span class="n">Function</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">Node</span><span class="o">(</span><span class="n">Tree</span> <span class="n">left</span><span class="o">,</span> <span class="n">Tree</span> <span class="n">right</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">left</span> <span class="o">=</span> <span class="n">left</span><span class="o">;</span> <span class="k">this</span><span class="o">.</span><span class="na">right</span> <span class="o">=</span> <span class="n">right</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And we can do our pattern matching on the calling side:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">int</span> <span class="nf">depth</span><span class="o">(</span><span class="n">Tree</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="na">match</span><span class="o">((</span><span class="n">Empty</span> <span class="n">e</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">0</span><span class="o">,</span>
+</span><span class='line'>                 <span class="o">(</span><span class="n">Leaf</span> <span class="n">l</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="o">,</span>
+</span><span class='line'>                 <span class="o">(</span><span class="n">Node</span> <span class="n">n</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">max</span><span class="o">(</span><span class="n">depth</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="na">left</span><span class="o">),</span> <span class="n">depth</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="na">right</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is almost as terse as the Scala code, and very easy to understand. Everything is checked by the type system, and we are guaranteed that our patterns are exhaustive. This is an ideal solution.</p>
+
+<h3>Conclusion</h3>
+
+<p>With some slightly clever use of generics and a little help from our friends Church and Curry, we can indeed emulate structural pattern matching over algebraic data types in Java, to the point where it&rsquo;s almost as nice as a built-in language feature.</p>
+
+<p>So throw away your Visitors and set fire to your GoF book.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2009-08-21'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2009</span></span> <span class='time'>12:00 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2009/08/21/structural-pattern-matching-in-java/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2009/08/21/structural-pattern-matching-in-java/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2009/04/27/a-critique-of-impure-reason/" title="Previous Post: A Critique of Impure Reason">&laquo; A Critique of Impure Reason</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/" title="Next Post: Scalaz Tutorial: Enumeration-based I/O with iteratees">Scalaz Tutorial: Enumeration-based I/O with iteratees &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues//comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

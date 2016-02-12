@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Maximally Powerful, Minimally Useful - Higher Order</title>
+  <meta name="author" content="Rúnar Bjarnason">
+
+  
+  <meta name="description" content="It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://runarorama.github.com/blog/2014/12/21/maximally-powerful/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Higher Order" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="//use.typekit.net/fbs7fzv.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34544663-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+  <link href="/stylesheets/datatable.css" media="screen, projection" rel="stylesheet" type="text/css" />
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Higher Order</a></h1>
+  
+    <h2>Philosophy and functional programming.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="runarorama.github.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Maximally Powerful, Minimally Useful</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-12-21T23:23:00-08:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>11:23 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
+
+<p>This principle is very widely applicable, and it&rsquo;s a useful thing to keep in mind when designing languages and libraries. A practical implication of being aware of this principle is that we always make components exactly as expressive as necessary, but no more. This maximizes the ability of any downstream systems to reason about our components. And dually, for things that we receive or consume, we should require exactly as much analytic power as necessary, and no more. That maximizes the expressive freedom of the upstream components.</p>
+
+<p>I find myself thinking about this principle a lot lately, and seeing it more or less everywhere I look. So I&rsquo;m seeking a more general statement of it, if such a thing is possible. It seems that more generally than issues of expressivity/analyzability, a restriction at one semantic level translates to freedom and power at another semantic level.</p>
+
+<p>What I want to do here is give a whole bunch of examples. Then we&rsquo;ll see if we can come up with an integration for them all. This is all written as an exercise in thinking out loud and is not to be taken very seriously.</p>
+
+<h2>Examples from computer science</h2>
+
+<h3>Context-free and regular grammars</h3>
+
+<p>In formal language theory, context-free grammars are more expressive than regular grammars. The former can describe strictly more sets of strings than the latter. On the other hand, it&rsquo;s harder to reason about context-free grammars than regular ones. For example, we can decide whether two regular expressions are equal (they describe the same set of strings), but this is undecidable in general for context-free grammars.</p>
+
+<h3>Monads and applicative functors</h3>
+
+<p>If we know that an applicative functor is a monad, we gain some expressive power that we don&rsquo;t get with just an applicative functor. Namely, a monad is an applicative functor with an additional capability: monadic join (or &ldquo;bind&rdquo;, or &ldquo;flatMap&rdquo;). That is, context-sensitivity, or the ability to bind variables in monadic expressions.</p>
+
+<p>This power comes at a cost. Whereas we can always compose any two applicatives to form a composite applicative, two monads do not in general compose to form a monad. It may be the case that a given monad composes with any other monad, but we need some additional information about it in order to be able to conclude that it does.</p>
+
+<h3>Actors and futures</h3>
+
+<p>Futures have an algebraic theory, so we can reason about them algebraically. Namely, they form an applicative functor which means that two futures <code>x</code> and <code>y</code> make a composite future that does <code>x</code> and <code>y</code> in parallel. They also compose sequentially since they form a monad.</p>
+
+<p>Actors on the other hand have no algebraic theory and afford no algebraic reasoning of this sort. They are &ldquo;fire and forget&rdquo;, so they could potentially do anything at all. This means that actor systems can do strictly more things in more ways than systems composed of futures, but our ability to reason about such systems is drastically diminished.</p>
+
+<h3>Typed and untyped programming</h3>
+
+<p>When we have an untyped function, it could receive any type of argument and produce any type of output. The implementation is totally unrestricted, so that gives us a great deal of expressive freedom. Such a function can potentially participate in a lot of different expressions that use the function in different ways.</p>
+
+<p>A function of type <code>Bool -&gt; Bool</code> however is highly restricted. Its argument can only be one of two things, and the result can only be one of two things as well. So there are 4 different implementations such a function could possibly have. Therefore this restriction gives us a great deal of analyzability.</p>
+
+<p>For example, since the argument is of type <code>Bool</code> and not <code>Any</code>, the implementation mostly writes itself. We need to consider only two possibilities. <code>Bool</code> (a type of size 2) is fundamentally easier to reason about than <code>Any</code> (a type of potentially infinite size). Similarly, any usage of the function is easy to reason about. A caller can be sure not to call it with arguments other than <code>True</code> or <code>False</code>, and enlist the help of a type system to guarantee that expressions involving the function are meaningful.</p>
+
+<h3>Total functional programming</h3>
+
+<p>Programming in non-total languages affords us the power of general recursion and &ldquo;fast and loose reasoning&rdquo; where we can transition between valid states through potentially invalid ones. The cost is, of course, the halting problem. But more than that, we can no longer be certain that our programs are <em>meaningful</em>, and we lose some algebraic reasoning. For example, consider the following:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>map (- n) (map (+ n) xs)) == xs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This states that adding <code>n</code> to every number in a list and then subtracting <code>n</code> again should be the identity. But what if <code>n</code> actually throws an exception or never halts? In a non-total language, we need some additional information. Namely, we need to know that <code>n</code> is total.</p>
+
+<h3>Referential transparency and side effects</h3>
+
+<p>The example above also serves to illustrate the trade-off between purely functional and impure programming. If <code>n</code> could have arbitrary side effects, algebraic reasoning of this sort involving <code>n</code> is totally annihilated. But if we know that <code>n</code> is referentially transparent, algebraic reasoning is preserved. The power of side effects comes at the cost of algebraic reasoning. This price includes loss of compositionality, modularity, parallelizability, and parametricity. Our programs can do strictly more things, but we can conclude strictly fewer things about our programs.</p>
+
+<h2>Example from infosec</h2>
+
+<p>There is a principle in computer security called <em>The Principle of Least Privilege</em>. It says that a user or program should have exactly as much authority as necessary but no more. This constrains the power of the entity, but greatly enhances the power of others to predict and reason about what the entity is going to do, resulting in the following benefits:</p>
+
+<ul>
+<li><strong>Compositionality</strong> &ndash; The fewer privileges a component requires, the easier it is to deploy inside a larger environment. For the purposes of safety, higher privileges are a barrier to composition since a composite system requires the <em>highest</em> privileges of any of its components.</li>
+<li><strong>Modularity</strong> &ndash; A component with restricted privileges is easier to reason about in the sense that its interaction with other components will be limited. We can reason mechanically about where this limit actually is, which gives us better guarantees about the the security and stability of the overall system. A restricted component is also easier to test in isolation, since it can be run inside an overall restricted environment.</li>
+</ul>
+
+
+<h2>Example from politics</h2>
+
+<p>Some might notice an analogy between the Principle of Least Privilege and the idea of a constitutionally limited government. An absolute dictatorship or pure democracy will have absolute power to enact whatever whim strikes the ruler or majority at the moment. But the overall stability, security, and freedom of the people is greatly enhanced by the presence of legal limits on the power of the government. A limited constitutional republic also makes for a better neighbor to other states.</p>
+
+<p>More generally, a ban on the initiation of physical force by one citizen against another, or by the government against citizens, or against other states, makes for a peaceful and prosperous society. The &ldquo;cost&rdquo; of such a system is the inability of one person (or even a great number of people) to impose their preferences on others by force.</p>
+
+<h2>An example from mathematics</h2>
+
+<p>The framework of two-dimensional Euclidean geometry is simply an empty page on which we can construct lines and curves using tools like a compass and straightedge. When we go from that framework to a Cartesian one, we constrain ourselves to reasoning on a grid of pairs of numbers. This is a tradeoff between expressivity and analyzability. When we move fom Euclidean to Cartesian geometry, we lose the ability to assume isotropy of space, intersection of curves, and compatibility between dimensions. But we gain much more powerful things through the restriction: the ability to precisely define geometric objects, to do arithmetic with them, to generalize to higher dimensions, and to reason with higher abstractions like linear algebra and category theory.</p>
+
+<h2>Examples from everyday life</h2>
+
+<h3>Driving on roads</h3>
+
+<p>Roads constrain the routes we can take when we drive or walk. We give up moving in a straight line to wherever we want to go. But the benefit is huge. Roads let us get to where we&rsquo;re going much faster and more safely than we would otherwise.</p>
+
+<h3>Commodity components</h3>
+
+<p>Let&rsquo;s say you make a decision to have only one kind of outfit that you wear on a daily basis. You just go out and buy multiple identical outfits. Whereas you have lost the ability to express yourself by the things you wear, you have gained a certain ability to reason about your clothing. The system is also fault-tolerant and compositional!</p>
+
+<h2>Summary</h2>
+
+<p>What is this principle? Here are some ways of saying it:</p>
+
+<ul>
+<li>Things that are maximally general for first-order applications are minimally useful for higher-order applications, and vice versa.</li>
+<li>A language that is maximally expressive is minimally analyzable.</li>
+<li>A simplifying assumption at one semantic level paves the way to a richer structure at a higher semantic level.</li>
+</ul>
+
+
+<p>What do you think? Can you think of a way to integrate these examples into a general principle? Do you have other favorite examples of this principle in action? Is this something everyone already knows about and I&rsquo;m just late to the party?</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Rúnar Bjarnason</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-12-21T23:23:00-08:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>11:23 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://runarorama.github.com/blog/2014/12/21/maximally-powerful/" data-via="runarorama" data-counturl="http://runarorama.github.com/blog/2014/12/21/maximally-powerful/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/29/taking-a-break-from-twitter/" title="Previous Post: Taking a break from Twitter">&laquo; Taking a break from Twitter</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/02/08/a-better-reading-list-with-mathematica/" title="Next Post: A better reading list with Mathematica">A better reading list with Mathematica &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+<section>
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/runarorama/runarorama.github.com/issues/12"> this post&#8217;s issue page on GitHub</a>. You&#8217;ll need a GitHub account. This saves me from having to moderate comments. The comments you make there will appear on this page. If not, then GitHub is throttling API calls from your IP address.
+    </div>
+  </div>
+<script type="text/javascript">
+  function loadComments(data) {  
+    for (var i=0; i<data.length; i++) {
+      var cuser = data[i].user.login;
+      var cuserlink = "https://www.github.com/" + cuser;
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/12#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var clink = "https://github.com/runarorama/runarorama.github.com/issues/12#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+      var cbody = data[i].body_html;
+      var cavatarlink = data[i].user.avatar_url;
+      var cdate = (new Date(Date.parse(data[i].created_at))).toString();
+      
+      $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+    }
+  }
+  $.ajax("https://api.github.com/repos/runarorama/runarorama.github.com/issues/12/comments", {
+    headers: {Accept: "application/vnd.github.full+json"},
+    dataType: "json",
+    success: function(msg){
+      loadComments(msg);
+   }
+  });
+</script>
+</section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Read my book</h1>
+<a href="http://manning.com/bjarnason"><img src="/images/FPinScalaCover.png" width="553px" height="694px"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/scala-comonad-tutorial-part-2/">Scala Comonad Tutorial, Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/">An Adjunction That Induces the Reader Monad</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/runarorama">@runarorama</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'runarorama',
+            count: 4,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rúnar Bjarnason -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
