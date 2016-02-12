@@ -4,7 +4,7 @@
   <title><![CDATA[Higher Order]]></title>
   <link href="http://runarorama.github.com/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2015-10-29T17:03:42-07:00</updated>
+  <updated>2016-02-12T13:03:14-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Freedom and Forgetfulness]]></title>
     <link href="http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness/"/>
-    <updated>2015-10-12T20:13:54-07:00</updated>
+    <updated>2015-10-12T23:13:54-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve been having fun exploring adjunctions lately and thinking about how we can take a monad apart and compose it the other way to get a comonad, and vice versa. Often I&rsquo;ll find that a comonad counterpart of a given monad gives an interesting perspective on that monad, and ditto for a monad cousin to a given comonad.</p>
 
@@ -157,7 +157,7 @@
   <entry>
     <title type="html"><![CDATA[Scala Comonad Tutorial, Part 2]]></title>
     <link href="http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/"/>
-    <updated>2015-10-04T14:36:31-07:00</updated>
+    <updated>2015-10-04T17:36:31-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2</id>
     <content type="html"><![CDATA[<p>In the <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">previous post</a>, we looked at the Reader/Writer monads and comonads, and discussed in general what comonads are and how they relate to monads. This time around, we&rsquo;re going to look at some more comonads, delve briefly into adjunctions, and try to get some further insight into what it all means.</p>
 
@@ -226,7 +226,7 @@
 
 <p>Now, this obviously gives us a tree of trees, but what is the structure of that tree? It will be <em>a tree of all the subtrees</em>. The <code>tip</code> will be <code>this</code> tree, and the <code>tip</code> of each proper subtree under it will be the entire subtree at the corresponding point in the original tree.</p>
 
-<p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree of trees mirroring the structure of <code>t</code>, except each node will contain <code>f</code> applied to the corresponding subtree of <code>t</code>.</p>
+<p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree mirroring the structure of <code>t</code>, except each node will contain <code>f</code> applied to the corresponding subtree of <code>t</code>.</p>
 
 <p>To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the <code>tip</code> and the size of each subdirectory underneath as tips of the subtrees, and so on. Then <code>d extend size</code> creates the tree of sizes of recursive subdirectories of <code>d</code>.</p>
 
@@ -421,7 +421,7 @@
   <entry>
     <title type="html"><![CDATA[An Adjunction That Induces the Reader Monad]]></title>
     <link href="http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/"/>
-    <updated>2015-09-30T04:48:13-07:00</updated>
+    <updated>2015-09-30T07:48:13-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad</id>
     <content type="html"><![CDATA[<p>In writing up part 2 of my <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">Scala Comonad Tutorial</a>, and coming up with my talk for <a href="http://scala.world">Scala World</a>, I idly pondered this question:</p>
 
@@ -478,9 +478,9 @@
   
   <entry>
     <title type="html"><![CDATA[A Scala Comonad Tutorial, Part 1]]></title>
-    <link href="http://runarorama.github.com/blog/2015/06/22/a-scala-comonad-tutorial/"/>
-    <updated>2015-06-22T22:15:47-07:00</updated>
-    <id>http://runarorama.github.com/blog/2015/06/22/a-scala-comonad-tutorial</id>
+    <link href="http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial/"/>
+    <updated>2015-06-23T01:15:47-04:00</updated>
+    <id>http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial</id>
     <content type="html"><![CDATA[<p>In chapter 11 of <a href="http://manning.com/bjarnason">our book</a>, we talk about monads in Scala. This finally names a pattern that the reader has seen throughout the book and gives it a formal structure. We also give some intuition for what it <em>means</em> for something to be a monad. Once you have this concept, you start recognizing it everywhere in the daily business of programming.</p>
 
 <p>Today I want to talk about <em>comonads</em>, which are the dual of monads. The utility of comonads in everyday life is not quite as immediately obvious as that of monads, but they definitely come in handy sometimes. Particularly in applications like image processing and scientific computation.</p>
@@ -763,7 +763,7 @@
   <entry>
     <title type="html"><![CDATA[Easy Performance Wins With Scalaz]]></title>
     <link href="http://runarorama.github.com/blog/2015/06/18/easy-performance-wins-with-scalaz/"/>
-    <updated>2015-06-18T12:09:21-07:00</updated>
+    <updated>2015-06-18T15:09:21-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/06/18/easy-performance-wins-with-scalaz</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve found that if I&rsquo;m using <code>scala.concurrent.Future</code> in my code, I can get some really easy performance gains by just switching to <code>scalaz.concurrent.Task</code> instead, particularly if I&rsquo;m chaining them with <code>map</code> or <code>flatMap</code> calls, or with <code>for</code> comprehensions.</p>
 
@@ -927,7 +927,7 @@
   <entry>
     <title type="html"><![CDATA[Pulling Out of Functional Programming in Java]]></title>
     <link href="http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/"/>
-    <updated>2015-06-16T08:37:34-07:00</updated>
+    <updated>2015-06-16T11:37:34-04:00</updated>
     <id>http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java</id>
     <content type="html"><![CDATA[<p>After giving it a lot of thought I have come to the conclusion that I won&rsquo;t be involved in <a href="http://manning.com/saumont">“Functional Programming in Java”</a>. There are many reasons, including that I just don’t think I can spend the time to make this a good book. Looking at all the things I have scheduled for the rest of the year, I can’t find the time to work on it.</p>
 
@@ -944,7 +944,7 @@
   <entry>
     <title type="html"><![CDATA[A Companion Booklet to FPiS]]></title>
     <link href="http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/"/>
-    <updated>2015-03-06T12:17:35-08:00</updated>
+    <updated>2015-03-06T15:17:35-05:00</updated>
     <id>http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala</id>
     <content type="html"><![CDATA[<p>Our book, <a href="http://manning.com/bjarnason">Functional Programming in Scala</a>, relies heavily on exercises. Hints and answers for those exercises are not actually in the book, but are <a href="http://github.com/fpinscala/fpinscala">freely available on GitHub</a> under a permissive MIT license. Likewise, we have written chapter notes that we reference throughout the book and made them <a href="http://github.com/fpinscala/fpinscala/wiki">available as a community-editable wiki</a>.</p>
 
@@ -971,7 +971,7 @@
   <entry>
     <title type="html"><![CDATA[A Better Reading List With Mathematica]]></title>
     <link href="http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica/"/>
-    <updated>2015-02-08T11:04:00-08:00</updated>
+    <updated>2015-02-08T11:04:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica</id>
     <content type="html"><![CDATA[<p>Like a lot of people, I keep a list of books I want to read. And because there are a great many more books that interest me than I can possibly read in my lifetime, this list has become quite long.</p>
 
@@ -1522,7 +1522,7 @@
   <entry>
     <title type="html"><![CDATA[Maximally Powerful, Minimally Useful]]></title>
     <link href="http://runarorama.github.com/blog/2014/12/21/maximally-powerful/"/>
-    <updated>2014-12-21T23:23:00-08:00</updated>
+    <updated>2014-12-21T23:23:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2014/12/21/maximally-powerful</id>
     <content type="html"><![CDATA[<p>It&rsquo;s well known that there is a trade-off in language and systems design between expressiveness and analyzability. That is, the more expressive a language or system is, the less we can reason about it, and vice versa. The more capable the system, the less comprehensible it is.</p>
 
@@ -1620,7 +1620,7 @@
   <entry>
     <title type="html"><![CDATA[Taking a Break From Twitter]]></title>
     <link href="http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter/"/>
-    <updated>2014-10-29T13:23:00-07:00</updated>
+    <updated>2014-10-29T13:23:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter</id>
     <content type="html"><![CDATA[<p>Today I disabled my Twitter account. Probably only temporarily, but we&rsquo;ll see. This is just a quick note to let everyone know that I&rsquo;m not leaving Twitter because of anything specific. It&rsquo;s not that you said or did anything wrong. I just find that it&rsquo;s becoming an energy sink for me. I&rsquo;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
 
@@ -1633,7 +1633,7 @@
   <entry>
     <title type="html"><![CDATA[At Long Last]]></title>
     <link href="http://runarorama.github.com/blog/2014/09/18/at-long-last/"/>
-    <updated>2014-09-18T13:09:00-07:00</updated>
+    <updated>2014-09-18T13:09:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/09/18/at-long-last</id>
     <content type="html"><![CDATA[<p>In early September 2014, we published <em>Functional Programming in Scala</em>. It is now available from all major booksellers, and from the publisher at <a href="http://manning.com/bjarnason/">manning.com/bjarnason</a>. It&rsquo;s available as a beautiful paper book, on Kindle and other e-book readers, and as a PDF file.</p>
 
@@ -1656,7 +1656,7 @@
   <entry>
     <title type="html"><![CDATA[Monoid Morphisms, Products, and Coproducts]]></title>
     <link href="http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts/"/>
-    <updated>2014-03-19T00:00:00-07:00</updated>
+    <updated>2014-03-19T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts</id>
     <content type="html"><![CDATA[<p>Today I want to talk about relationships between monoids. These can be useful to think about when we&rsquo;re developing libraries involving monoids, and we want to express some algebraic laws among them. We can then check these with automated tests, or indeed <em>prove</em> them with algebraic reasoning.</p>
 
@@ -2121,7 +2121,7 @@
   <entry>
     <title type="html"><![CDATA[Free Monads and the Yoneda Lemma]]></title>
     <link href="http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/"/>
-    <updated>2013-11-01T00:00:00-07:00</updated>
+    <updated>2013-11-01T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2013/11/01/free-and-yoneda</id>
     <content type="html"><![CDATA[<p>Last week I gave a talk on <em>Purely Functional I/O</em> at Scala.io in Paris. <a href="http://blog.higher-order.com/assets/scalaio.pdf">The slides for the talk are available here.</a> In it I presented a data type for <code>IO</code> that is supposedly a &ldquo;free monad&rdquo;. But the monad I presented is not exactly the same as <code>scalaz.Free</code> and some people have been asking me why there is a difference and what that difference means.</p>
 
@@ -2258,7 +2258,7 @@
   <entry>
     <title type="html"><![CDATA[Free Monoids and Free Monads]]></title>
     <link href="http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/"/>
-    <updated>2013-08-20T00:00:00-07:00</updated>
+    <updated>2013-08-20T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids</id>
     <content type="html"><![CDATA[<p>In a series of old posts, I once talked about the link between <a href="http://apocalisp.wordpress.com/2010/06/14/on-monoids/">lists and monoids</a>, as well as <a href="http://apocalisp.wordpress.com/2010/07/21/more-on-monoids-and-monads/">monoids and monads</a>. Now I want to talk a little bit more about monoids and monads from the perspective of <em>free structures</em>.</p>
 
@@ -2361,7 +2361,7 @@
   <entry>
     <title type="html"><![CDATA[Machines and Stream Processing]]></title>
     <link href="http://runarorama.github.com/blog/2013/01/26/machines/"/>
-    <updated>2013-01-26T12:34:00-08:00</updated>
+    <updated>2013-01-26T12:34:00-05:00</updated>
     <id>http://runarorama.github.com/blog/2013/01/26/machines</id>
     <content type="html"><![CDATA[<p>I gave a talk on &ldquo;Machines&rdquo; and stream processing in <a href="https://github.com/ekmett/machines">Haskell</a> and <a href="https://github.com/runarorama/scala-machines">Scala</a>, to the <a href="http://www.bfpg.org/">Brisbane Functional Programming Group</a> at Microsoft HQ in December 2012. A lot of people have asked me for the slides, so here they are:</p>
 
@@ -2374,7 +2374,7 @@
   <entry>
     <title type="html"><![CDATA[What Purity Is and Isn't]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/"/>
-    <updated>2012-09-13T22:07:00-07:00</updated>
+    <updated>2012-09-13T22:07:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt</id>
     <content type="html"><![CDATA[<p>A lot of discussion about &ldquo;purity&rdquo; goes on without participants necessarily having a clear idea of what it means exactly. Such discussion is generally unhelpful and distracting.</p>
 
@@ -2515,7 +2515,7 @@
   <entry>
     <title type="html"><![CDATA[New Beginnings]]></title>
     <link href="http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/"/>
-    <updated>2012-09-04T01:29:00-07:00</updated>
+    <updated>2012-09-04T01:29:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved</id>
     <content type="html"><![CDATA[<p>I have not seriously updated the <a href="http://apocalisp.wordpress.com">old Apocalisp blog</a> for quite some time. Mostly this is due to the fact that I have been spending all of my creative time outside of work on <a href="http://manning.com/bjarnason">writing a book</a>. It&rsquo;s also partly that putting a post up on WordPress is a chore. It&rsquo;s like building a ship in a bottle.</p>
 
@@ -2530,7 +2530,7 @@
   <entry>
     <title type="html"><![CDATA[Scalaz Tutorial: Enumeration-based I/O With Iteratees]]></title>
     <link href="http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/"/>
-    <updated>2010-10-14T00:00:00-07:00</updated>
+    <updated>2010-10-14T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees</id>
     <content type="html"><![CDATA[<p><a href="http://scalaz.org">Scalaz</a> 5.0 adds an implementation of a concept called Iteratee. This is a highly flexible programming technique for writing enumeration-based input processors that can be freely composed.</p>
 
@@ -2956,7 +2956,7 @@
   <entry>
     <title type="html"><![CDATA[Structural Pattern Matching in Java]]></title>
     <link href="http://runarorama.github.com/blog/2009/08/21/structural-pattern-matching-in-java/"/>
-    <updated>2009-08-21T00:00:00-07:00</updated>
+    <updated>2009-08-21T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2009/08/21/structural-pattern-matching-in-java</id>
     <content type="html"><![CDATA[<p>(updated for Java 8)</p>
 
@@ -3361,7 +3361,7 @@ The type of such a function looks like this (Scala notation):</p>
   <entry>
     <title type="html"><![CDATA[A Critique of Impure Reason]]></title>
     <link href="http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason/"/>
-    <updated>2009-04-27T00:00:00-07:00</updated>
+    <updated>2009-04-27T00:00:00-04:00</updated>
     <id>http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason</id>
     <content type="html"><![CDATA[<p>Much has been made of the difference between &ldquo;object-oriented&rdquo; and &ldquo;functional&rdquo; programming. As much as I&rsquo;ve seen people talk about this difference, or some kind of imperative/functional dichotomy, I don&rsquo;t think it&rsquo;s a meaningful distinction. I find that the question of OO vs FP, or imperative vs functional, is not interesting or relevant. The relevant question is one of purity, or the distinction between pure and impure programming. That is, respectively, the kind of programming that eschews data mutation and side-effects as against the kind that embraces them.</p>
 

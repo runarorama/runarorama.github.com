@@ -2,98 +2,98 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>http://runarorama.github.com/blog/2015/10/12/freedom-and-forgetfulness/</loc>
-    <lastmod>2015-10-12T20:13:54-07:00</lastmod>
+    <lastmod>2015-10-12T23:13:54-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2015/10/04/scala-comonad-tutorial-part-2/</loc>
-    <lastmod>2015-10-04T14:36:31-07:00</lastmod>
+    <lastmod>2015-10-04T17:36:31-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2015/09/30/the-adjunction-that-induces-the-reader-monad/</loc>
-    <lastmod>2015-09-30T04:48:13-07:00</lastmod>
+    <lastmod>2015-09-30T07:48:13-04:00</lastmod>
   </url>
   <url>
-    <loc>http://runarorama.github.com/blog/2015/06/22/a-scala-comonad-tutorial/</loc>
-    <lastmod>2015-06-22T22:15:47-07:00</lastmod>
+    <loc>http://runarorama.github.com/blog/2015/06/23/a-scala-comonad-tutorial/</loc>
+    <lastmod>2015-06-23T01:15:47-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2015/06/18/easy-performance-wins-with-scalaz/</loc>
-    <lastmod>2015-06-18T12:09:21-07:00</lastmod>
+    <lastmod>2015-06-18T15:09:21-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2015/06/16/pulling-out-of-functional-programming-in-java/</loc>
-    <lastmod>2015-06-16T08:37:34-07:00</lastmod>
+    <lastmod>2015-06-16T11:37:34-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2015/03/06/a-companion-booklet-to-functional-programming-in-scala/</loc>
-    <lastmod>2015-03-06T12:17:35-08:00</lastmod>
+    <lastmod>2015-03-06T15:17:35-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2015/02/08/a-better-reading-list-with-mathematica/</loc>
-    <lastmod>2015-02-08T11:04:00-08:00</lastmod>
+    <lastmod>2015-02-08T11:04:00-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2014/12/21/maximally-powerful/</loc>
-    <lastmod>2014-12-21T23:23:00-08:00</lastmod>
+    <lastmod>2014-12-21T23:23:00-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2014/10/29/taking-a-break-from-twitter/</loc>
-    <lastmod>2014-10-29T13:23:00-07:00</lastmod>
+    <lastmod>2014-10-29T13:23:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2014/09/18/at-long-last/</loc>
-    <lastmod>2014-09-18T13:09:00-07:00</lastmod>
+    <lastmod>2014-09-18T13:09:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2014/03/19/monoid-morphisms-products-coproducts/</loc>
-    <lastmod>2014-03-19T00:00:00-07:00</lastmod>
+    <lastmod>2014-03-19T00:00:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2013/11/01/free-and-yoneda/</loc>
-    <lastmod>2013-11-01T00:00:00-07:00</lastmod>
+    <lastmod>2013-11-01T00:00:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2013/08/20/free-monads-and-free-monoids/</loc>
-    <lastmod>2013-08-20T00:00:00-07:00</lastmod>
+    <lastmod>2013-08-20T00:00:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2013/01/26/machines/</loc>
-    <lastmod>2013-01-26T12:34:00-08:00</lastmod>
+    <lastmod>2013-01-26T12:34:00-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2012/09/13/what-purity-is-and-isnt/</loc>
-    <lastmod>2012-09-13T22:07:00-07:00</lastmod>
+    <lastmod>2012-09-13T22:07:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2012/09/04/this-blog-has-moved/</loc>
-    <lastmod>2012-09-04T01:29:00-07:00</lastmod>
+    <lastmod>2012-09-04T01:29:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2010/10/14/scalaz-tutorial-enumeration-based-io-with-iteratees/</loc>
-    <lastmod>2010-10-14T00:00:00-07:00</lastmod>
+    <lastmod>2010-10-14T00:00:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2009/08/21/structural-pattern-matching-in-java/</loc>
-    <lastmod>2009-08-21T00:00:00-07:00</lastmod>
+    <lastmod>2009-08-21T00:00:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2009/04/27/a-critique-of-impure-reason/</loc>
-    <lastmod>2009-04-27T00:00:00-07:00</lastmod>
+    <lastmod>2009-04-27T00:00:00-04:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/2008/12/04/no-such-thing/</loc>
-    <lastmod>2008-12-04T00:00:00-08:00</lastmod>
+    <lastmod>2008-12-04T00:00:00-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/blog/archives/</loc>
-    <lastmod>2015-10-29T17:03:42-07:00</lastmod>
+    <lastmod>2016-02-12T13:03:14-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/</loc>
-    <lastmod>2015-10-29T17:03:42-07:00</lastmod>
+    <lastmod>2016-02-12T13:03:14-05:00</lastmod>
   </url>
   <url>
     <loc>http://runarorama.github.com/about/</loc>
-    <lastmod>2015-10-29T17:03:42-07:00</lastmod>
+    <lastmod>2016-02-12T13:03:14-05:00</lastmod>
   </url>
 </urlset>

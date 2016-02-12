@@ -94,7 +94,7 @@
 
 
 
-<time class='entry-date' datetime='2015-10-04T14:36:31-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:36 pm</span></time>
+<time class='entry-date' datetime='2015-10-04T17:36:31-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:36 pm</span></time>
         
       </p>
     
@@ -168,7 +168,7 @@
 
 <p>Now, this obviously gives us a tree of trees, but what is the structure of that tree? It will be <em>a tree of all the subtrees</em>. The <code>tip</code> will be <code>this</code> tree, and the <code>tip</code> of each proper subtree under it will be the entire subtree at the corresponding point in the original tree.</p>
 
-<p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree of trees mirroring the structure of <code>t</code>, except each node will contain <code>f</code> applied to the corresponding subtree of <code>t</code>.</p>
+<p>That is, when we say <code>t.duplicate.map(f)</code> (or equivalently <code>t extend f</code>), our <code>f</code> will receive each subtree of <code>t</code> in turn and perform some calculation over that entire subtree. The result of the whole expression <code>t extend f</code> will be a tree mirroring the structure of <code>t</code>, except each node will contain <code>f</code> applied to the corresponding subtree of <code>t</code>.</p>
 
 <p>To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the <code>tip</code> and the size of each subdirectory underneath as tips of the subtrees, and so on. Then <code>d extend size</code> creates the tree of sizes of recursive subdirectories of <code>d</code>.</p>
 
@@ -372,7 +372,7 @@
 
 
 
-<time class='entry-date' datetime='2015-10-04T14:36:31-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:36 pm</span></time>
+<time class='entry-date' datetime='2015-10-04T17:36:31-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:36 pm</span></time>
       
 
 
@@ -457,7 +457,7 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2015/06/22/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
+        <a href="/blog/2015/06/23/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
       </li>
     
       <li class="post">
@@ -504,7 +504,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Rúnar Bjarnason -
+  Copyright &copy; 2016 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
