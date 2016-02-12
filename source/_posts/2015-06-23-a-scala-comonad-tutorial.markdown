@@ -51,7 +51,7 @@ case class Reader[R,A](run: R => A)
 def ask[R]: Reader[R,R] = Reader(r => r)
 ```
 
-The meaning of `join` in the reader monad is to pass the context of type `R` from the outer scope to the inner scope:
+The meaning of `join` in the reader monad is to pass the same context of type `R` to both the outer scope and the inner scope:
 
 ``` scala
 def join[R,A](r: Reader[R,Reader[R,A]]) =

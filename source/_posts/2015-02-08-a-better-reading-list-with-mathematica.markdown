@@ -227,4 +227,5 @@ I can test this ranking against books I've already read. Here's the top of my "r
 
 That's perfect. Those are definitely books I thouroughly enjoyed and would heartily recommend. Especially that last one.
 
+I've published this function as a Wolfram Cloud API, and you can call it at [https://www.wolframcloud.com/app/objects/4f4a7b3c-38a5-4bf3-81b6-7ca8e05ea100](https://www.wolframcloud.com/app/objects/4f4a7b3c-38a5-4bf3-81b6-7ca8e05ea100). It takes two URL query parameters, `key` and `user`, which are your Goodreads API key and the Goodreads user ID whose reading list you want to generate, respectively. Enjoy!
 

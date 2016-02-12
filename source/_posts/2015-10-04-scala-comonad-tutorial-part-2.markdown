@@ -63,7 +63,7 @@ This is also a comonad. The `counit` is obvious, we just get the `tip`. And here
 
 Now, this obviously gives us a tree of trees, but what is the structure of that tree? It will be _a tree of all the subtrees_. The `tip` will be `this` tree, and the `tip` of each proper subtree under it will be the entire subtree at the corresponding point in the original tree.
 
-That is, when we say `t.duplicate.map(f)` (or equivalently `t extend f`), our `f` will receive each subtree of `t` in turn and perform some calculation over that entire subtree. The result of the whole expression `t extend f` will be a tree of trees mirroring the structure of `t`, except each node will contain `f` applied to the corresponding subtree of `t`.
+That is, when we say `t.duplicate.map(f)` (or equivalently `t extend f`), our `f` will receive each subtree of `t` in turn and perform some calculation over that entire subtree. The result of the whole expression `t extend f` will be a tree mirroring the structure of `t`, except each node will contain `f` applied to the corresponding subtree of `t`.
 
 To carry on with our directory example, we can imagine wanting a detailed space usage summary of a directory structure, with the size of the whole tree at the `tip` and the size of each subdirectory underneath as tips of the subtrees, and so on. Then `d extend size` creates the tree of sizes of recursive subdirectories of `d`.
 
@@ -106,7 +106,7 @@ This comparison of `Free` and `Cofree` actually says something about monads and 
 
 ## The relationship between Reader and Coreader ##
 
-If we look at a kleisli arrow in the `Reader[R,?]` comonad, it looks like `A => Reader[R,B]`, or expanded out: `A => R => B`. If we uncurry that, we get `(A, R) => B`, and we can go back to the original by currying again. But notice that a value of type `(A, R) => B` is a coKleisli arrow in the `Coreader` comonad! Remember that `Coreader[R,A]` is really a pair `(A, R)`.
+If we look at a Kleisli arrow in the `Reader[R,?]` comonad, it looks like `A => Reader[R,B]`, or expanded out: `A => R => B`. If we uncurry that, we get `(A, R) => B`, and we can go back to the original by currying again. But notice that a value of type `(A, R) => B` is a coKleisli arrow in the `Coreader` comonad! Remember that `Coreader[R,A]` is really a pair `(A, R)`.
 
 So the answer to the question of how `Reader` and `Coreader` are related is that there is a one-to-one correspondence between a Kleisli arrow in the `Reader` monad and a coKleisli arrow in the `Coreader` comonad. More precisely, the Kleisli category for `Reader[R,?]` is isomorphic to the coKleisli category for `Coreader[R,?]`. This isomorphism is witnessed by currying and uncurrying.
 
@@ -198,4 +198,4 @@ This models a "store" of values of type `A` indexed by the type `S`. We have the
 
 A use case for this kind of structure might be something like image processing or cellular automata, where `S` might be coordinates into some kind of space (like a two-dimensional image). Then `extend` takes a local computation at the `cursor` and extends it to every point in the space. For example, if we have an operation `average` that peeks at the `cursor`'s immediate neighbors and averages them, then we can apply a low-pass filter to the whole image with `image.extend(average)`.
 
-The type `A => Store[S,B]` is also one possible representation of a [Lens](http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.package%24%24Lens%24). In the next installment of this tutorial, we're going to talk about lenses and [zippers](http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.Zipper).
+The type `A => Store[S,B]` is also one possible representation of a [Lens](http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.package%24%24Lens%24). I might talk about lenses and [zippers](http://docs.typelevel.org/api/scalaz/stable/7.1.0-M3/doc/#scalaz.Zipper) in a future post.
