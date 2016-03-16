@@ -156,7 +156,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of <code>List</code>, other than the <code>unit</code>, are the parts that make it a monoid. And our comonad here is already in a category full of monoids.</p>
+<p>All the interesting parts of <code>List</code> are the parts that make it a monoid, and our comonad here is already in a category full of monoids. Therefore the coKleisli composition in this comonad is kind of uninteresting. All it&rsquo;s saying is that if we can fold a <code>List[A]</code> to a <code>B</code>, and a <code>List[B]</code> to a <code>C</code>, then we can fold a <code>List[A]</code> to a <code>C</code>, by considering each element as a singleton list.</p>
 
 <h2>Forget ⊣ Cofree</h2>
 
