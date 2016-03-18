@@ -55,7 +55,7 @@ def extend[A,B](as: List[A])(f: List[A] => B): List[B] =
   as.map(x => f(unit(x)))
 ```
 
-The coKleisli composition in this comonad is kind of uninteresting, and necessarily so. All the interesting parts of `List`, other than the `unit`, are the parts that make it a monoid. And our comonad here is already in a category full of monoids.
+All the interesting parts of `List` are the parts that make it a monoid, and our comonad here is already in a category full of monoids. Therefore the coKleisli composition in this comonad is kind of uninteresting. All it's saying is that if we can fold a `List[A]` to a `B`, and a `List[B]` to a `C`, then we can fold a `List[A]` to a `C`, by considering each element as a singleton list.
 
 ## Forget ⊣ Cofree
 

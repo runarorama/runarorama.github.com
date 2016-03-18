@@ -175,7 +175,7 @@ Now if we compose it the other way, we should get a comonad:
 
 ```
 scala> def W[S] = comonad(homSetAdj[S])
-W: [S]=> scalaz.Monad[[α](S => α, S)]
+W: [S]=> scalaz.Comonad[[α](S => α, S)]
 ```
 
 What is that? It's the `Store[S,?]` comonad:
