@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: scala | Higher Order]]></title>
+  <link href="http://runarorama.github.com/blog/categories/scala/atom.xml" rel="self"/>
+  <link href="http://runarorama.github.com/"/>
+  <updated>2016-04-03T19:49:50-04:00</updated>
+  <id>http://runarorama.github.com/</id>
+  <author>
+    <name><![CDATA[Rúnar Bjarnason]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[A comonad of graph decompositions]]></title>
+    <link href="http://runarorama.github.com/blog/2016/04/02/a-comonad-of-graph-decompositions/"/>
+    <updated>2016-04-02T13:02:54-04:00</updated>
+    <id>http://runarorama.github.com/blog/2016/04/02/a-comonad-of-graph-decompositions</id>
+    <content type="html"><![CDATA[<p>I want to talk about a comonad that came up at <a href="http://innovation.verizon.com/">work</a> the other day. Actually, two of them, as the data structure in question is a comonad in at least two ways, and the issue that came up is related to the difference between those two comonads.</p>
+
+<p>This post is sort of a continuation of the <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">Comonad Tutorial</a>, and we can call this &ldquo;part 3&rdquo;. I&rsquo;m going to assume the reader has a basic familiarity with comonads.</p>
+
+<h2>Inductive Graphs</h2>
+
+<p>At <a href="http://innovation.verizon.com/">work</a>, we develop and use a Scala library called <a href="http://github.com/oncue/quiver">Quiver</a> for working with <a href="https://en.wikipedia.org/wiki/Graph_(discrete_mathematics">graphs</a>). In this library, a graph is a recursively defined immutable data structure. A graph, with node IDs of type <code>V</code>, node labels <code>N</code>, and edge labels <code>E</code>, is constructed in one of two ways. It can be empty:</p>
+
+<pre><code class="scala">def empty[V,N,E]: Graph[V,N,E]
+</code></pre>
+
+<p>Or it can be of the form <code>c &amp; g</code>, where <code>c</code> is the <em>context</em> of one node of the graph and <code>g</code> is the rest of the graph with that node removed:</p>
+
+<pre><code class="scala">case class Context[V,N,E](
+  inEdges: Vector[(E,V)],
+  vertex: V,
+  label: N,
+  outEdges: Vector[(E,V)]
+) {    
+  def &amp;(g: Graph[V,N,E]): Graph[V,N,E] = ???
+}
+</code></pre>
+
+<p>By the same token, we can decompose a graph on a particular node:</p>
+
+<pre><code class="scala">g: Graph[V,N,E]
+v: V
+
+g decomp v: Option[GDecomp[V,N,E]]
+</code></pre>
+
+<p>Where a <code>GDecomp</code> is a <code>Context</code> for the node <code>v</code> (if it exists in the graph) together with the rest of the graph:</p>
+
+<pre><code class="scala">case class GDecomp[V,N,E](ctx: Context[V,N,E], rest: Graph[V,N,E])
+</code></pre>
+
+<h2>Recursive decomposition</h2>
+
+<p>Let&rsquo;s say we start with a graph <code>g</code>, like this:</p>
+
+<p><img src="//quiver/Quiver1.png" width="300" alt="Example graph" /></p>
+
+<p>I&rsquo;m using an <em>undirected</em> graph here for simplification. An undirected graph is one in which the edges don&rsquo;t have a direction. In Quiver, this is represented as a graph where the &ldquo;in&rdquo; edges of each node are the same as its &ldquo;out&rdquo; edges.</p>
+
+<p>If we decompose on the node <code>a</code>, we get a view of the graph from the perspective of <code>a</code>. That is, we&rsquo;ll have a <code>Context</code> letting us look at the label, vertex ID, and edges to and from <code>a</code>, and we&rsquo;ll also have the remainder of the graph, with the node <code>a</code> &ldquo;broken off&rdquo;:</p>
+
+<p><img src="//quiver/decompa.png" width="400" alt="GDecomp on a" /></p>
+
+<p>Quiver can arbitrarily choose a node for us, so we can look at the context of some &ldquo;first&rdquo; node:</p>
+
+<pre><code class="scala">g: Graph[V,N,E]
+
+g.decompAny: Option[GDecomp[V,N,E]]
+</code></pre>
+
+<p>We can keep decomposing the remainder recursively, to perform an arbitrary calculation over the entire graph:</p>
+
+<pre><code class="scala">f: (Context[V,N,E], B) =&gt; B
+b: B
+
+(g fold b)(f): B
+</code></pre>
+
+<p>The implementation of <code>fold</code> will be something like:</p>
+
+<pre><code class="scala">g.decompAny map {
+  case GDecomp(ctx, rest) =&gt; f(ctx, rest.fold(b)(f))
+} getOrElse b
+</code></pre>
+
+<p>For instance, if we wanted to count the edges in the graph <code>g</code>, we could do:</p>
+
+<pre><code class="scala">(g fold 0) {
+  case (Context(ins, _, _, outs), b) =&gt; ins.size + outs.size + b
+}
+</code></pre>
+
+<p>The recursive decomposition will guarantee that our function doesn&rsquo;t see any given edge more than once. For the graph <code>g</code> above, <code>(g fold b)(f)</code> would look something like this:</p>
+
+<p><img src="//quiver/fold.png" alt="Graph fold" /></p>
+
+<h2>Graph Rotations</h2>
+
+<p>Let&rsquo;s now say that we wanted to find the maximum <a href="https://en.wikipedia.org/wiki/Degree_(graph_theory">degree</a> of a graph. That is, find the highest number of edges to or from any node.</p>
+
+<p>A first stab might be:</p>
+
+<pre><code class="scala">def maxDegree[V,N,E](g: Graph[V,N,E]): Int =
+  g.fold(0) {
+    case (Context(ins, _, _, outs), z) =&gt; 
+      (ins.size + outs.size) max z
+  }
+</code></pre>
+
+<p>But that would get the incorrect result. In our graph <code>g</code> above, the nodes <code>f</code> and <code>b</code> both have the highest degree (3), but this fold wouldn&rsquo;t find that. The reason is that once our function gets to look at <code>b</code>, its edge to <code>a</code> has already been removed. Instead of seeing successive decompositions, we want to see &ldquo;all rotations&rdquo; of the graph through the <code>decomp</code> operator:</p>
+
+<p><img src="//quiver/rotations.png" alt="All rotations" /></p>
+
+<p>That is, we want to consider each node in the context of the entire graph we started with. In order to express that with <code>fold</code>, we have to decompose the original graph at each step:</p>
+
+<pre><code class="scala">def maxDegree[V,N,E](g: Graph[V,N,E]): Int =
+  g.fold(0) { (c, z) =&gt;
+    g.decompose(c.vertex).map {
+      case GDecomp(Context(ins, _, _, outs), _) =&gt;
+        ins.size + outs.size
+    }.getOrElse(0) max z
+  }
+</code></pre>
+
+<p>That turns out to be a pretty common thing to want to do. So what if we could have a combinator that <em>labels each node with its context</em>?</p>
+
+<pre><code class="scala">def contextGraph(g: Graph[V,N,E]): Graph[V,Context[V,N,E],E]
+</code></pre>
+
+<p>Visually, that looks something like this:</p>
+
+<p><img src="//quiver/duplicate.png" alt="All contexts" /></p>
+
+<p>If we fold over the <code>contextGraph(g)</code> rather than <code>g</code>, we get to see the whole graph from the perspective of each node. We can then write the <code>maxDegree</code> function like this:</p>
+
+<pre><code class="scala">def maxDegree[V,N,E](g: Graph[V,N,E]): Int =
+  contextGraph(g).fold(0) { (c, z) =&gt;
+    z max (c.label.ins.size + c.label.outs.size)
+  }
+</code></pre>
+
+<h2>Two different comonads</h2>
+
+<p>This all sounds suspiciously like a comonad! Of course, <code>Graph</code> itself is not a comonad, but <code>GDecomp</code> definitely is. The <code>counit</code> just gets the label of the node that&rsquo;s been <code>decomp</code>ed out:</p>
+
+<pre><code class="scala">def gdecompComonad[V,E] = new Comonad[λ[α =&gt; GDecomp[V,α,E]]] {
+  def counit[A](g: GDecomp[V,A,E]): A = g.ctx.label
+  def cobind[A,B](g: GDecomp[V,A,E])(f: GDecomp[V,A,E] =&gt; B): GDecomp[B] = ???
+}
+</code></pre>
+
+<p>The <code>cobind</code> can be implemented in one of two ways. There&rsquo;s the &ldquo;successive decompositions&rdquo; version:</p>
+
+<pre><code class="scala">def cobind[A,B](g: GDecomp[V,A,E])(f: GDecomp[V,A,E] =&gt; B): GDecomp[B] =
+  GDecomp(g.ctx.copy(label = f(g)),
+          g.rest.decompAny.map { 
+            val GDecomp(c, r) =&gt; cobind(_)(f)
+            c &amp; r
+          } getOrElse empty)
+</code></pre>
+
+<p>Visually, it looks like this:</p>
+
+<p><img src="//quiver/extend.png" alt="Extend over successive decompositions" /></p>
+
+<p>It <em>exposes the substructure</em> of the graph by storing it in the labels of the nodes. It&rsquo;s very much like the familiar <code>NonEmptyList</code> comonad, which replaces each element in the list with the whole sublist from that element on.</p>
+
+<p>So this is the comonad of <em>recursive folds over a graph</em>. Really its action is the same as as just <code>fold</code>. It takes a computation on one decomposition of the graph, and extends it to all sub-decompositions.</p>
+
+<p>But there&rsquo;s another, comonad that&rsquo;s much more useful <em>as a comonad</em>. That one looks visually more like this:</p>
+
+<p><img src="//quiver/redecorate.png" alt="Extend over all rotations" /></p>
+
+<p>Its <code>cobind</code> takes a computation focused on one node of the graph (that is, on a <code>GDecomp</code>), repeats that for every other decomposition of the original graph in turn, and stores the results in the respective node labels:</p>
+
+<pre><code class="scala">def cobind[A,B](g: GDecomp[V,A,E])(f: GDecomp[V,A,E] =&gt; B): GDecomp[B] = {
+  val orig = g.ctx &amp; g.rest
+  GDecomp(g.ctx.copy(label = f(g)),
+          rest.fold(empty) { (c, acc) =&gt;
+            c.copy(label = f(orig.decomp(c.vertex).get)) &amp; acc
+          })
+}
+</code></pre>
+
+<p>This is useful for algorithms where we want to label every node with some information computed from its neighborhood. For example, some clustering algorithms start by assigning each node its own cluster, then repeatedly joining nodes to the most popular cluster in their immediate neighborhood, until a fixed point is reached.</p>
+
+<p>As a simpler example, we could take the average value for the labels of neighboring nodes, to apply something like a low-pass filter to the whole graph:</p>
+
+<pre><code class="scala">def lopass[V,E](g: Graph[V,Int,E]): Graph[V,Int,E] =
+  g.decompAny.map { d =&gt; cobind(d) { x =&gt;
+    val neighbors = (x.inEdges ++ x.outEdges).map { n =&gt; 
+      g.decomp(n).get.ctx.label
+    }
+    (neighbors.sum + x.label) / (neighbors.length + 1)
+  }} getOrElse g
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

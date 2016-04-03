@@ -9,7 +9,7 @@
   <meta name="author" content="Rúnar Bjarnason">
 
   
-  <meta name="description" content="I&rsquo;ve been having fun exploring adjunctions lately and thinking about how we can take a monad apart and compose it the other way to get a &hellip;">
+  <meta name="description" content="I want to talk about a comonad that came up at work the other day. Actually, two of them, as the data structure in question is a comonad in at least &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +82,301 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/04/02/a-comonad-of-graph-decompositions/">A Comonad of Graph Decompositions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-04-02T13:02:54-04:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2016</span></span> <span class='time'>1:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I want to talk about a comonad that came up at <a href="http://innovation.verizon.com/">work</a> the other day. Actually, two of them, as the data structure in question is a comonad in at least two ways, and the issue that came up is related to the difference between those two comonads.</p>
+
+<p>This post is sort of a continuation of the <a href="http://blog.higher-order.com/blog/2015/06/23/a-scala-comonad-tutorial/">Comonad Tutorial</a>, and we can call this &ldquo;part 3&rdquo;. I&rsquo;m going to assume the reader has a basic familiarity with comonads.</p>
+
+<h2>Inductive Graphs</h2>
+
+<p>At <a href="http://innovation.verizon.com/">work</a>, we develop and use a Scala library called <a href="http://github.com/oncue/quiver">Quiver</a> for working with <a href="https://en.wikipedia.org/wiki/Graph_(discrete_mathematics">graphs</a>). In this library, a graph is a recursively defined immutable data structure. A graph, with node IDs of type <code>V</code>, node labels <code>N</code>, and edge labels <code>E</code>, is constructed in one of two ways. It can be empty:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">empty</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or it can be of the form <code>c &amp; g</code>, where <code>c</code> is the <em>context</em> of one node of the graph and <code>g</code> is the rest of the graph with that node removed:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Context</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">](</span>
+</span><span class='line'>  <span class="n">inEdges</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[(</span><span class="kt">E</span>,<span class="kt">V</span><span class="o">)],</span>
+</span><span class='line'>  <span class="n">vertex</span><span class="k">:</span> <span class="kt">V</span><span class="o">,</span>
+</span><span class='line'>  <span class="n">label</span><span class="k">:</span> <span class="kt">N</span><span class="o">,</span>
+</span><span class='line'>  <span class="n">outEdges</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[(</span><span class="kt">E</span>,<span class="kt">V</span><span class="o">)]</span>
+</span><span class='line'><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="o">&amp;(</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By the same token, we can decompose a graph on a particular node:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span>
+</span><span class='line'><span class="n">v</span><span class="k">:</span> <span class="kt">V</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">g</span> <span class="n">decomp</span> <span class="n">v</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Where a <code>GDecomp</code> is a <code>Context</code> for the node <code>v</code> (if it exists in the graph) together with the rest of the graph:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">](</span><span class="n">ctx</span><span class="k">:</span> <span class="kt">Context</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">],</span> <span class="n">rest</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Recursive decomposition</h2>
+
+<p>Let&rsquo;s say we start with a graph <code>g</code>, like this:</p>
+
+<p><img src="//quiver/Quiver1.png" width="300" alt="Example graph" /></p>
+
+<p>I&rsquo;m using an <em>undirected</em> graph here for simplification. An undirected graph is one in which the edges don&rsquo;t have a direction. In Quiver, this is represented as a graph where the &ldquo;in&rdquo; edges of each node are the same as its &ldquo;out&rdquo; edges.</p>
+
+<p>If we decompose on the node <code>a</code>, we get a view of the graph from the perspective of <code>a</code>. That is, we&rsquo;ll have a <code>Context</code> letting us look at the label, vertex ID, and edges to and from <code>a</code>, and we&rsquo;ll also have the remainder of the graph, with the node <code>a</code> &ldquo;broken off&rdquo;:</p>
+
+<p><img src="//quiver/decompa.png" width="400" alt="GDecomp on a" /></p>
+
+<p>Quiver can arbitrarily choose a node for us, so we can look at the context of some &ldquo;first&rdquo; node:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">g</span><span class="o">.</span><span class="n">decompAny</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can keep decomposing the remainder recursively, to perform an arbitrary calculation over the entire graph:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">Context</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">],</span> <span class="n">B</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span>
+</span><span class='line'><span class="n">b</span><span class="k">:</span> <span class="kt">B</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">(</span><span class="n">g</span> <span class="n">fold</span> <span class="n">b</span><span class="o">)(</span><span class="n">f</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The implementation of <code>fold</code> will be something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">g</span><span class="o">.</span><span class="n">decompAny</span> <span class="n">map</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nc">GDecomp</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">rest</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">rest</span><span class="o">.</span><span class="n">fold</span><span class="o">(</span><span class="n">b</span><span class="o">)(</span><span class="n">f</span><span class="o">))</span>
+</span><span class='line'><span class="o">}</span> <span class="n">getOrElse</span> <span class="n">b</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For instance, if we wanted to count the edges in the graph <code>g</code>, we could do:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">(</span><span class="n">g</span> <span class="n">fold</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="o">(</span><span class="nc">Context</span><span class="o">(</span><span class="n">ins</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="n">outs</span><span class="o">),</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">ins</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">outs</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">b</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The recursive decomposition will guarantee that our function doesn&rsquo;t see any given edge more than once. For the graph <code>g</code> above, <code>(g fold b)(f)</code> would look something like this:</p>
+
+<p><img src="//quiver/fold.png" alt="Graph fold" /></p>
+
+<h2>Graph Rotations</h2>
+
+<p>Let&rsquo;s now say that we wanted to find the maximum <a href="https://en.wikipedia.org/wiki/Degree_(graph_theory">degree</a> of a graph. That is, find the highest number of edges to or from any node.</p>
+
+<p>A first stab might be:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">maxDegree</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">g</span><span class="o">.</span><span class="n">fold</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="o">(</span><span class="nc">Context</span><span class="o">(</span><span class="n">ins</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="n">outs</span><span class="o">),</span> <span class="n">z</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>      <span class="o">(</span><span class="n">ins</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">outs</span><span class="o">.</span><span class="n">size</span><span class="o">)</span> <span class="n">max</span> <span class="n">z</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But that would get the incorrect result. In our graph <code>g</code> above, the nodes <code>f</code> and <code>b</code> both have the highest degree (3), but this fold wouldn&rsquo;t find that. The reason is that once our function gets to look at <code>b</code>, its edge to <code>a</code> has already been removed. Instead of seeing successive decompositions, we want to see &ldquo;all rotations&rdquo; of the graph through the <code>decomp</code> operator:</p>
+
+<p><img src="//quiver/rotations.png" alt="All rotations" /></p>
+
+<p>That is, we want to consider each node in the context of the entire graph we started with. In order to express that with <code>fold</code>, we have to decompose the original graph at each step:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">maxDegree</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">g</span><span class="o">.</span><span class="n">fold</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="n">z</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>    <span class="n">g</span><span class="o">.</span><span class="n">decompose</span><span class="o">(</span><span class="n">c</span><span class="o">.</span><span class="n">vertex</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">GDecomp</span><span class="o">(</span><span class="nc">Context</span><span class="o">(</span><span class="n">ins</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="n">outs</span><span class="o">),</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>        <span class="n">ins</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">outs</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>    <span class="o">}.</span><span class="n">getOrElse</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span> <span class="n">max</span> <span class="n">z</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That turns out to be a pretty common thing to want to do. So what if we could have a combinator that <em>labels each node with its context</em>?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">contextGraph</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">Context</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span>,<span class="kt">E</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Visually, that looks something like this:</p>
+
+<p><img src="//quiver/duplicate.png" alt="All contexts" /></p>
+
+<p>If we fold over the <code>contextGraph(g)</code> rather than <code>g</code>, we get to see the whole graph from the perspective of each node. We can then write the <code>maxDegree</code> function like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">maxDegree</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">contextGraph</span><span class="o">(</span><span class="n">g</span><span class="o">).</span><span class="n">fold</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="n">z</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>    <span class="n">z</span> <span class="n">max</span> <span class="o">(</span><span class="n">c</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">ins</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">outs</span><span class="o">.</span><span class="n">size</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Two different comonads</h2>
+
+<p>This all sounds suspiciously like a comonad! Of course, <code>Graph</code> itself is not a comonad, but <code>GDecomp</code> definitely is. The <code>counit</code> just gets the label of the node that&rsquo;s been <code>decomp</code>ed out:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">gdecompComonad</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">E</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Comonad</span><span class="o">[</span><span class="kt">λ</span><span class="o">[</span><span class="kt">α</span> <span class="k">=&gt;</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">α</span>,<span class="kt">E</span><span class="o">]]]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">counit</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">label</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">cobind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>cobind</code> can be implemented in one of two ways. There&rsquo;s the &ldquo;successive decompositions&rdquo; version:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">cobind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="nc">GDecomp</span><span class="o">(</span><span class="n">g</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">copy</span><span class="o">(</span><span class="n">label</span> <span class="k">=</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="o">)),</span>
+</span><span class='line'>          <span class="n">g</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">decompAny</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">val</span> <span class="nc">GDecomp</span><span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="n">r</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">cobind</span><span class="o">(</span><span class="k">_</span><span class="o">)(</span><span class="n">f</span><span class="o">)</span>
+</span><span class='line'>            <span class="n">c</span> <span class="o">&amp;</span> <span class="n">r</span>
+</span><span class='line'>          <span class="o">}</span> <span class="n">getOrElse</span> <span class="n">empty</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Visually, it looks like this:</p>
+
+<p><img src="//quiver/extend.png" alt="Extend over successive decompositions" /></p>
+
+<p>It <em>exposes the substructure</em> of the graph by storing it in the labels of the nodes. It&rsquo;s very much like the familiar <code>NonEmptyList</code> comonad, which replaces each element in the list with the whole sublist from that element on.</p>
+
+<p>So this is the comonad of <em>recursive folds over a graph</em>. Really its action is the same as as just <code>fold</code>. It takes a computation on one decomposition of the graph, and extends it to all sub-decompositions.</p>
+
+<p>But there&rsquo;s another, comonad that&rsquo;s much more useful <em>as a comonad</em>. That one looks visually more like this:</p>
+
+<p><img src="//quiver/redecorate.png" alt="Extend over all rotations" /></p>
+
+<p>Its <code>cobind</code> takes a computation focused on one node of the graph (that is, on a <code>GDecomp</code>), repeats that for every other decomposition of the original graph in turn, and stores the results in the respective node labels:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">cobind</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">])(</span><span class="n">f</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">A</span>,<span class="kt">E</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">)</span><span class="k">:</span> <span class="kt">GDecomp</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">orig</span> <span class="k">=</span> <span class="n">g</span><span class="o">.</span><span class="n">ctx</span> <span class="o">&amp;</span> <span class="n">g</span><span class="o">.</span><span class="n">rest</span>
+</span><span class='line'>  <span class="nc">GDecomp</span><span class="o">(</span><span class="n">g</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">copy</span><span class="o">(</span><span class="n">label</span> <span class="k">=</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="o">)),</span>
+</span><span class='line'>          <span class="n">rest</span><span class="o">.</span><span class="n">fold</span><span class="o">(</span><span class="n">empty</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="n">acc</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>            <span class="n">c</span><span class="o">.</span><span class="n">copy</span><span class="o">(</span><span class="n">label</span> <span class="k">=</span> <span class="n">f</span><span class="o">(</span><span class="n">orig</span><span class="o">.</span><span class="n">decomp</span><span class="o">(</span><span class="n">c</span><span class="o">.</span><span class="n">vertex</span><span class="o">).</span><span class="n">get</span><span class="o">))</span> <span class="o">&amp;</span> <span class="n">acc</span>
+</span><span class='line'>          <span class="o">})</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is useful for algorithms where we want to label every node with some information computed from its neighborhood. For example, some clustering algorithms start by assigning each node its own cluster, then repeatedly joining nodes to the most popular cluster in their immediate neighborhood, until a fixed point is reached.</p>
+
+<p>As a simpler example, we could take the average value for the labels of neighboring nodes, to apply something like a low-pass filter to the whole graph:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">lopass</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">E</span><span class="o">](</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">Int</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">Int</span>,<span class="kt">E</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>  <span class="n">g</span><span class="o">.</span><span class="n">decompAny</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">d</span> <span class="k">=&gt;</span> <span class="n">cobind</span><span class="o">(</span><span class="n">d</span><span class="o">)</span> <span class="o">{</span> <span class="n">x</span> <span class="k">=&gt;</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">neighbors</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">inEdges</span> <span class="o">++</span> <span class="n">x</span><span class="o">.</span><span class="n">outEdges</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span> <span class="n">n</span> <span class="k">=&gt;</span>
+</span><span class='line'>      <span class="n">g</span><span class="o">.</span><span class="n">decomp</span><span class="o">(</span><span class="n">n</span><span class="o">).</span><span class="n">get</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">label</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">neighbors</span><span class="o">.</span><span class="n">sum</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">label</span><span class="o">)</span> <span class="o">/</span> <span class="o">(</span><span class="n">neighbors</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}}</span> <span class="n">getOrElse</span> <span class="n">g</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1867,39 +2162,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/29/taking-a-break-from-twitter/">Taking a Break From Twitter</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-10-29T13:23:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:23 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Today I disabled my Twitter account. Probably only temporarily, but we&rsquo;ll see. This is just a quick note to let everyone know that I&rsquo;m not leaving Twitter because of anything specific. It&rsquo;s not that you said or did anything wrong. I just find that it&rsquo;s becoming an energy sink for me. I&rsquo;m putting Twitter away as a measure to control my focus, and to better control what information I consume and produce.</p>
-
-<p>Hopefully this means that I will post more here when I have something interesting to share. If you need to reach me, I&rsquo;m available by email. My address is <code>runar</code> at this blog&rsquo;s domain.</p>
-
-<p>(UPDATE 2014-12-21): I&rsquo;ve recreated my Twitter account, but I&rsquo;m now using the service in a different way. The biggest change is that I don&rsquo;t follow anyone. It&rsquo;s strictly a broadcasting device for me, and not an information consumption device.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -1919,6 +2181,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/02/a-comonad-of-graph-decompositions/">A Comonad of Graph Decompositions</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/12/freedom-and-forgetfulness/">Freedom and Forgetfulness</a>
       </li>
     
@@ -1932,10 +2198,6 @@
     
       <li class="post">
         <a href="/blog/2015/06/23/a-scala-comonad-tutorial/">A Scala Comonad Tutorial, Part 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/18/easy-performance-wins-with-scalaz/">Easy Performance Wins With Scalaz</a>
       </li>
     
   </ul>
