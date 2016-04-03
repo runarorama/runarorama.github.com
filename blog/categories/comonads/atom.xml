@@ -4,7 +4,7 @@
   <title><![CDATA[Category: comonads | Higher Order]]></title>
   <link href="http://runarorama.github.com/blog/categories/comonads/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2016-04-03T19:55:25-04:00</updated>
+  <updated>2016-04-03T19:57:53-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -149,14 +149,18 @@ b: B
 <p>This all sounds suspiciously like a comonad! Of course, <code>Graph</code> itself is not a comonad, but <code>GDecomp</code> definitely is. The <code>counit</code> just gets the label of the node that&rsquo;s been <code>decomp</code>ed out:</p>
 
 <pre><code class="scala">def gdecompComonad[V,E] = new Comonad[λ[α =&gt; GDecomp[V,α,E]]] {
+
   def counit[A](g: GDecomp[V,A,E]): A = g.ctx.label
-  def cobind[A,B](g: GDecomp[V,A,E])(f: GDecomp[V,A,E] =&gt; B): GDecomp[B] = ???
+
+  def cobind[A,B](g: GDecomp[V,A,E])(
+                  f: GDecomp[V,A,E] =&gt; B): GDecomp[B] = ???
 }
 </code></pre>
 
 <p>The <code>cobind</code> can be implemented in one of two ways. There&rsquo;s the &ldquo;successive decompositions&rdquo; version:</p>
 
-<pre><code class="scala">def cobind[A,B](g: GDecomp[V,A,E])(f: GDecomp[V,A,E] =&gt; B): GDecomp[B] =
+<pre><code class="scala">def cobind[A,B](g: GDecomp[V,A,E])(
+                f: GDecomp[V,A,E] =&gt; B): GDecomp[B] =
   GDecomp(g.ctx.copy(label = f(g)),
           g.rest.decompAny.map { 
             val GDecomp(c, r) =&gt; cobind(_)(f)
@@ -178,7 +182,8 @@ b: B
 
 <p>Its <code>cobind</code> takes a computation focused on one node of the graph (that is, on a <code>GDecomp</code>), repeats that for every other decomposition of the original graph in turn, and stores the results in the respective node labels:</p>
 
-<pre><code class="scala">def cobind[A,B](g: GDecomp[V,A,E])(f: GDecomp[V,A,E] =&gt; B): GDecomp[B] = {
+<pre><code class="scala">def cobind[A,B](g: GDecomp[V,A,E])(
+                f: GDecomp[V,A,E] =&gt; B): GDecomp[B] = {
   val orig = g.ctx &amp; g.rest
   GDecomp(g.ctx.copy(label = f(g)),
           rest.fold(empty) { (c, acc) =&gt;
@@ -199,6 +204,8 @@ b: B
     (neighbors.sum + x.label) / (neighbors.length + 1)
   }} getOrElse g
 </code></pre>
+
+<p>It&rsquo;s this latter comonad that I decided to ultimately include as the <code>Comonad</code> instance for <code>quiver.GDecomp</code>.</p>
 ]]></content>
   </entry>
   
