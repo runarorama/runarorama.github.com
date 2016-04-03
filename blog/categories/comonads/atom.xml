@@ -4,7 +4,7 @@
   <title><![CDATA[Category: comonads | Higher Order]]></title>
   <link href="http://runarorama.github.com/blog/categories/comonads/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2016-04-03T19:51:33-04:00</updated>
+  <updated>2016-04-03T19:55:25-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -58,13 +58,13 @@ g decomp v: Option[GDecomp[V,N,E]]
 
 <p>Let&rsquo;s say we start with a graph <code>g</code>, like this:</p>
 
-<p><img src="{base_url}/images/quiver/Quiver1.png" width="300" alt="Example graph" /></p>
+<p><img src="/images/quiver/Quiver1.png" width="300" alt="Example graph" /></p>
 
 <p>I&rsquo;m using an <em>undirected</em> graph here for simplification. An undirected graph is one in which the edges don&rsquo;t have a direction. In Quiver, this is represented as a graph where the &ldquo;in&rdquo; edges of each node are the same as its &ldquo;out&rdquo; edges.</p>
 
 <p>If we decompose on the node <code>a</code>, we get a view of the graph from the perspective of <code>a</code>. That is, we&rsquo;ll have a <code>Context</code> letting us look at the label, vertex ID, and edges to and from <code>a</code>, and we&rsquo;ll also have the remainder of the graph, with the node <code>a</code> &ldquo;broken off&rdquo;:</p>
 
-<p><img src="{base_url}/images/quiver/decompa.png" width="400" alt="GDecomp on a" /></p>
+<p><img src="/images/quiver/decompa.png" width="400" alt="GDecomp on a" /></p>
 
 <p>Quiver can arbitrarily choose a node for us, so we can look at the context of some &ldquo;first&rdquo; node:</p>
 
@@ -97,7 +97,7 @@ b: B
 
 <p>The recursive decomposition will guarantee that our function doesn&rsquo;t see any given edge more than once. For the graph <code>g</code> above, <code>(g fold b)(f)</code> would look something like this:</p>
 
-<p><img src="{base_url}/images/quiver/fold.png" alt="Graph fold" /></p>
+<p><img src="/images/quiver/fold.png" alt="Graph fold" /></p>
 
 <h2>Graph Rotations</h2>
 
@@ -114,7 +114,7 @@ b: B
 
 <p>But that would get the incorrect result. In our graph <code>g</code> above, the nodes <code>f</code> and <code>b</code> both have the highest degree (3), but this fold wouldn&rsquo;t find that. The reason is that once our function gets to look at <code>b</code>, its edge to <code>a</code> has already been removed. Instead of seeing successive decompositions, we want to see &ldquo;all rotations&rdquo; of the graph through the <code>decomp</code> operator:</p>
 
-<p><img src="{base_url}/images/quiver/rotations.png" alt="All rotations" /></p>
+<p><img src="/images/quiver/rotations.png" alt="All rotations" /></p>
 
 <p>That is, we want to consider each node in the context of the entire graph we started with. In order to express that with <code>fold</code>, we have to decompose the original graph at each step:</p>
 
@@ -134,7 +134,7 @@ b: B
 
 <p>Visually, that looks something like this:</p>
 
-<p><img src="{base_url}/images/quiver/duplicate.png" alt="All contexts" /></p>
+<p><img src="/images/quiver/duplicate.png" alt="All contexts" /></p>
 
 <p>If we fold over the <code>contextGraph(g)</code> rather than <code>g</code>, we get to see the whole graph from the perspective of each node. We can then write the <code>maxDegree</code> function like this:</p>
 
@@ -166,7 +166,7 @@ b: B
 
 <p>Visually, it looks like this:</p>
 
-<p><img src="{base_url}/images/quiver/extend.png" alt="Extend over successive decompositions" /></p>
+<p><img src="/images/quiver/extend.png" alt="Extend over successive decompositions" /></p>
 
 <p>It <em>exposes the substructure</em> of the graph by storing it in the labels of the nodes. It&rsquo;s very much like the familiar <code>NonEmptyList</code> comonad, which replaces each element in the list with the whole sublist from that element on.</p>
 
@@ -174,7 +174,7 @@ b: B
 
 <p>But there&rsquo;s another, comonad that&rsquo;s much more useful <em>as a comonad</em>. That one looks visually more like this:</p>
 
-<p><img src="{base_url}/images/quiver/redecorate.png" alt="Extend over all rotations" /></p>
+<p><img src="/images/quiver/redecorate.png" alt="Extend over all rotations" /></p>
 
 <p>Its <code>cobind</code> takes a computation focused on one node of the graph (that is, on a <code>GDecomp</code>), repeats that for every other decomposition of the original graph in turn, and stores the results in the respective node labels:</p>
 
