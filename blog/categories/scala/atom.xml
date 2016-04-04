@@ -4,7 +4,7 @@
   <title><![CDATA[Category: scala | Higher Order]]></title>
   <link href="http://runarorama.github.com/blog/categories/scala/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2016-04-03T21:15:23-04:00</updated>
+  <updated>2016-04-03T21:25:36-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -209,7 +209,7 @@ b: B
   }} getOrElse g
 </code></pre>
 
-<p>The difference between these two comonad instances is essentially the same as the difference between <a href="https://github.com/scalaz/scalaz/blob/series/7.3.x/core/src/main/scala/scalaz/NonEmptyList.scala"><code>NonEmptyList</code></a> and the nonempty list <a href="https://github.com/scalaz/scalaz/blob/series/7.3.x/core/src/main/scala/scalaz/Zipper.scala"><code>Zipper</code></a>. In fact, we can see <code>Zipper</code> as the <code>GDecomp</code> on <a href="http://mathworld.wolfram.com/PathGraph.html">Path Graphs</a>.</p>
+<p>The difference between these two comonad instances is essentially the same as the difference between <a href="https://github.com/scalaz/scalaz/blob/series/7.3.x/core/src/main/scala/scalaz/NonEmptyList.scala"><code>NonEmptyList</code></a> and the nonempty list <a href="https://github.com/scalaz/scalaz/blob/series/7.3.x/core/src/main/scala/scalaz/Zipper.scala"><code>Zipper</code></a>.</p>
 
 <p>It&rsquo;s this latter &ldquo;decomp zipper&rdquo; comonad that I decided to ultimately include as the <code>Comonad</code> instance for <code>quiver.GDecomp</code>.</p>
 ]]></content>
