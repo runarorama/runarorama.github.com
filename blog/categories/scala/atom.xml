@@ -4,7 +4,7 @@
   <title><![CDATA[Category: scala | Higher Order]]></title>
   <link href="http://runarorama.github.com/blog/categories/scala/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2016-04-04T07:22:40-04:00</updated>
+  <updated>2016-04-04T10:12:46-04:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -165,7 +165,7 @@ b: B
                 f: GDecomp[V,A,E] =&gt; B): GDecomp[B] =
   GDecomp(g.ctx.copy(label = f(g)),
           g.rest.decompAny.map { 
-            val GDecomp(c, r) =&gt; cobind(_)(f)
+            val GDecomp(c, r) = cobind(_)(f)
             c &amp; r
           } getOrElse empty)
 </code></pre>
