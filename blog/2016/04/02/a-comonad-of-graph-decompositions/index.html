@@ -236,13 +236,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But that would get the incorrect result. In our graph <code>g</code> above, the nodes <code>f</code> and <code>b</code> both have the highest degree (3), but this fold wouldn&rsquo;t find that. The reason is that once our function gets to look at <code>b</code>, its edge to <code>a</code> has already been removed. This was the issue that came up at work. The fact that <code>fold</code> works this way is not at all intuitive.</p>
+<p>But that would get the incorrect result. In our graph <code>g</code> above, the nodes <code>b</code>, <code>d</code>, and <code>f</code> have a degree of 3, but this fold would find the highest degree to be 2. The reason is that once our function gets to look at <code>b</code>, its edge to <code>a</code> has already been removed, and once it sees <code>f</code>, it has no edges left to look at.</p>
 
-<p>Instead of seeing successive decompositions, we want to see &ldquo;all rotations&rdquo; of the graph through the <code>decomp</code> operator:</p>
+<p>This was the issue that came up at work. This behaviour of <code>fold</code> is both correct and useful, but it can be surprising. What we might expect instead is that instead of receiving successive decompositions, our function sees &ldquo;all rotations&rdquo; of the graph through the <code>decomp</code> operator:</p>
 
 <p><img src="/images/quiver/rotations.png" alt="All rotations" /></p>
 
-<p>That is, we want to consider each node in the context of the entire graph we started with. In order to express that with <code>fold</code>, we have to decompose the original graph at each step:</p>
+<p>That is, we often want to consider each node in the context of the entire graph we started with. In order to express that with <code>fold</code>, we have to decompose the original graph at each step:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -261,7 +261,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That turns out to be a pretty common thing to want to do. So what if we could have a combinator that <em>labels each node with its context</em>?</p>
+<p>But what if we could have a combinator that <em>labels each node with its context</em>?</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">contextGraph</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">])</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">Context</span><span class="o">[</span><span class="kt">V</span>,<span class="kt">N</span>,<span class="kt">E</span><span class="o">]</span>,<span class="kt">E</span><span class="o">]</span>
@@ -272,7 +272,7 @@
 
 <p><img src="/images/quiver/duplicate.png" alt="All contexts" /></p>
 
-<p>If we fold over the <code>contextGraph(g)</code> rather than <code>g</code>, we get to see the whole graph from the perspective of each node. We can then write the <code>maxDegree</code> function like this:</p>
+<p>If we now fold over <code>contextGraph(g)</code> rather than <code>g</code>, we get to see the whole graph from the perspective of each node in turn. We can then write the <code>maxDegree</code> function like this:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
