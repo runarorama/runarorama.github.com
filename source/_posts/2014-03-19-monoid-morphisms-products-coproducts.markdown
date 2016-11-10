@@ -16,21 +16,23 @@ This post kind of fell together when writing notes on chapter 10, "Monoids", of 
 
 Let's take the `String` concatenation and `Int` addition as example monoids that have a relationship. Note that if we take the length of two strings and add them up, this is the same as concatenating those two strings and taking the length of the combined string:
 
-{% codeblock lang:scala %}
+``` scala
 (a.length + b.length) == (a + b).length
-{% endcodeblock %}
+```
 
 So every `String` maps to a corresponding `Int` (its length), and every concatenation of strings maps to the addition of corresponding lengths.
 
-The `length` function maps from `String` to `Int` _while preserving the monoid structure_. Such a function, that maps from one monoid to another in such a preserving way, is called a _monoid homomorphism_. In general, for monoids `M` and `N`, a homomorphism `f: M => N`, and all values `x:M`, `y:M`, the following law holds:
+The `length` function maps from `String` to `Int` _while preserving the monoid structure_. Such a function, that maps from one monoid to another in such a preserving way, is called a _monoid homomorphism_. In general, for monoids `M` and `N`, a homomorphism `f: M => N`, and all values `x:M`, `y:M`, the following equations hold:
 
-{% codeblock lang:scala %}
+``` scala
 f(x |+| y) == (f(x) |+| f(y))
-{% endcodeblock %}
 
-The `|+|` syntax is from [Scalaz](http://github.com/scalaz/scalaz) and is obtained by importing `scalaz.syntax.monoid._`. It just references the `append` method on the `Monoid[T]` instance, where `T` is the type of the arguments.
+f(mzero[M]) == mzero[N]
+```
 
-This law can have real practical benefits. Imagine for example a "result set" monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a `Set` of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.
+The `|+|` syntax is from [Scalaz](http://github.com/scalaz/scalaz) and is obtained by importing `scalaz.syntax.monoid._`. It just references the `append` method on the `Monoid[T]` instance, where `T` is the type of the arguments. The `mzero[T]` function is also from that same import and references `zero` in `Monoid[T]`.
+
+This _homomorphism law_ can have real practical benefits. Imagine for example a "result set" monoid that tracks the locations of a particular set of records in a database or file. This could be as simple as a `Set` of locations. Concatenating several thousand files and then proceeding to search through them is going to be much slower than searching through the files individually and then concatenating the result sets. Particularly since we can potentially search the files in parallel. A good automated test for our result set monoid would be that it admits a homomorphism from the data file monoid.
 
 ## Monoid isomorphisms ##
 
@@ -46,14 +48,14 @@ Note that there are monoids with homomorphisms in both directions between them t
 
 If `A` and `B` are monoids, then `(A,B)` is certainly a monoid, called their _product_:
 
-{% codeblock lang:scala %}
+``` scala
 def product[A:Monoid,B:Monoid]: Monoid[(A, B)] =
   new Monoid[(A, B)] {
     def append(x: (A, B), y: => (A, B)) =
       (x._1 |+| y._1, x._2 |+| y._2)
     val zero = (mzero[A], mzero[B])
   }
-{% endcodeblock %}
+```
 
 But is there such a thing as a monoid _coproduct_? Could we just use `Either[A,B]` for monoids `A` and `B`? What would be the `zero` of such a monoid? And what would be the value of `Left(a) |+| Right(b)`? We could certainly choose an arbitrary rule, and we may even be able to satisfy the monoid laws, but would that mean we have a _monoid coproduct_?
 
@@ -69,251 +71,138 @@ A _coproduct_ `W` of two monoids `A` and `B` is the same except the arrows are r
 
 We can easily show that our `productMonoid` above really is a monoid product. The homomorphisms are the methods `_1` and `_2` on `Tuple2`. They simply map every element of `(A,B)` to a corresponding element in `A` and `B`. The monoid structure is preserved because:
 
-{% codeblock lang:scala %}
+``` scala
 (p |+| q)._1 == (p._1 |+| q._1)
 (p |+| q)._2 == (p._2 |+| q._2)
-{% endcodeblock %}
+
+zero[(A,B)]._1 == zero[A]
+zero[(A,B)]._2 == zero[B]
+```
 
 And for any other monoid `Z`, and morphisms `f: Z => A` and `g: Z => B`, we can construct a unique morphism from `Z` to `(A,B)`:
 
-{% codeblock lang:scala %}
+``` scala
 def factor[A:Monoid,B:Monoid,Z:Monoid](z: Z)(f: Z => A, g: Z => B): (A, B) =
   (f(z), g(z))
-{% endcodeblock %}
+```
 
 And this really is a homomorphism because we just inherit the homomorphism law from `f` and `g`.
 
 What does a coproduct then look like? Well, it's going to be a type `C[A,B]` together with an instance `coproduct[A:Monoid,B:Monoid]:Monoid[C[A,B]]`. It will be equipped with two monoid homomorphisms, `left: A => C[A,B]` and `right: B => C[A,B]` that satisfy the following (according to the monoid homomorphism law):
 
-{% codeblock lang:scala %}
+``` scala
 (left(a1) |+| left(a2)) == left(a1 |+| a2)
 (right(b1) |+| right(b2)) == right(b1 |+| b2)
-{% endcodeblock %}
+
+left[A,B](mzero[A]) == mzero[C[A,B]]
+right[A,B](mzero[B]) == mzero[C[A,B]]
+```
 
 And additionally, for any other monoid `Z` and homomorphisms `f: A => Z` and `g: B => Z` we must be able to construct a unique homomorphism from `C[A,B]` to `Z`:
 
-{% codeblock lang:scala %}
+``` scala
 def fold[A:Monoid,B:Monoid,Z:Monoid](c: C[A,B])(f: A => Z, g: B => Z): Z
-{% endcodeblock %}
+```
 
-
-### The simplest thing that could possibly work ###
-
-We can simply come up with a data structure required for the coproduct to satisfy a monoid. We will start with two constructors, one for the left side, and another for the right side:
-
-{% codeblock lang:scala %}
-sealed trait These[+A,+B]
-case class This[A](a: A) extends These[A,Nothing]
-case class That[B](b: B) extends These[Nothing,B]
-{% endcodeblock %}
-
-This certainly allows an embedding of both monoids `A` and `B`. But `These` is now basically `Either`, which we know doesn't quite form a monoid. What's needed is a `zero`, and a way of appending an `A` to a `B`. The simplest way to do that is to add a product constructor to `These`:
-
-{% codeblock lang:scala %}
-case class Both[A,B](a: A, b: B) extends These[A,B]
-{% endcodeblock %}
-
-Now `These[A,B]` is a monoid as long as `A` and `B` are monoids:
-
-{% codeblock lang:scala %}
-def coproduct[A:Monoid,B:Monoid]: Monoid[These[A, B]] =
-  new Monoid[These[A, B]] {
-    def append(x: These[A, B], y: These[A, B]) = (x, y) match {
-      case (This(a1), This(a2)) => This(a1 |+| a2)
-      case (That(b1), That(b2)) => That(b1 |+| b2)
-      case (That(b), This(a)) => Both(a, b)
-      case (This(a), That(b)) => Both(a, b)
-      case (Both(a1, b), This(a)) => Both(a1 |+| a, b)
-      case (Both(a, b1), That(b)) => Both(a, b1 |+| b)
-      case (This(a1), Both(a, b)) => Both(a1 |+| a, b)
-      case (That(b), Both(a, b1)) => Both(a, b1 |+| b)
-      case (Both(a1, b1), Both(a2, b2)) => Both(a1 |+| a2, b1 |+| b2)
-    }
-    val zero = Both(A.zero, B.zero)
-  }
-{% endcodeblock %}
-
-`These[A,B]` is the smallest monoid that contains both `A` and `B` as submonoids (the `This` and `That` constructors, respectively) and admits a homomorphism from both `A` and `B`. And notice that we simply added the least amount of structure possible to make `These[A,B]` a monoid (the `Both` constructor). But is it really a coproduct?
-
-First we must prove that `This` and `That` really are homomorphisms. We need to prove the following two properties:
-
-{% codeblock lang:scala %}
-(This(a1) |+| This(a2)) == This(a1 |+| a2)
-(That(b1) |+| That(b2)) == That(b1 |+| b2)
-{% endcodeblock %}
-
-That's easy. The first two cases of the `append` method on the `coproduct` monoid prove these properties.
-
-But can we define `fold`? Yes we can:
-
-{% codeblock lang:scala %}
-def fold[A:Monoid,B:Monoid,Z:Monoid](
-  these: These[A,B])(f: A => Z, g: B => Z): Z =
-    these match {
-      case This(a) => f(a)
-      case That(b) => g(b)
-      case Both(a, b) => f(a) |+| g(b)
-    }
-{% endcodeblock %}
-
-But is `fold` really a homomorphism? Let's not assume that it is, but test it out.Here's the homomorphism law:
-
-{% codeblock lang:scala %}
-fold(f,g)(t1 |+| t2) == fold(f,g)(t1) |+| fold(f,g)(t2)
-{% endcodeblock %}
-
-What happens if both `t1` or `t2` are `This` or `That`?
-
-{% codeblock lang:scala %}
-fold(f,g)(This(a1) |+| This(a2)) ==
-fold(f,g)(This(a1)) |+| fold(f, g)(This(a2))
-
-f(a1) |+| f(a2) == f(a1) |+| f(a2)
-{% endcodeblock %}
-
-That holds. But what if we introduce a `Both` on one side?
-
-{% codeblock lang:scala %}
-fold(f,g)(This(a1) |+| Both(a2, b)) ==
-fold(f,g)(This(a1)) |+| fold(f,g)(Both(a2,b))
-
-f(a1 |+| a2) |+| g(b) == f(a1) |+| f(a2) |+| g(b)
-{% endcodeblock %}
-
-So far so good. That holds because of associativity. What about the other side?
-
-{% codeblock lang:scala %}
-fold(f,g)(That(b1) |+| Both(a, b2)) ==
-fold(f,g)(That(b1)) |+| fold(f,g)(Both(a,b2))
-
-f(a) |+| g(b1 |+| b2) == g(b1) |+| f(a) |+| g(b2)
-{% endcodeblock %}
-
-No! Something has gone wrong. This will only hold if the `Z` monoid is commutative. So in general, `These[A,B]` is not the coproduct of `A` and `B`. My error was in the `Both` constructor, which commutes all `B` values to the right and all `A` values to the left.
-
-So what kind of thing would work? It would have to solve this case:
-
-{% codeblock lang:scala %}
-  case (Both(a1, b1), Both(a2, b2)) => ???
-{% endcodeblock %}
-
-We need to preserve that `a1`, `b1`, `a2`, and `b2` appear _in that order_. So clearly the coproduct will be some kind of list!
-
-We could modify the `Both` constructor this way:
-
-{% codeblock lang:scala %}
-case class Both[A,B](a: These[A,B], b: These[A,B]) extends These[A,B]
-{% endcodeblock %}
-
-And let's add an empty case for the combined zero:
-
-{% codeblock lang:scala %}
-case class Neither[A,B]() extends These[A,B]
-{% endcodeblock %}
-
-
-In which case `These[A,B]` has become a kind of tree, or an unbalanced list of `This[A]` and `That[B]` values. A _free product_ of the two monoids `A` and `B`. The implementation of `append` for the `coproduct` monoid could be:
-
-{% codeblock lang:scala %}
-def coproduct[A:Monoid,B:Monoid]: Monoid[These[A, B]] =
-  new Monoid[These[A, B]] {
-    def append(x: These[A, B], y: These[A, B]) = (x, y) match {
-      case (Neither(), _) => y
-      case (_, Neither()) => x
-      case (This(a1), This(a2)) => This(a1 |+| a2)
-      case (That(b1), That(b2)) => That(b1 |+| b2)
-      case (This(a1), Both(This(a2), z)) => Both(This(a1 |+| a2), z)
-      case (That(b1), Both(That(b2), z)) => Both(That(b1 |+| b2), z)
-      case (Both(z, This(a1)), This(a2)) => Both(z, This(a1 |+| a2))
-      case (Both(z, That(b1)), That(b2)) => Both(z, That(b1 |+| b2))
-      case _ => Both(x, y)
-    }
-    val zero = Neither[A,B]()
-  }
-{% endcodeblock %}
-
-This `append` normalizes the list so that consecutive values of the same type are added together.
-
-And we would modify `fold` to recurse over the tree:
-
-{% codeblock lang:scala %}
-def fold[Z:Monoid](these: These[A,B])(f: A => Z, g: B => Z): Z =
-  these match {
-    case Neither() => mzero[Z]
-    case This(a) => f(a)
-    case That(b) => g(b)
-    case Both(a, b) => fold(a)(f, g) |+| fold(b)(f, g)
-  }
-{% endcodeblock %}
-
-This is now a homomorphism! We already know that this is so for the `This` and `That` cases. And now that the `Both` case simply appeals to the inductive hypothesis, we know that it holds for `Both` as well.
-
+Right off the bat, we know some things that _definitely won't work_. Just using `Either` is a non-starter because there's no well-defined `zero` for it, and there's no way of appending a `Left` to a `Right`. But what if we just added that structure?
 
 ### Free monoids on coproducts ###
-
-To better understand what's going on, let's try going the other way. What if we start with the coproduct of the underlying sets and get a free monoid from there?
 
 The underlying set of a monoid `A` is just the type `A` without the monoid structure. The coproduct of types `A` and `B` is the type `Either[A,B]`. Having "forgotten" the monoid structure of both `A` and `B`, we can recover it by generating a free monoid on `Either[A,B]`, which is just `List[Either[A,B]]`. The `append` operation of this monoid is list concatenation, and the identity for it is the empty list.
 
 Clearly `List[Either[A,B]]` is a monoid, but does it permit a homomorphism from both monoids `A` and `B`? If so, then the following properties should hold:
 
-{% codeblock lang:scala %}
+``` scala
 List(Left(a1)) ++ List(Left(a2))) == List(Left(a1 |+| a2))
 List(Right(b1)) ++ List(Right(b2))) == List(Right(b1 |+| b2))
-{% endcodeblock %}
+```
 
 They clearly do not hold! The lists on the left of `==` will have two elements and the lists on the right will have one element. Can we do something about this?
 
-Well, the fact is that `List[Either[A,B]]` is not exactly the monoid coproduct of `A` and `B`. It's "too big" in a sense. But if we were to reduce the list to a normal form that approximates a "free product", we can get a coproduct that matches our definition above. What we need is a new monoid:
+Well, the fact is that `List[Either[A,B]]` is not exactly the monoid coproduct of `A` and `B`. It's still "too big". The problem is that we can observe the internal structure of expressions.
 
-{% codeblock lang:scala %}
-sealed class Eithers[A,B](val toList: List[Either[A,B]]) {
-  def ++(p: Eithers[A,B]): Eithers[A,B] =
-    Eithers(toList ++ p.toList)
+What we need is not exactly the `List` monoid, but a new monoid called the _free monoid product_:
+
+``` scala
+sealed class Eithers[A:Monoid,B:Monoid](
+  private val toList: List[Either[A,B]]) {
+
+    def ++(p: Eithers[A,B]): Eithers[A,B] =
+      Eithers(toList ++ p.toList)
+
+    def fold[Z:Monoid](f: A => Z, g: B => Z): Z =
+      toList.foldRight(mzero[Z]) {
+        case (Left(a), z) => f(a) |+| z
+        case (Right(b), z) => g(b) |+| z
+      }
 }
 
 object Eithers {
+  def left[A:Monoid,B:Monoid](a: A): Eithers[A,B] =
+    Eithers(List(Left(a)))
+  def right[A:Monoid,B:Monoid](b: B): Eithers[A,B] =
+    Eithers(List(Right(b)))
+
+  def empty[A:Monoid,B:Monoid]: Eithers[A,B] = new Eithers(Nil)
+  
   def apply[A:Monoid,B:Monoid](xs: List[Either[A,B]]): Eithers[A,B] =
-    xs.foldRight(List[Either[A,B]]()) {
+    new Eithers(xs.foldRight(List[Either[A,B]]()) {
       case (Left(a1), Left(a2) :: xs) => Left(a1 |+| a2) :: xs
       case (Right(b1), Right(b2) :: xs) => Right(b1 |+| b2) :: xs
       case (e, xs) => e :: xs
-    }
-  def empty[A,B]: Eithers[A,B] = new Eithers(Nil)
+    })
 }
-{% endcodeblock %}
+```
 
 `Eithers[A,B]` is a kind of `List[Either[A,B]]` that has been normalized so that consecutive `A`s and consecutive `B`s have been collapsed using their respective monoids. So it will contain alternating `A` and `B` values.
 
-This is now a monoid coproduct because it permits monoid homomorphisms from `A` and `B`:
+The only remaining problem is that a list full of identities is not exactly the same as the empty list. Remember the unit part of the homomorphism law:
 
-{% codeblock lang:scala %}
+``` scala
+Eithers(List(Left(mzero))) == Eithers.empty
+Eithers(List(Right(mzero))) == Eithers.empty
+```
+
+This doesn't hold at the moment. As Cale Gibbard points out in the comments below, `Eithers` is really the free monoid on the coproduct of _semigroups_ `A` and `B`.
+
+We could check each element as part of the normalization step to see if it `equals(zero)` for the given monoid. But that's a problem, as there are lots of monoids for which we can't write an `equals` method. For example, for the `Int => Int` monoid (with composition), we must make use of a notion like extensional equality, which we can't reasonably write in Scala.
+
+So what we have to do is sort of wave our hands and say that equality on `Eithers[A,B]` is defined as whatever notion of equality we have for `A` and `B` respectively, with the rule that `es.fold[(A,B)]` defines the equality of `Eithers[A,B]`. For example, for monoids that really can have `Equal` instances:
+
+``` scala
+def eithersEqual[A:Monoid:Equal,B:Monoid:Equal] =
+  new Equal[Eithers[A,B]] {
+    def equal(xs: Eithers[A,B], ys: Eithers[A,B]) = {
+      def le(a: A): (A,B) = (a, mzero[B])
+      def ri(b: B): (A,B) = (mzero[A], b)
+      def z(es: Eithers[A,B]): (A,B) =
+        es.fold(le, ri)(Monoid[(A,B)])
+      
+      z(xs) === z(ys)
+    }
+  }
+```
+
+So we have to settle with a list full of zeroes being "morally equivalent" to an empty list. The difference is observable in e.g. the time it takes to traverse the list.
+
+Setting that issue aside, `Eithers` is a monoid coproduct because it permits monoid homomorphisms from `A` and `B`:
+
+``` scala
 Eithers(List(Left(a1))) ++ Eithers(List(Left(a2)))) ==
   Eithers(List(Left(a1 |+| a2)))
 Eithers(List(Right(b1))) ++ Eithers(List(Right(b2)))) ==
   Eithers(List(Right(b1 |+| b2)))
-{% endcodeblock %}
+```
 
-And we can implement the `fold` homomorphism:
+And `fold` really is a homomorphism, and we can prove it by case analysis. Here's the law again:
 
-{% codeblock lang:scala %}
-def fold[A:Monoid,B:Monoid,Z:Monoid](
-  es: Eithers[A,B])(f: A => Z, g: B => Z): Z =
-    es.toList.foldRight(mzero[Z]) {
-      case (Left(a), z) => f(a) |+| z
-      case (Right(b), z) => g(b) |+| z
-    }
-{% endcodeblock %}
-
-And this time `fold` really is a homomorphism, and we can prove it by case analysis. Here's the law again:
-
-{% codeblock lang:scala %}
-(fold(e1)(f,g) |+| fold(e2)(f,g)) == fold(e1 ++ e2)(f,g)
-{% endcodeblock %}
+``` scala
+(e1.fold(f,g) |+| e2.fold(f,g)) == (e1 ++ e2).fold(f,g)
+```
 
 If either of `e1` or `e2` is empty then the result is the fold of the other, so those cases are trivial. If they are both nonempty, then they will have one of these forms:
 
-{% codeblock lang:scala %}
+``` scala
 e1 = [..., Left(a1)]
 e2 = [Left(a2), ...]
 
@@ -325,22 +214,7 @@ e2 = [Right(b), ...]
 
 e1 = [..., Right(b)]
 e2 = [Left(a), ...]
-{% endcodeblock %}
+```
 
-In the first two cases, on the right of the `==` sign in the law, we perform `a1 |+| a2` and `b1 |+| b2` respectively before concatenating. In the other two cases we simply concatenate the lists. The `++` method on `Eithers` takes care of doing this correctly for us. On the left of the `==` sign we fold the lists individually and they will be alternating applications of `f` and `g`. So then this law amounts to the fact that `f(a1 |+| a2) == f(a1) |+| f(a2)` in the first case, and the same for `g` in the second case. In the latter two cases this amounts to a homomorphism on `List`. So as long as `f` and `g` are homomorphisms, so is `fold(_)(f,g)`. Therefore, `Eithers[A,B]` really is a coproduct of `A` and `B`.
-
-Since we have already convinced ourselves that `These` is a monoid coproduct, we could also simply show that there is a homomorphism from `Eithers` to `These`:
-
-{% codeblock lang:scala %}
-def toThese[A:Monoid,B:Monoid](es: Eithers[A,B]): These[A,B] =
-  es match {
-    case Nil => Neither()
-    case Left(a) :: t => This(a) |+| toThese(t)
-    case Right(b) :: t => That(b) |+| toThese(t)
-  }
-{% endcodeblock %}
-
-Which would amount to proving that `(toThese(xs) |+| toThese(ys))` = `toThese(xs ++ ys)`.
-
-The lesson learned here is to check assumptions and test against laws. Things are not always as straightforward as they seem.
+In the first two cases, on the right of the `==` sign in the law, we perform `a1 |+| a2` and `b1 |+| b2` respectively before concatenating. In the other two cases we simply concatenate the lists. The `++` method on `Eithers` takes care of doing this correctly for us. On the left of the `==` sign we fold the lists individually and they will be alternating applications of `f` and `g`. So then this law amounts to the fact that `f(a1 |+| a2) == f(a1) |+| f(a2)` in the first case, and the same for `g` in the second case. In the latter two cases this amounts to a homomorphism on `List`. So as long as `f` and `g` are homomorphisms, so is `_.fold(f,g)`. Therefore, `Eithers[A,B]` is a coproduct of `A` and `B`.
 

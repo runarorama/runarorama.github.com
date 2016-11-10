@@ -52,7 +52,7 @@ What this is doing is a kind of lazy I/O. Nothing is read from the file until it
 
 ## The Idea ##
 
-Any red-blooded functional programmer should be thinking right about now: “Instead of getting Strings out of the file, just pass in a function that will serve as a handler for each new line!” Bingo. This is in fact the plot with Iteratees. Instead of implementing an interface from which we request Strings by pulling, we’re going to give an implementation of an interface that can receive Strings by pushing.
+Any functional programmer worth their salt should be thinking right about now: “Instead of getting Strings out of the file, just pass in a function that will serve as a handler for each new line!” Bingo. This is in fact the plot with Iteratees. Instead of implementing an interface from which we request Strings by pulling, we’re going to give an implementation of an interface that can receive Strings by pushing.
 
 And indeed, this idea is nothing new. This is exactly what we do when we fold a list:
 
