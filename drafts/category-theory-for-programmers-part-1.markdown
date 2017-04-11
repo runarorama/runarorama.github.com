@@ -12,25 +12,23 @@ This post is the first in what's going to be a series on category theory, from t
 
 As programmers, we're really comfortable with abstraction. Whenever we see a repeated pattern in our programs, we like to capture the idea of the pattern in an abstract interface, template, or framework. This lets us leave out implementation details that are irrelevant to the essence of the idea.
 
-TODO: Insert example of abstraction here.
-
-But even in this process of abstraction, there are patterns. What if we could capture those patterns in interfaces, and have a _framework for abstraction_ itself? This is what category theory gives us. It lets us talk about programming in a very abstract and precise way (a major theme in this series will be that abstraction and precision aren't opposites, but the same).
+But even in this process of abstraction, there are patterns. What if we could capture those patterns in interfaces, and have a _framework for abstraction_ itself? This is what category theory gives us. It lets us talk about programming in a very abstract and precise way. A major theme of category theory is that abstraction and precision are the same.
 
 ## What is category theory exactly?
 
-Category theory is the study of _categories_. To begin, we're going to look at a category that we're all familiar with as programmers: _the category of programs_.
+Category theory is the study of _categories_. To begin, we're going to look at a category that we're all familiar with as programmers: _a category of programs_.
 
 ### The category of types and functions
 
-Each expression or value in a programming language like Scala, or Java, or Haskell, has a _type_. We have types like `Int`, `Bool`, `List[String]`, and the like.
+Each expression or value in a programming language like Scala, or Java, or Haskell, has a _type_. We have types like `Int`, `Bool`, `[String]`, and the like.
 
-More importantly, we have _functions_. A function has a type like `A => B`, which means it takes a value of type `A` and computes a value of type `B`.
+More importantly, we have _functions_. A function has a type like `a -> b`, which means it takes a value of type `a` and computes a value of type `b`.
 
 We can imagine drawing a diagram where the types in our language are points, and the functions are arrows between them.
 
 TODO: Insert image of the type category
 
-Functions also _compose_. That is, for any two functions `f: B => C` and `g: A => B`, we can get a composite function `compose(f,g) : A => C`.
+Functions also _compose_. That is, for any two functions `f :: b -> c` and `g :: a -> b`, we can get a composite function `f . g :: a -> c`.
 
 ``` scala
 def compose[A,B,C](f: B => C, g: A => B): A => C =

@@ -35,7 +35,7 @@ def counit[A:Monoid](as: List[A]): A =
   as.foldRight(Monoid[A].zero)(Monoid[A].append)
 ```
 
-If we send the `counit` for this comonad over to the _Set_ category, we get the `join` for our monad:
+If we apply the `counit` for this comonad to the free monoid, we get the `join` for our monad:
 
 ``` scala
 def join[A](as: List[List[A]]): List[A] = counit(as)
