@@ -445,7 +445,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If we send the <code>counit</code> for this comonad over to the <em>Set</em> category, we get the <code>join</code> for our monad:</p>
+<p>If we apply the <code>counit</code> for this comonad to the free monoid, we get the <code>join</code> for our monad:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">join</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">as</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]])</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="n">counit</span><span class="o">(</span><span class="n">as</span><span class="o">)</span>
@@ -2255,7 +2255,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 - Rúnar Bjarnason -
+  Copyright &copy; 2017 - Rúnar Bjarnason -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
