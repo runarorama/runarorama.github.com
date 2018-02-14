@@ -4,7 +4,7 @@
   <title><![CDATA[Category: scala | Higher Order]]></title>
   <link href="http://runarorama.github.com/blog/categories/scala/atom.xml" rel="self"/>
   <link href="http://runarorama.github.com/"/>
-  <updated>2017-11-18T09:58:27-08:00</updated>
+  <updated>2018-02-13T22:04:27-05:00</updated>
   <id>http://runarorama.github.com/</id>
   <author>
     <name><![CDATA[Rúnar Bjarnason]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[A comonad of graph decompositions]]></title>
     <link href="http://runarorama.github.com/blog/2016/04/02/a-comonad-of-graph-decompositions/"/>
-    <updated>2016-04-02T10:02:54-07:00</updated>
+    <updated>2016-04-02T13:02:54-04:00</updated>
     <id>http://runarorama.github.com/blog/2016/04/02/a-comonad-of-graph-decompositions</id>
     <content type="html"><![CDATA[<p>I want to talk about a comonad that came up at <a href="http://innovation.verizon.com/">work</a> the other day. Actually, two of them, as the data structure in question is a comonad in at least two ways, and the issue that came up is related to the difference between those two comonads.</p>
 
